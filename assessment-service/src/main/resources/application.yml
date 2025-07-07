@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: assessment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/levelup_assessment_db
+    username: postgres
+    password: <your_password_here>
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: localhost
