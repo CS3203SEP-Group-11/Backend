@@ -5,6 +5,20 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/levelup_user_db
       database: levelup_user
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 871057502376-c03kvdlv2d9i0h9nvifturnogaha4g82.apps.googleusercontent.com
+            client-secret: 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
+            scope: profile, email
+#            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            redirect-uri: "http://localhost:8081/login/oauth2/code/google"
+
+jwt:
+  jwtSecret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+  jwtExpirationMs: 3600000 # 1 hour
 
 server:
   port: 8081
