@@ -15,10 +15,10 @@ spring:
             scope: profile, email
 #            redirect-uri: "{baseUrl}/login/oauth2/code/google"
             redirect-uri: "http://localhost:8081/login/oauth2/code/google"
-
-jwt:
-  jwtSecret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
-  jwtExpirationMs: 3600000 # 1 hour
+      resourceserver:
+        jwt:
+          secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+          jwtExpirationMs: 3600000 # 1 hour
 
 server:
   port: 8081
