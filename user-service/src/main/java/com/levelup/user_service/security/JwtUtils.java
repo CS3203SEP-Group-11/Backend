@@ -14,10 +14,10 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.jwtSecret}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.jwtExpirationMs}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {
