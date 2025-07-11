@@ -1,6 +1,12 @@
 spring:
   application:
     name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+
   cloud:
     gateway:
       server:
@@ -9,7 +15,7 @@ spring:
             - id: user-service
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/users/**
+                - Path=/api/auth/**, /api/users/**
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:
