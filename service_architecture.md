@@ -103,6 +103,11 @@ course_enrollments
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
+```
+
+### progress tracking service
+```json
+
 
 lesson_progress
 {
@@ -124,6 +129,23 @@ lesson_progress
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
+
+overall_progress
+{
+  "id": "UUID",                         // Unique identifier for this progress record
+  "user_id": "String",                  // User's ID
+  "course_id": "UUID",                  // Reference to the course
+  "lessons_completed": "Integer",       // Number of lessons completed
+  "total_lessons": "Integer",           // Total lessons in the course
+  "quizzes_completed": "Integer",       // Number of quizzes completed
+  "total_quizzes": "Integer",           // Total quizzes in the course
+  "percent_complete": "Integer",        // Completion percentage (0-100)
+  "status": "Enum('IN_PROGRESS', 'COMPLETED')", // Current status
+  "last_updated": "Timestamp",          // Last update time
+  "completed_at": "Timestamp|null"       // Completion date/time if completed, otherwise null
+}
+
+
 ```
 
 ## Quiz & Assessment Service
