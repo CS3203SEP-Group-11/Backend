@@ -1,15 +1,25 @@
 spring:
   application:
     name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+
   cloud:
     gateway:
       server:
         webflux:
           routes:
+            - id: auth-service
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/api/auth/**, /oauth2/**, /login/oauth2/**
             - id: user-service
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/users/**
+                - Path=/api/users/**, /api/instructors/**,
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:
