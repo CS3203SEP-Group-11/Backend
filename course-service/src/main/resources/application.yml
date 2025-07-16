@@ -6,6 +6,7 @@ spring:
       uri: mongodb://localhost:27017/levelup_course_db
       database: levelup_course
 
+
 server:
   port: 8082
 

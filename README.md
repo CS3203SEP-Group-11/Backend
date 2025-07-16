@@ -28,5 +28,5 @@
 
 1. Config Server *(don't use this yet)*
 2. Eureka Server
-3. API Gateway *(don't use this yet)*
+3. API Gateway
 4. Other services (User, Course, Assessment)
