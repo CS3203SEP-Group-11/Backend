@@ -1,6 +1,5 @@
-package com.levelup.user_service.dto;
+package com.levelup.auth_service.dto;
 
-import com.levelup.user_service.model.Role;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,3 +17,4 @@ public class UserDTO {
     private Date dateOfBirth;
     private String languagePreference;
 }
+

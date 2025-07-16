@@ -1,6 +1,7 @@
-package com.levelup.user_service.security;
+package com.levelup.auth_service.security;
 
-import com.levelup.user_service.model.User;
+import com.levelup.auth_service.dto.Role;
+import com.levelup.auth_service.dto.UserDTO;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,13 +25,11 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateJwtToken(User user) {
+    public String generateJwtToken(String userId, String email, Role role) {
         return Jwts.builder()
-                .setSubject(user.getId())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
-                .claim("firstName", user.getFirstName())
-                .claim("lastName", user.getLastName())
+                .setSubject(userId)
+                .claim("email", email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
