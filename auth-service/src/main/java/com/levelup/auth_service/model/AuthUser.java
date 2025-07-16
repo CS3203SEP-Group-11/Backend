@@ -1,9 +1,8 @@
-package com.levelup.user_service.model;
+package com.levelup.auth_service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,35 +13,28 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.Date;
+import java.util.UUID;
 
-@Document(collection = "users")
+@Document(collection = "auth_users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class AuthUser {
     @Id
-    private String id;
-
-    @NotBlank
-    private String firstName;
-
-    @NotBlank
-    private String lastName;
+    String userId = UUID.randomUUID().toString();
 
     @NotBlank
     @Email
     private String email;
 
-    private String profileImageUrl;
+    private Boolean emailVerified;
 
-    private Role role;
+    @JsonIgnore
+    private String password;
 
-    @Past
-    private Date dateOfBirth;
-
-    private String languagePreference;
+    private AuthProvider authProvider;
+    private String googleId;
 
     @CreatedDate
     private Instant createdAt;
@@ -50,3 +42,4 @@ public class User {
     @LastModifiedDate
     private Instant updatedAt;
 }
+

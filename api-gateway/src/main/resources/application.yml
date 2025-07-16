@@ -12,10 +12,14 @@ spring:
       server:
         webflux:
           routes:
+            - id: auth-service
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/api/auth/**, /oauth2/**, /login/oauth2/**
             - id: user-service
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/auth/**, /api/users/**, /api/instructors/**
+                - Path=/api/users/**, /api/instructors/**,
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:

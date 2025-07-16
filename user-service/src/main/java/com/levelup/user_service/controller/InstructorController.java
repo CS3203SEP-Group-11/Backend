@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api/instructors")
 @RequiredArgsConstructor
 @Slf4j
-
 public class InstructorController {
 
     private final InstructorService instructorService;

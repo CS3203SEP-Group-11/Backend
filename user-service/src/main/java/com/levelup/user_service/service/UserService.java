@@ -78,11 +78,26 @@ public class UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .emailVerified(user.getEmailVerified())
                 .profileImageUrl(user.getProfileImageUrl())
                 .role(user.getRole())
                 .dateOfBirth(user.getDateOfBirth())
                 .languagePreference(user.getLanguagePreference())
                 .build();
+    }
+
+    public UserDTO createUser(UserDTO userDTO) {
+        User user = User.builder()
+                .id(userDTO.getId())
+                .firstName(userDTO.getFirstName())
+                .lastName(userDTO.getLastName())
+                .email(userDTO.getEmail())
+                .profileImageUrl(userDTO.getProfileImageUrl())
+                .role(userDTO.getRole())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .languagePreference(userDTO.getLanguagePreference())
+                .build();
+
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
     }
 }
