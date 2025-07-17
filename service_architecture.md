@@ -1,36 +1,62 @@
 ## Gateway Service
 - API gateway for routing requests to appropriate services
 
-## User Service
-- User registration, authentication, profile management
+## Auth Service
+- User authentication, authorization
+- OAuth2 support (Google)
 - Database: `mongoDB` (for flexible user profiles)
 
 ### Database Schema
+
+```json
+auth_users
+{
+  "_id": "f6e12b8e-d946-4e22-9502-d9c8e7e1c9f2", // UUID
+  "email": "john@example.com",
+  "password": "$2a$10$PzW1XgZ...", // bcrypt hashed
+  "authProvider": "Enum('local', 'google')", // local - email/password, google - OAuth2
+  "googleId": "String|null", // Google OAuth ID if applicable
+  "emailVerified": "Boolean",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}
+```
+
+## User Service
+
+- User management
+- Database: `mongoDB` (for flexible user profiles)
+
+### Database Schema
+
 ```json
 users
 {
   "id": "UUID",
-  "first_name": "String",
-  "last_name": "String",
+  "firstName": "String",
+  "lastName": "String",
   "email": "String",
-  "email_verified": "Boolean",
-  "password_hash": "String",
-  "profile_image_url": "String",
+  "profileImageUrl": "String",
   "role": "Enum('student', 'instructor', 'admin')",
-  "date_of_birth": "Date",
-  "language_preference": "String",
-  "created_at": "Timestamp",
-  "updated_at": "Timestamp"
+  "dateOfBirth": "Date",
+  "languagePreference": "String",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 
 instructors
 {
   "id": "UUID",
-  "user_id": "UUID (Reference to users.id)",
+  "userId": "UUID (Reference to users.id)",
   "bio": "String",
   "expertise":  ["String"],
-  "created_at": "Timestamp",
-  "updated_at": "Timestamp"
+  "contactDetails": {
+    "email": "String",
+    "linkedin": "String|null",
+    "website": "String|null"
+  },
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 ```
 
