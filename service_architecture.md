@@ -170,112 +170,73 @@ overall_progress
   "last_updated": "Timestamp",          // Last update time
   "completed_at": "Timestamp|null"       // Completion date/time if completed, otherwise null
 }
-
-
 ```
 
-## Quiz & Assessment Service
+## Assessment Service
+
 - Quizzes, grading
 - Database: `PostgreSQL`
 
 ### Database Schema
+
 ```json
 quizzes (MCQ type)
 {
   "id": "UUID",
-  "lesson_id": "UUID (Reference to lessons.id)",
+  "lessonId": "UUID (Reference to lessons.id)",
   "title": "String",
   "description": "String",
-  "passing_score": "Decimal",
-  "question_count": "Integer",
-  "time_limit": "INTEGER", // in minutes
-  "attempt_limit": "INTEGER",
-  "created_at": "Timestamp",
-  "updated_at": "Timestamp"
+  "passingScore": "Decimal",
+  "timeLimit": "INTEGER", // in minutes
+  "attemptLimit": "INTEGER",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 
 quiz_questions
 {
-  "id": "UUID",                        // Unique identifier for the question
-  "quiz_id": "UUID",                   // Reference to the quiz
-  "type": "Enum('MULTIPLE_CHOICE', 'TRUE_FALSE', 'FILL_BLANK', 'MATCHING', ...)", // Question type
-  "question_text": "String",           // The question prompt
-  "options": [                        // List of options for multiple-choice questions
-    {
-      "option": "String",
-      "is_correct": "Boolean"
-    }
-  ],
-  "marks": "Integer",                   // Marks awarded for correct answer
-  "media": {                            // Optional media attachments
-    "image_url": "String|null",
-    "video_url": "String|null"
-  },
-  "difficulty": "Enum('EASY', 'MEDIUM', 'HARD')", // Difficulty level
-  "order": "Integer"                    // Display order within the quiz
+  "id": "UUID",
+  "quizId": "UUID (Reference to quizzes.id)",
+  "questionText": "String",
+  "order": "Integer", // Order of the question in the quiz
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 
-assignments
+quiz_options
 {
-  "id": "UUID",                        // Unique identifier for the assignment
-  "course_id": "UUID",                 // Reference to the course
-  "module_id": "UUID",                 // Reference to the module
-  "instructor_id": "String",           // Instructor ID
-  "title": "String",                   // Title of the assignment
-  "instructions": "String",            // Submission instructions
-  "due_date": "Timestamp",               // Due date for submission
-  "max_marks": "Integer",                 // Maximum marks achievable
-  "allow_late_submission": "Boolean",     // Whether late submissions are permitted
-  "created_at": "Timestamp"               // Creation timestamp
+  "id": "UUID",
+  "questionId": "UUID (Reference to quiz_questions.id)",
+  "optionText": "String",
+  "isCorrect": "Boolean", // Indicates if this option is the correct answer
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 
 quiz_attempts
 {
   "id": "UUID",
-  "user_id": "UUID (Reference to users.id)",
-  "quiz_or_assignment_id": "UUID", 
-  "type": "Enum('QUIZ', 'ASSIGNMENT')",  // Type of submission
-  "attempt_number": "Integer", // e.g., 1 for first attempt
+  "userId": "UUID (Reference to users.id)",
+  "quizId": "UUID (Reference to quizzes.id)",
+  "attemptNumber": "Integer", // e.g., 1 for first attempt
   "score": "Decimal",
-  "status": "Enum('SUBMITTED', 'GRADED', 'LATE', 'PENDING')", // Submission status
+  "status": "ENUM('passed', 'failed', 'inProgress')",
   "passed": "Boolean",
-  "answers": [                          // List of answers (for quizzes)
-    {
-      "question_id": "UUID",
-      "selected_options": ["String"],    // Selected options
-      "is_correct": "Boolean"             // Correctness flag
-    }
-  ],
-  "text_answer": "String|null",           // For written answers in assignments
-  "file_url": "String|null",               // For uploaded files in assignments
-  "started_at": "Timestamp",
-  "completed_at": "Timestamp",
-  "time_taken": "Integer", // Time taken in seconds
-  "created_at": "Timestamp",
+  "startedAt": "Timestamp",
+  "completedAt": "Timestamp",
+  "timeTaken": "Integer", // Time taken in seconds
+  "createdAt": "Timestamp",
 }
-  
+
 user_answers
 {
   "id": "UUID",
-  "attempt_id": "UUID (Reference to quiz_attempts.id)",
-  "question_id": "UUID (Reference to quiz_questions.id)",
-  "selected_option_id": "UUID|null", // Reference to quiz_options.id if applicable
-  "is_correct": "Boolean", // Indicates if the answer was correct
-  "created_at": "Timestamp",
-  "updated_at": "Timestamp"
-}
-
-
-grading (optional)
-{
-  "id": "UUID",                        // Unique identifier for the grading record
-  "submission_id": "UUID",             // Reference to the submission
-  "graded_by": "String",                 // Instructor ID who graded
-  "marks_obtained": "Integer",           // Marks obtained
-  "feedback": "String",                  // Feedback provided
-  "grading_date": "Timestamp",           // Date of grading
-  "grade_scale": "String|null",          // Grade scale (e.g., A, B, C), optional
-  "manual_grading": "Boolean"            // Indicates if grading was manual
+  "attemptId": "UUID (Reference to quiz_attempts.id)",
+  "questionId": "UUID (Reference to quiz_questions.id)",
+  "selectedOptionId": "UUID|null", // Reference to quiz_options.id if applicable
+  "isCorrect": "Boolean", // Indicates if the answer was correct
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 ```
 
