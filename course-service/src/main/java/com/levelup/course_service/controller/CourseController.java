@@ -17,8 +17,10 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<Course> createCourse(@RequestBody CourseDTO dto) {
-        return ResponseEntity.ok(courseService.createCourse(dto));
+    public ResponseEntity<Course> createCourse(
+            @RequestBody CourseDTO dto,
+            @RequestHeader("X-User-ID") String instructorId) {
+        return ResponseEntity.ok(courseService.createCourse(dto, instructorId));
     }
 
     @GetMapping
@@ -34,13 +36,18 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Course> updateCourse(@PathVariable String id, @RequestBody CourseDTO dto) {
-        return ResponseEntity.ok(courseService.updateCourse(id, dto));
+    public ResponseEntity<Course> updateCourse(
+            @PathVariable String id, 
+            @RequestBody CourseDTO dto,
+            @RequestHeader("X-User-ID") String instructorId) {
+        return ResponseEntity.ok(courseService.updateCourse(id, dto, instructorId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable String id) {
-        courseService.deleteCourse(id);
+    public ResponseEntity<Void> deleteCourse(
+            @PathVariable String id,
+            @RequestHeader("X-User-ID") String instructorId) {
+        courseService.deleteCourse(id, instructorId);
         return ResponseEntity.noContent().build();
     }
 }
