@@ -122,7 +122,6 @@ course_enrollments
   "enrollment_date": "Timestamp",
   "progress": {
     "completed_lessons": ["UUID"], // List of lesson IDs completed
-    "total_lessons": "Integer",
     "progress_percentage": "Decimal" // e.g., 75.5 for 75.5%
   },
   "status": "Enum('completed', 'in_progress')",
@@ -135,41 +134,41 @@ course_enrollments
 ```json
 
 
-lesson_progress
-{
-  "id": "UUID",
-  "user_id": "UUID (Reference to users.id)",
-  "lesson_id": "UUID (Reference to lessons.id)",
-  "course_id": "UUID (Reference to courses.id)",
-  "status": "Enum('not_started', 'in_progress', 'completed')",
-  "has_assessment": "Boolean", // Indicates if the lesson has an assessment
-  "assessment": {
-    "id": "UUID|null", // Reference to the assessment if exists
-    "score": "Decimal|null", // Score achieved in the assessment
-    "passed": "Boolean|null", // Indicates if the assessment was passed
-    "attempts": "Integer" // Number of attempts made
-  },
-  "is_completed": "Boolean",
-  "started_at": "Timestamp|null",
-  "completed_at": "Timestamp|null",
-  "created_at": "Timestamp",
-  "updated_at": "Timestamp"
-}
+// lesson_progress
+// {
+//   "id": "UUID",
+//   "user_id": "UUID (Reference to users.id)",
+//   "lesson_id": "UUID (Reference to lessons.id)",
+//   "course_id": "UUID (Reference to courses.id)",
+//   "status": "Enum('not_started', 'in_progress', 'completed')",
+//   "has_assessment": "Boolean", // Indicates if the lesson has an assessment
+//   "assessment": {
+//     "id": "UUID|null", // Reference to the assessment if exists
+//     "score": "Decimal|null", // Score achieved in the assessment
+//     "passed": "Boolean|null", // Indicates if the assessment was passed
+//     "attempts": "Integer" // Number of attempts made
+//   },
+//   "is_completed": "Boolean",
+//   "started_at": "Timestamp|null",
+//   "completed_at": "Timestamp|null",
+//   "created_at": "Timestamp",
+//   "updated_at": "Timestamp"
+// }
 
-overall_progress
-{
-  "id": "UUID",                         // Unique identifier for this progress record
-  "user_id": "String",                  // User's ID
-  "course_id": "UUID",                  // Reference to the course
-  "lessons_completed": "Integer",       // Number of lessons completed
-  "total_lessons": "Integer",           // Total lessons in the course
-  "quizzes_completed": "Integer",       // Number of quizzes completed
-  "total_quizzes": "Integer",           // Total quizzes in the course
-  "percent_complete": "Integer",        // Completion percentage (0-100)
-  "status": "Enum('IN_PROGRESS', 'COMPLETED')", // Current status
-  "last_updated": "Timestamp",          // Last update time
-  "completed_at": "Timestamp|null"       // Completion date/time if completed, otherwise null
-}
+// overall_progress
+// {
+//   "id": "UUID",                         // Unique identifier for this progress record
+//   "user_id": "String",                  // User's ID
+//   "course_id": "UUID",                  // Reference to the course
+//   "lessons_completed": "Integer",       // Number of lessons completed
+//   "total_lessons": "Integer",           // Total lessons in the course
+//   "quizzes_completed": "Integer",       // Number of quizzes completed
+//   "total_quizzes": "Integer",           // Total quizzes in the course
+//   "percent_complete": "Integer",        // Completion percentage (0-100)
+//   "status": "Enum('IN_PROGRESS', 'COMPLETED')", // Current status
+//   "last_updated": "Timestamp",          // Last update time
+//   "completed_at": "Timestamp|null"       // Completion date/time if completed, otherwise null
+// }
 ```
 
 ## Assessment Service
@@ -411,10 +410,6 @@ grace_period
   "status": "Enum('ACTIVE', 'EXPIRED')" // Current status
 }
 
-
-
-
-
 ```
 
 
@@ -550,7 +545,7 @@ preferences
 
 ```
 
-## Analytics Service (stage 2)
+<!-- ## Analytics Service (stage 2)
 - Reporting, dashboards, metrics
 - Database: `PostgreSQL`
 
@@ -583,7 +578,7 @@ course_analytics
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
-```
+``` -->
 
 ## Ai Service (stage 2)
 - AI-driven recommendations, chatbots
