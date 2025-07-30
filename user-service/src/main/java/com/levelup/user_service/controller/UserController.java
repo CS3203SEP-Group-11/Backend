@@ -4,6 +4,7 @@ import com.levelup.user_service.dto.UserDTO;
 import com.levelup.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,11 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("X-User-ID") String userId) {
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader(value = "X-User-ID", required = false) String userId) {
+
+        if (userId == null || userId.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
