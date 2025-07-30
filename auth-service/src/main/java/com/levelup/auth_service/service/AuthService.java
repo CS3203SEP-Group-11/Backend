@@ -1,16 +1,16 @@
 package com.levelup.auth_service.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.levelup.auth_service.dto.*;
 import com.levelup.auth_service.exception.*;
 import com.levelup.auth_service.model.AuthProvider;
 import com.levelup.auth_service.model.AuthUser;
 import com.levelup.auth_service.repository.AuthRepository;
-import com.levelup.auth_service.security.JwtUtils;
+import com.levelup.auth_service.security.GoogleTokenUtil;
+import com.levelup.auth_service.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +23,11 @@ public class AuthService {
 
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
+    private final JwtUtil jwtUtil;
     private final UserIntegrationService userIntegrationService;
+    private final GoogleTokenUtil googleTokenUtil;
 
-    public AuthResponse login(LoginRequest request) {
+    public String login(LoginRequest request) {
         AuthUser authUser = authRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -36,11 +37,11 @@ public class AuthService {
 
         UserDTO user = userIntegrationService.getUserById(authUser.getUserId());
 
-        return buildAuthResponse(authUser, user);
+        return jwtUtil.generateJwtToken(authUser.getUserId(), authUser.getEmail(), user.getRole());
     }
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public String register(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("Email already exists");
         }
@@ -68,73 +69,62 @@ public class AuthService {
             userIntegrationService.createUser(user);
         } catch (Exception ex) {
             authRepository.deleteById(authUser.getUserId());
-            throw new AuthException("User creation failed. Rolled back auth record.", ex);
+            throw new AuthException("User creation failed. Rolled back auth record.");
         }
 
-        return buildAuthResponse(authUser, user);
+        return jwtUtil.generateJwtToken(authUser.getUserId(), authUser.getEmail(), user.getRole());
     }
 
-    @Transactional
-    public AuthResponse processOAuth2Login(OAuth2AuthenticationToken authenticationToken) {
-        OAuth2User oAuth2User = authenticationToken.getPrincipal();
+    public String googleLogin(GoogleAuthRequest request) {
 
-        String email = oAuth2User.getAttribute("email");
-        String firstName = oAuth2User.getAttribute("given_name");
-        String lastName = oAuth2User.getAttribute("family_name");
-        String profileImageUrl = oAuth2User.getAttribute("picture");
-        String googleId = oAuth2User.getAttribute("sub");
+        GoogleIdToken.Payload payload = googleTokenUtil.getTokenPayload(request.getToken());
+        String email = payload.getEmail();
 
-        log.info("OAuth2 login user: {}", oAuth2User);
-
-        AuthUser authUser = authRepository.findByEmail(email).orElse(null);
-
-        if (authUser == null) {
-            authUser = AuthUser.builder()
-                    .email(email)
-                    .authProvider(AuthProvider.GOOGLE)
-                    .googleId(googleId)
-                    .emailVerified(true)
-                    .createdAt(Instant.now())
-                    .updatedAt(Instant.now())
-                    .build();
-
-            authUser = authRepository.save(authUser);
-        }
+        AuthUser authUser = authRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         UserDTO user = userIntegrationService.getUserById(authUser.getUserId());
 
-        if (user == null) {
-            user = UserDTO.builder()
-                    .id(authUser.getUserId())
-                    .email(email)
-                    .firstName(firstName)
-                    .lastName(lastName)
-                    .profileImageUrl(profileImageUrl)
-                    .role(Role.USER)
-                    .build();
-
-            try {
-                userIntegrationService.createUser(user);
-            } catch (Exception ex) {
-                authRepository.deleteById(authUser.getUserId());
-                throw new AuthException("User creation failed. Rolled back auth record.", ex);
-            }
-        }
-
-        return buildAuthResponse(authUser, user);
+        return jwtUtil.generateJwtToken(authUser.getUserId(), authUser.getEmail(), user.getRole());
     }
 
-    private AuthResponse buildAuthResponse(AuthUser authUser, UserDTO user) {
-        String token = jwtUtils.generateJwtToken(authUser.getUserId(), authUser.getEmail(), user.getRole());
+    @Transactional
+    public String googleRegister(GoogleAuthRequest request) {
 
-        return AuthResponse.builder()
-                .userId(authUser.getUserId())
-                .token(token)
-                .tokenType("Bearer")
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .profilePictureUrl(user.getProfileImageUrl())
+        GoogleIdToken.Payload payload = googleTokenUtil.getTokenPayload(request.getToken());
+        String email = payload.getEmail();
+
+        if (authRepository.existsByEmail(email)) {
+            throw new UserAlreadyExistsException("Email already exists");
+        }
+
+        AuthUser authUser = AuthUser.builder()
+                .email(email)
+                .authProvider(AuthProvider.GOOGLE)
+                .googleId(payload.getSubject())
+                .emailVerified(true)
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
+
+        authUser = authRepository.save(authUser);
+
+        UserDTO user = UserDTO.builder()
+                .id(authUser.getUserId())
+                .email(email)
+                .firstName((String) payload.get("given_name"))
+                .lastName((String) payload.get("family_name"))
+                .role(Role.USER)
+                .profileImageUrl((String) payload.get("picture"))
+                .build();
+
+        try {
+            userIntegrationService.createUser(user);
+        } catch (Exception ex) {
+            authRepository.deleteById(authUser.getUserId());
+            throw new AuthException("User creation failed. Rolled back auth record.");
+        }
+
+        return jwtUtil.generateJwtToken(authUser.getUserId(), authUser.getEmail(), user.getRole());
     }
 }
