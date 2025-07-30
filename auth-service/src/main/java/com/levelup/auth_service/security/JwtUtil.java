@@ -1,7 +1,6 @@
 package com.levelup.auth_service.security;
 
 import com.levelup.auth_service.dto.Role;
-import com.levelup.auth_service.dto.UserDTO;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,12 +12,12 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
-public class JwtUtils {
+public class JwtUtil {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.secret}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwtExpirationMs}")
+    @Value("${jwt.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {
