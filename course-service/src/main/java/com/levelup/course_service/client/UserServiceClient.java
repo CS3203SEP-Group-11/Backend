@@ -1,5 +1,6 @@
 package com.levelup.course_service.client;
 
+import com.levelup.course_service.dto.InstructorValidationResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UserServiceClient {
     
     @GetMapping("/{instructorId}/validate")
-    Boolean validateInstructor(@PathVariable String instructorId);
+    InstructorValidationResponseDTO validateInstructor(@PathVariable String instructorId);
 }
