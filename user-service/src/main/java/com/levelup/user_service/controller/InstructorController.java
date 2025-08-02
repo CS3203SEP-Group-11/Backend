@@ -1,6 +1,7 @@
 package com.levelup.user_service.controller;
 
 import com.levelup.user_service.dto.InstructorDTO;
+import com.levelup.user_service.dto.InstructorValidationResponseDTO;
 import com.levelup.user_service.model.Instructor;
 import com.levelup.user_service.service.InstructorService;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +46,31 @@ public class InstructorController {
     }
 
 
-    @GetMapping("/{instructorId}/validate")
-public ResponseEntity<Boolean> validateInstructor(@PathVariable String instructorId) {
-    try {
-        // Direct existence check - just returns true if instructor ID exists
-        boolean exists = instructorService.getInstructorByUserId(instructorId) != null;
-        log.info("Instructor ID {} exists: {}", instructorId, exists);
-        return ResponseEntity.ok(exists);
-    } catch (Exception e) {
-        log.error("Error checking instructor ID {}: {}", instructorId, e.getMessage());
-        return ResponseEntity.ok(false);
+@GetMapping("/{instructorId}/validate")
+    public ResponseEntity<InstructorValidationResponseDTO> validateInstructor(@PathVariable String instructorId) {
+        try {
+            // Check if instructor exists
+            boolean exists = instructorService.getInstructorByUserId(instructorId) != null;
+            log.info("Instructor ID {} exists: {}", instructorId, exists);
+            
+            // Return DTO with validation result
+            InstructorValidationResponseDTO response = InstructorValidationResponseDTO.builder()
+                    .instructorId(instructorId)
+                    .isValidInstructor(exists)
+                    .build();
+                    
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error checking instructor ID {}: {}", instructorId, e.getMessage());
+            
+            // Return DTO with false validation
+            InstructorValidationResponseDTO response = InstructorValidationResponseDTO.builder()
+                    .instructorId(instructorId)
+                    .isValidInstructor(false)
+                    .build();
+                    
+            return ResponseEntity.ok(response);
+        }
     }
 }
-}
+
