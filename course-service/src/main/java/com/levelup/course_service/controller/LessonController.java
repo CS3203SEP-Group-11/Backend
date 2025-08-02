@@ -16,13 +16,18 @@ public class LessonController {
     private final LessonService lessonService;
 
     @PostMapping
-    public ResponseEntity<LessonDTO> createLesson(@RequestBody LessonDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createLesson(dto));
+    public ResponseEntity<LessonDTO> createLesson(
+            @RequestBody LessonDTO dto,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createLesson(dto, currentUserId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LessonDTO> updateLesson(@PathVariable String id, @RequestBody LessonDTO dto) {
-        return ResponseEntity.ok(lessonService.updateLesson(id, dto));
+    public ResponseEntity<LessonDTO> updateLesson(
+            @PathVariable String id, 
+            @RequestBody LessonDTO dto,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        return ResponseEntity.ok(lessonService.updateLesson(id, dto, currentUserId));
     }
 
     @GetMapping("/{id}")
@@ -36,8 +41,10 @@ public class LessonController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLesson(@PathVariable String id) {
-        lessonService.deleteLesson(id);
+    public ResponseEntity<Void> deleteLesson(
+            @PathVariable String id,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        lessonService.deleteLesson(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }
