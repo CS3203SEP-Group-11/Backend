@@ -1,35 +1,57 @@
 package com.levelup.api_gateway.filter;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class UserContextFilter implements GlobalFilter {
+
+    private static final String JWT_COOKIE_NAME = "jwt";
+    private static final String SECRET = "your-256-bit-secret"; // For signature validation (optional)
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return ReactiveSecurityContextHolder.getContext()
-                .flatMap(securityContext -> {
-                    if (securityContext.getAuthentication() instanceof JwtAuthenticationToken jwt) {
-                        String userId = jwt.getToken().getSubject();
-                        String userEmail = jwt.getToken().getClaimAsString("email");
-                        String userRole = jwt.getToken().getClaimAsString("role");
+        HttpCookie jwtCookie = exchange.getRequest().getCookies().getFirst(JWT_COOKIE_NAME);
 
-                        var mutatedRequest = exchange.getRequest().mutate()
-                                .header("X-User-ID", userId)
-                                .header("X-User-Email", userEmail)
-                                .header("X-User-Role", userRole)
-                                .build();
+        if (jwtCookie != null) {
+            try {
+                String token = jwtCookie.getValue();
 
-                        return chain.filter(exchange.mutate().request(mutatedRequest).build());
-                    }
-                    return chain.filter(exchange);
-                })
-                .switchIfEmpty(chain.filter(exchange));
+                SignedJWT signedJWT = SignedJWT.parse(token);
+
+                // Optional signature verification
+                // JWSVerifier verifier = new MACVerifier(SECRET);
+                // if (!signedJWT.verify(verifier)) {
+                //     log.warn("Invalid JWT signature");
+                //     return chain.filter(exchange);
+                // }
+
+                JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+
+                String userId = claims.getSubject();
+                String email = claims.getStringClaim("email");
+                String role = claims.getStringClaim("role");
+
+                var mutatedRequest = exchange.getRequest().mutate()
+                        .header("X-User-Id", userId)
+                        .header("X-User-Email", email)
+                        .header("X-User-Role", role)
+                        .build();
+
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            } catch (Exception e) {
+                log.error("JWT parsing error: {}", e.getMessage());
+            }
+        }
+
+        return chain.filter(exchange);
     }
 }

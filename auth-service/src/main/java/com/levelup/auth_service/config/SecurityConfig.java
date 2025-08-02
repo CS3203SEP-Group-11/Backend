@@ -24,22 +24,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/api/auth/google")
-                        .defaultSuccessUrl("/api/auth/google/success", true)
-                        .failureUrl("/api/auth/google/failure")
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .logoutSuccessUrl("/api/auth/logout/success")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
                 )
                 .build();
     }
