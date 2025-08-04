@@ -22,6 +22,7 @@ public class InstructorController {
 
     @PostMapping
     public ResponseEntity<String> registerInstructor(@RequestHeader ("X-User-ID") String userId, @RequestBody InstructorDTO instructorDTO) {
+        log.info(userId);
         return ResponseEntity.ok(instructorService.registerInstructor(userId, instructorDTO));
     }
 

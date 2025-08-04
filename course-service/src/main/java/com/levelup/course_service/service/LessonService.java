@@ -10,4 +10,6 @@ public interface LessonService {
     void deleteLesson(String id, String currentUserId);
     LessonDTO getLessonById(String id);
     List<LessonDTO> getLessonsByCourse(String courseId);
+
+    String changeLessonState(String lessonId, String currentUserId, String status);
 }
