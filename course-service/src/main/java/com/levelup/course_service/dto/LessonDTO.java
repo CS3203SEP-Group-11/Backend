@@ -1,5 +1,6 @@
 package com.levelup.course_service.dto;
 
+import com.levelup.course_service.model.Lesson;
 import lombok.*;
 import java.time.Instant;
 import java.util.List;
@@ -17,7 +18,7 @@ public class LessonDTO {
     private String textContent;
     private String quizId;
     private int order;
-    private String status;
+    private Lesson.Status status;
     private Instant createdAt;
     private Instant updatedAt;
 

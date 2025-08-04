@@ -23,7 +23,7 @@ spring:
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:
-                - Path=/api/courses/**
+                - Path=/api/courses/**,/api/lessons/**,
             - id: assessment-service
               uri: lb://ASSESSMENT-SERVICE
               predicates:

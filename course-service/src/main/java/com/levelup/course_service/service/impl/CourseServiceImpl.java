@@ -43,12 +43,12 @@ public class CourseServiceImpl implements CourseService {
         Course course = Course.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
-                .instructorId(currentUserId)
+                .instructorId(validationResponse.getInstructorId())
                 .category(dto.getCategory())
                 .tags(dto.getTags())
                 .language(dto.getLanguage())
                 .thumbnailUrl(dto.getThumbnailUrl())
-                .status(Course.Status.valueOf(dto.getStatus().toUpperCase()))
+                .status(Course.Status.DRAFT)
                 .price(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()))
                 .rating(new Course.Rating(null, 0))
                 .enrollmentCount(0)
@@ -118,7 +118,6 @@ public class CourseServiceImpl implements CourseService {
             course.setTags(dto.getTags());
             course.setLanguage(dto.getLanguage());
             course.setThumbnailUrl(dto.getThumbnailUrl());
-            course.setStatus(Course.Status.valueOf(dto.getStatus().toUpperCase()));
             course.setPrice(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()));
             course.setUpdatedAt(Instant.now());
             
@@ -127,5 +126,32 @@ public class CourseServiceImpl implements CourseService {
             return updatedCourse;
             
         }).orElseThrow(() -> new RuntimeException("Course not found"));
+    }
+
+    @Override
+    public String changeCourseState(String courseId, String currentUserId, String status) {
+        log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId, status);
+
+        // Validate instructor using user service
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
+            throw new RuntimeException("Invalid instructor: User is not a valid instructor");
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+
+
+        // Validate and set new status
+        try {
+            Course.Status newStatus = Course.Status.valueOf(status.toUpperCase());
+            course.setStatus(newStatus);
+            courseRepository.save(course);
+            log.info("Course state changed successfully: {} -> {}", courseId, newStatus);
+            return "Course state changed to " + newStatus;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid course status: " + status);
+        }
     }
 }

@@ -32,7 +32,8 @@ public class LessonServiceImpl implements LessonService {
         // Validate that the user is an instructor and owns the course
         validateUserCanModifyCourse(dto.getCourseId(), currentUserId);
         
-        Lesson lesson = mapToEntity(dto);
+        Lesson lesson = mapToEntityForCreate(dto);
+        lesson.setStatus(Lesson.Status.DRAFT);
         lesson.setCreatedAt(Instant.now());
         lesson.setUpdatedAt(Instant.now());
         
@@ -51,7 +52,7 @@ public class LessonServiceImpl implements LessonService {
         Lesson existing = lessonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Lesson not found"));
             
-        Lesson updated = mapToEntity(dto);
+        Lesson updated = mapToEntityForUpdate(dto);
         updated.setId(id);
         updated.setCreatedAt(existing.getCreatedAt());
         updated.setUpdatedAt(Instant.now());
@@ -88,6 +89,27 @@ public class LessonServiceImpl implements LessonService {
             .stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public String changeLessonState(String lessonId, String currentUserId, String status) {
+        log.info("Changing lesson state for {} by user: {}", lessonId, currentUserId);
+
+        // Get lesson to find the course ID
+        Lesson lesson = lessonRepository.findById(lessonId)
+            .orElseThrow(() -> new RuntimeException("Lesson not found"));
+
+        // Validate that the user is an instructor and owns the course
+        validateUserCanModifyCourse(lesson.getCourseId(), currentUserId);
+
+        // Update the status
+        Lesson.Status newStatus = Lesson.Status.valueOf(status.toUpperCase());
+        lesson.setStatus(newStatus);
+        lesson.setUpdatedAt(Instant.now());
+
+        lessonRepository.save(lesson);
+        log.info("Lesson state changed successfully: {} to {}", lessonId, newStatus);
+        return "Lesson state changed successfully";
+    }
+
     private void validateUserCanModifyCourse(String courseId, String currentUserId) {
         // Step 1: Get instructor validation from user service using the user ID
         InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
@@ -113,21 +135,38 @@ public class LessonServiceImpl implements LessonService {
         log.info("Access granted: Instructor {} can modify course {}", instructorId, courseId);
     }
 
-    // === Mapping methods ===
-    private Lesson mapToEntity(LessonDTO dto) {
+
+
+    private Lesson mapToEntityForCreate(LessonDTO dto) {
         return Lesson.builder()
-            .id(dto.getId())
-            .courseId(dto.getCourseId())
-            .title(dto.getTitle())
-            .contentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()))
-            .contentUrl(dto.getContentUrl().stream()
-                .map(url -> new Lesson.ContentUrl(url.getType(), url.getUrl()))
-                .collect(Collectors.toList()))
-            .textContent(dto.getTextContent())
-            .quizId(dto.getQuizId())
-            .order(dto.getOrder())
-            .status(Lesson.Status.valueOf(dto.getStatus().toUpperCase()))
-            .build();
+                .courseId(dto.getCourseId())
+                .title(dto.getTitle())
+                .contentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()))
+                .contentUrl(dto.getContentUrl().stream()
+                        .map(url -> new Lesson.ContentUrl(url.getType(), url.getUrl()))
+                        .collect(Collectors.toList()))
+                .textContent(dto.getTextContent())
+                .status(Lesson.Status.DRAFT)
+                .quizId(dto.getQuizId())
+                .order(dto.getOrder())
+                .build();
+    }
+
+    private Lesson mapToEntityForUpdate(LessonDTO dto) {
+        return Lesson.builder()
+
+                .courseId(dto.getCourseId())
+                .title(dto.getTitle())
+                .contentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()))
+                .contentUrl(dto.getContentUrl().stream()
+                        .map(url -> new Lesson.ContentUrl(url.getType(), url.getUrl()))
+                        .collect(Collectors.toList()))
+                .textContent(dto.getTextContent())
+                .quizId(dto.getQuizId())
+                .order(dto.getOrder())
+
+                .updatedAt(Instant.now())
+                .build();
     }
 
     private LessonDTO mapToDto(Lesson entity) {
@@ -142,7 +181,7 @@ public class LessonServiceImpl implements LessonService {
             .textContent(entity.getTextContent())
             .quizId(entity.getQuizId())
             .order(entity.getOrder())
-            .status(entity.getStatus().name())
+            .status(entity.getStatus())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .build();

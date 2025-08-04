@@ -47,4 +47,12 @@ public class LessonController {
         lessonService.deleteLesson(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/state/{lessonId}")
+    public ResponseEntity<String> changeLessonState(
+            @PathVariable String lessonId,
+            @RequestHeader("X-User-ID") String currentUserId,
+            @RequestBody String status) {
+        return ResponseEntity.ok(lessonService.changeLessonState(lessonId, currentUserId, status));
+    }
 }

@@ -50,4 +50,9 @@ public class CourseController {
         courseService.deleteCourse(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/state/{courseId}")
+    public ResponseEntity<String> changeCourseState(@PathVariable String courseId, @RequestHeader("X-User-ID") String currentUserId, @RequestBody String status) {
+        return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
+    }
 }
