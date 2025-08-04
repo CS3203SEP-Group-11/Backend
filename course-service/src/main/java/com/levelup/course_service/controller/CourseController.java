@@ -17,8 +17,10 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<Course> createCourse(@RequestBody CourseDTO dto) {
-        return ResponseEntity.ok(courseService.createCourse(dto));
+    public ResponseEntity<Course> createCourse(
+            @RequestBody CourseDTO dto,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        return ResponseEntity.ok(courseService.createCourse(dto, currentUserId));
     }
 
     @GetMapping
@@ -34,13 +36,23 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Course> updateCourse(@PathVariable String id, @RequestBody CourseDTO dto) {
-        return ResponseEntity.ok(courseService.updateCourse(id, dto));
+    public ResponseEntity<Course> updateCourse(
+            @PathVariable String id, 
+            @RequestBody CourseDTO dto,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        return ResponseEntity.ok(courseService.updateCourse(id, dto, currentUserId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable String id) {
-        courseService.deleteCourse(id);
+    public ResponseEntity<Void> deleteCourse(
+            @PathVariable String id,
+            @RequestHeader("X-User-ID") String currentUserId) {
+        courseService.deleteCourse(id, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/state/{courseId}")
+    public ResponseEntity<String> changeCourseState(@PathVariable String courseId, @RequestHeader("X-User-ID") String currentUserId, @RequestBody String status) {
+        return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
     }
 }

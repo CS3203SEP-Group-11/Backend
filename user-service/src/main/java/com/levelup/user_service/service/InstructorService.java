@@ -54,7 +54,7 @@ public class InstructorService {
     }
 
     public InstructorDTO getInstructorByUserId(String instructorId) {
-        Instructor instructor = instructorRepository.findById(instructorId)
+        Instructor instructor = instructorRepository.findByUserId(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
         return ConvertToDTO(instructor);
