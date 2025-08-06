@@ -25,21 +25,15 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course createCourse(CourseDTO dto, String currentUserId) {
-        log.info("Creating course for instructor: {}", currentUserId);
         
         // Send token's userID to user service and get validation DTO response
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
         
         // Check if instructor is valid from DTO response
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }
-        
-        // Verify instructor ID matches
-        if (!currentUserId.equals(validationResponse.getInstructorId())) {
-            throw new RuntimeException("Instructor ID mismatch");
-        }
-        
+
         Course course = Course.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -51,6 +45,8 @@ public class CourseServiceImpl implements CourseService {
                 .status(Course.Status.DRAFT)
                 .price(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()))
                 .rating(new Course.Rating(null, 0))
+                .duration(dto.getDuration())
+                .level(dto.getLevel())
                 .enrollmentCount(0)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
@@ -76,7 +72,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("Deleting course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
         
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
@@ -100,7 +96,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("Updating course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
         
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
@@ -119,6 +115,8 @@ public class CourseServiceImpl implements CourseService {
             course.setLanguage(dto.getLanguage());
             course.setThumbnailUrl(dto.getThumbnailUrl());
             course.setPrice(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()));
+            course.setDuration(dto.getDuration());
+            course.setLevel(dto.getLevel());
             course.setUpdatedAt(Instant.now());
             
             Course updatedCourse = courseRepository.save(course);
@@ -133,7 +131,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId, status);
 
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }

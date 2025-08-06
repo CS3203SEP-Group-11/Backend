@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "user-service", path = "/api/instructors")
 public interface UserServiceClient {
     
-    @GetMapping("/{instructorId}/validate")
-    InstructorValidationResponseDTO validateInstructor(@PathVariable String instructorId);
+    @GetMapping("/{userId}/validate")
+    InstructorValidationResponseDTO validateInstructorByUserId(@PathVariable String userId);
 }

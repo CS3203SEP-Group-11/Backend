@@ -1,12 +1,14 @@
 package com.levelup.user_service.service;
 
 import com.levelup.user_service.dto.InstructorDTO;
+import com.levelup.user_service.dto.InstructorValidationResponseDTO;
 import com.levelup.user_service.model.Instructor;
 import com.levelup.user_service.model.Role;
 import com.levelup.user_service.model.User;
 import com.levelup.user_service.repository.InstructorRepository;
 import com.levelup.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,8 +55,8 @@ public class InstructorService {
                 .toList();
     }
 
-    public InstructorDTO getInstructorByUserId(String instructorId) {
-        Instructor instructor = instructorRepository.findByUserId(instructorId)
+    public InstructorDTO getInstructorById(String instructorId) {
+        Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
         return ConvertToDTO(instructor);
@@ -121,8 +123,7 @@ public class InstructorService {
                 .orElseThrow(() -> new RuntimeException("User not found for instructor"));
 
         return InstructorDTO.builder()
-                .id(instructor.getId())
-                .userId(instructor.getUserId())
+                .profileImageUrl(user.getProfileImageUrl())
                 .bio(instructor.getBio())
                 .expertise(instructor.getExpertise())
                 .contactDetails(InstructorDTO.ContactDetails.builder()
@@ -132,5 +133,25 @@ public class InstructorService {
                         .build())
                 .instructorName(user.getFirstName() + " " + user.getLastName())
                 .build();
+    }
+
+    public InstructorValidationResponseDTO validateInstructorByUserId(String userId) {
+
+            Instructor instructor = instructorRepository.findByUserId(userId)
+                    .orElse(null);
+
+            if (instructor == null) {
+                // If instructor does not exist, return false
+                return InstructorValidationResponseDTO.builder()
+                        .instructorId(null)
+                        .isValidInstructor(false)
+                        .build();
+            }
+
+            // If instructor exists, return true with instructor ID
+            return InstructorValidationResponseDTO.builder()
+                    .instructorId(instructor.getId())
+                    .isValidInstructor(true)
+                    .build();
     }
 }
