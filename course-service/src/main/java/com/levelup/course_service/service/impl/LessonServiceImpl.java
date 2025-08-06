@@ -112,7 +112,7 @@ public class LessonServiceImpl implements LessonService {
 
     private void validateUserCanModifyCourse(String courseId, String currentUserId) {
         // Step 1: Get instructor validation from user service using the user ID
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructor(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
         
         // Step 2: Check if user is a valid instructor
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
