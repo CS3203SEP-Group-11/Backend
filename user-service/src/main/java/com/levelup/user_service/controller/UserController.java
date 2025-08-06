@@ -20,7 +20,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
-        log.info("Creating user with email: {}", userDTO.toString());
         return ResponseEntity.ok(userService.createUser(userDTO));
     }
 

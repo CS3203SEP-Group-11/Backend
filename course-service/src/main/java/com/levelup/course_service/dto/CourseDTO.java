@@ -1,5 +1,6 @@
 package com.levelup.course_service.dto;
 
+import com.levelup.course_service.model.Course;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,6 +16,8 @@ public class CourseDTO {
     private String language;
     private String thumbnailUrl;
     private String status;
+    private Integer duration; // in hours
+    private Course.CourseLevel level; // Beginner, Intermediate, Advanced
     private BigDecimal priceAmount;
     private String priceCurrency;
 }

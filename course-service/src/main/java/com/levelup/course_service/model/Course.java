@@ -31,12 +31,18 @@ public class Course {
 
     private Price price;
     private Rating rating;
+    private Integer duration; // in hours
+    private CourseLevel level; // Beginner, Intermediate, Advanced
 
     private Instant createdAt;
     private Instant updatedAt;
 
     public enum Status {
         DRAFT, PUBLISHED, ARCHIVED
+    }
+
+    public enum CourseLevel {
+        BEGINNER, INTERMEDIATE, ADVANCED
     }
 
     @Data
