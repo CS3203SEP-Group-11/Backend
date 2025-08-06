@@ -1,6 +1,7 @@
 package com.levelup.course_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import com.levelup.course_service.dto.CourseDTO;
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
+@Slf4j
 public class CourseController {
 
     private final CourseService courseService;
@@ -20,6 +22,7 @@ public class CourseController {
     public ResponseEntity<Course> createCourse(
             @RequestBody CourseDTO dto,
             @RequestHeader("X-User-ID") String currentUserId) {
+        log.info("Creating course for user: {}", currentUserId);
         return ResponseEntity.ok(courseService.createCourse(dto, currentUserId));
     }
 
