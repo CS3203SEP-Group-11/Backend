@@ -3,8 +3,7 @@ spring:
     name: course-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/levelup_course_db
-      database: levelup_course_db
+      uri: ${COURSE_DB_URL}
 server:
   port: 8082
 

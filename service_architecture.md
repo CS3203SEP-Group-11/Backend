@@ -128,6 +128,19 @@ course_enrollments
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
+
+certificates
+{
+  "id": "UUID",
+  "user_id": "UUID (Reference to users.id)",
+  "course_id": "UUID (Reference to courses.id)",
+  "certifier_public_id": "String",
+  "issue_date": "Timestamp",
+  "expiry_date": "Timestamp|null", // Optional expiration
+  "status": "Enum('issued', 'revoked')",
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp"
+}
 ```
 
 ### progress tracking service
@@ -413,7 +426,7 @@ grace_period
 ```
 
 
-## Certificate Service (stage 2)
+<!-- ## Certificate Service (stage 2)
 - Certificate generation, verification
 - SaaS for certificate templates: Certifier (https://www.certifier.io/)
 - Database: `PostgreSQL`
@@ -463,86 +476,47 @@ certificate_verifications
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
-```
+``` -->
 
 ## Notification Service (stage 2)
+
 - Email notifications, alerts, reminders
-- Database: `PostgreSQL` + Message Queue (RabbitMQ/Kafka)
+- Database: `PostgreSQL` + Message Queue (RabbitMQ)
 
 ### Database Schema
+
 ```json
-email_templates
+notifications
 {
-  "id": "UUID",                        // Unique identifier for the template
-  "name": "String",                    // Template name, e.g., 'Course Enrollment Confirmation'
-  "template_code": "String",           // Internal/template code, e.g., 'COURSE_ENROLL_CONFIRM'
-  "subject": "String",                   // Email subject with placeholders
-  "body_html": "String",                 // HTML body with placeholders
-  "body_text": "String",                 // Text body with placeholders
-  "placeholders": ["String"],            // List of placeholders used in the template
-  "language": "String",                  // Language code, e.g., 'en'
-  "created_by": "UUID",                  // ID of creator or admin
-  "created_at": "Timestamp",             // Creation timestamp
-  "updated_at": "Timestamp",             // Last update timestamp
-  "is_active": "Boolean"                   // Whether the template is active
+  "id": "UUID",
+  "userId": "UUID (Reference to users.id)",
+  "type": "Enum('email', 'in_app')",
+  "content": "String", // Notification content
+  "status": "Enum('pending', 'sent', 'failed')",
+  "sentAt": "Timestamp|null",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
 }
 
-scheduled_notifications
+email_notification
 {
-  "id": "UUID",                        // Unique identifier for the message record
-  "user_id": "UUID",                     // User's ID
-  "template_code": "String",             // Template code, e.g., 'COURSE_ENROLL_CONFIRM'
-  "channel": "Enum('EMAIL', 'PUSH', 'SMS')", // Channel for delivery
-  "send_at": "Timestamp",                // Scheduled send time
-  "status": "Enum('PENDING', 'SENT', 'FAILED', 'CANCELLED')", // Sending status
-  "retry_count": "Integer",              // Number of retries
-  "payload": {"String": "Mixed"},        // Data to fill placeholders
-  "target_contact": "String",            // Email, phone number, or device token
-  "created_at": "Timestamp",             // Record creation time
-  "last_attempt_at": "Timestamp|null"    // Last attempt time, null if not attempted yet
+  "id": "UUID (Reference to notifications.id)",
+  "subject": "TEXT",
+  "body": "TEXT",
+  "recipientEmail": "UUID (Reference to users.id)",
+  "deliveryResponse": "TEXT",  // e.g., response from SMTP or SendGrid
+  "retryCount": "Integer"
 }
 
-notification_logs
+in_app_notifications 
 {
-  "id": "UUID",                        // Unique identifier for the delivery record
-  "notification_id": "UUID",           // Reference to scheduled_notifications
-  "user_id": "UUID",                     // User's ID
-  "channel": "Enum('EMAIL', 'PUSH', 'SMS')", // Delivery channel
-  "status": "Enum('SENT', 'FAILED', 'SKIPPED')", // Delivery status
-  "sent_at": "Timestamp",                // When the message was sent
-  "response": {                          // Provider's response details
-    "message_id": "String",              // ID from email provider
-    "provider": "String"                 // Provider name, e.g., 'SendGrid'
-  }|null,                              // Nullable if no response
-  "error": "String" | null,               // Error message if any
-  "retry_count": "Integer"               // Retry attempt count
+  "id": "UUID (Reference to notifications.id)",
+  "title": "String",
+  "type": "Enum('info', 'warning', 'alert')",
+  "body": "String",
+  "read": "Boolean", // Indicates if the notification has been read
+  "readAt": "Timestamp",
 }
-
-
-preferences
-{
-  "id": "UUID",                        // Unique identifier for the preferences record
-  "user_id": "UUID",                     // User's ID
-  "channels": {                          // Notification channels enabled
-    "EMAIL": "Boolean",
-    "SMS": "Boolean",
-    "PUSH": "Boolean"
-  },
-  "notification_types": {                // Types of notifications enabled
-    "course_enrollments": "Boolean",
-    "certificates": "Boolean",
-    "marketing": "Boolean",
-    "reminders": "Boolean"
-  },
-  "digest_frequency": "Enum('IMMEDIATE', 'DAILY', 'WEEKLY')", // Frequency of digest
-  "do_not_disturb": {                    // DND settings
-    "enabled": "Boolean",
-    "start_time": "String",              // Format 'HH:MM'
-    "end_time": "String"                 // Format 'HH:MM'
-  },
-  "updated_at": "Timestamp"              // Last update timestamp
-}
-
 ```
 
 <!-- ## Analytics Service (stage 2)

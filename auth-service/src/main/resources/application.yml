@@ -3,8 +3,7 @@ spring:
     name: auth-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/levelup_auth_db
-      database: levelup_auth_db
+      uri: ${AUTH_DB_URL}
 
 jwt:
   secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
