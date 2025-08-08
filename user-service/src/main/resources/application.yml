@@ -3,8 +3,7 @@ spring:
     name: user-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/levelup_user_db
-      database: levelup_user_db
+      uri: ${USER_DB_URL}
 
 server:
   port: 8081
