@@ -128,6 +128,19 @@ course_enrollments
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
+
+certificates
+{
+  "id": "UUID",
+  "user_id": "UUID (Reference to users.id)",
+  "course_id": "UUID (Reference to courses.id)",
+  "certifier_public_id": "String",
+  "issue_date": "Timestamp",
+  "expiry_date": "Timestamp|null", // Optional expiration
+  "status": "Enum('issued', 'revoked')",
+  "created_at": "Timestamp",
+  "updated_at": "Timestamp"
+}
 ```
 
 ### progress tracking service
@@ -413,7 +426,7 @@ grace_period
 ```
 
 
-## Certificate Service (stage 2)
+<!-- ## Certificate Service (stage 2)
 - Certificate generation, verification
 - SaaS for certificate templates: Certifier (https://www.certifier.io/)
 - Database: `PostgreSQL`
@@ -463,7 +476,7 @@ certificate_verifications
   "created_at": "Timestamp",
   "updated_at": "Timestamp"
 }
-```
+``` -->
 
 ## Notification Service (stage 2)
 
