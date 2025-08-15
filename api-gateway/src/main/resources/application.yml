@@ -28,6 +28,10 @@ spring:
               uri: lb://ASSESSMENT-SERVICE
               predicates:
                 - Path=/api/assessments/**
+            - id: media-service
+              uri: lb://MEDIA-SERVICE
+              predicates:
+                - Path=/api/files/**
 
 server:
   port: 8080
@@ -40,3 +44,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     hostname: localhost
+
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://152.42.189.244:8761/eureka/
+#  instance:
+#    prefer-ip-address: true

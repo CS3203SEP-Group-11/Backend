@@ -40,7 +40,7 @@ public class CourseController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Course> updateCourse(
-            @PathVariable String id, 
+            @PathVariable String id,
             @RequestBody CourseDTO dto,
             @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(courseService.updateCourse(id, dto, currentUserId));
@@ -54,8 +54,18 @@ public class CourseController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/state/{courseId}")
-    public ResponseEntity<String> changeCourseState(@PathVariable String courseId, @RequestHeader("X-User-ID") String currentUserId, @RequestBody String status) {
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCoursesByCategory() {
+        return ResponseEntity.ok(courseService.getAllCategory());
+    }
+
+    @PutMapping("/state/{status}/{courseId}")
+    public ResponseEntity<String> changeCourseState(@PathVariable String courseId, @PathVariable String status, @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
+    }
+
+    @GetMapping("/instructor/me")
+    public ResponseEntity<List<Course>> getCoursesByInstructor(@RequestHeader("X-User-ID") String currentUserId) {
+        return ResponseEntity.ok(courseService.getMyCourses(currentUserId));
     }
 }

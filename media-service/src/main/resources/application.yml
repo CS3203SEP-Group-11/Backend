@@ -1,11 +1,26 @@
 spring:
   application:
-    name: course-service
+    name: media-service
   data:
     mongodb:
-      uri: ${COURSE_DB_URL}
+      uri: ${MEDIA_DB_URL}
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+
 server:
-  port: 8082
+  port: 8086
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket-name: ${AWS_S3_BUCKET_NAME}
 
 eureka:
   client:
