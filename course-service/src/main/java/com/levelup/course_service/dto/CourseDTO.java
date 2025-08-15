@@ -15,6 +15,7 @@ public class CourseDTO {
     private List<String> tags;
     private String language;
     private String thumbnailUrl;
+    private String thumbnailId; // Optional, if using cloud storage
     private String status;
     private Integer duration; // in hours
     private Course.CourseLevel level; // Beginner, Intermediate, Advanced
