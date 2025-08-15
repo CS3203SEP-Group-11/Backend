@@ -42,6 +42,7 @@ public class CourseServiceImpl implements CourseService {
                 .tags(dto.getTags())
                 .language(dto.getLanguage())
                 .thumbnailUrl(dto.getThumbnailUrl())
+                .thumbnailId(dto.getThumbnailId()) // Optional, if using cloud storage
                 .status(Course.Status.DRAFT)
                 .price(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()))
                 .rating(new Course.Rating(null, 0))
@@ -104,7 +105,7 @@ public class CourseServiceImpl implements CourseService {
         
         return courseRepository.findById(id).map(course -> {
             // Validate that instructor owns this course
-            if (!course.getInstructorId().equals(currentUserId)) {
+            if (!course.getInstructorId().equals(validationResponse.getInstructorId())) {
                 throw new RuntimeException("You can only update courses that you own");
             }
             
@@ -114,6 +115,7 @@ public class CourseServiceImpl implements CourseService {
             course.setTags(dto.getTags());
             course.setLanguage(dto.getLanguage());
             course.setThumbnailUrl(dto.getThumbnailUrl());
+            course.setThumbnailId(dto.getThumbnailId()); // Optional, if using cloud storage
             course.setPrice(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()));
             course.setDuration(dto.getDuration());
             course.setLevel(dto.getLevel());
@@ -151,5 +153,25 @@ public class CourseServiceImpl implements CourseService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid course status: " + status);
         }
+    }
+
+    @Override
+    public List<String> getAllCategory() {
+        return courseRepository.findAll().stream()
+                .map(Course::getCategory)
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    @Override
+    public List<Course> getMyCourses(String currentUserId) {
+        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
+
+        if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
+            throw new RuntimeException("Invalid instructor: User is not a valid instructor");
+        }
+
+        return courseRepository.findByInstructorId(validationResponse.getInstructorId());
     }
 }
