@@ -23,3 +23,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     hostname: localhost
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://152.42.189.244:8761/eureka/
+#  instance:
+#    prefer-ip-address: true
+

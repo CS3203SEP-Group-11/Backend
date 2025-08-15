@@ -11,6 +11,7 @@ public interface CourseService {
     Optional<Course> getCourseById(String id);
     void deleteCourse(String id, String currentUserId);
     Course updateCourse(String id, CourseDTO dto, String currentUserId);
-
     String changeCourseState(String courseId, String currentUserId, String status);
+    List<String> getAllCategory();
+    List<Course> getMyCourses(String currentUserId);
 }
