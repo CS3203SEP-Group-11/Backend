@@ -25,6 +25,7 @@ public class Course {
     private List<String> tags;
     private String language;
     private String thumbnailUrl;
+    private String thumbnailId; // Optional, if using cloud storage
     private Status status;
     private Instant publishedAt;
     private int enrollmentCount;
