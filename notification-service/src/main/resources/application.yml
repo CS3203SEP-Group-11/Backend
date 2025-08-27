@@ -22,4 +22,4 @@ eureka:
     ip-address: 127.0.0.1
     hostname: localhost
 
-sendgrid.api-key: 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
+sendgrid.api-key: ${SENDGRID_API_KEY}
