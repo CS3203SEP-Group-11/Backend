@@ -76,18 +76,23 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+		   <dependency>
+			   <groupId>com.sendgrid</groupId>
+			   <artifactId>sendgrid-java</artifactId>
+			   <version>4.9.3</version>
+		   </dependency>
+	   </dependencies>
+	   <dependencyManagement>
+		   <dependencies>
+			   <dependency>
+				   <groupId>org.springframework.cloud</groupId>
+				   <artifactId>spring-cloud-dependencies</artifactId>
+				   <version>${spring-cloud.version}</version>
+				   <type>pom</type>
+				   <scope>import</scope>
+			   </dependency>
+		   </dependencies>
+	   </dependencyManagement>
 
 	<build>
 		<plugins>
