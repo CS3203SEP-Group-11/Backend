@@ -13,10 +13,10 @@ import java.util.Map;
 public class PublicRouteConfig {
 
     private final Map<String, List<HttpMethod>> publicRoutes = Map.of(
-            "**", List.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS) // for testing, allow all
-//            "/api/auth/**", List.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS),
-//            "/api/courses/**", List.of(HttpMethod.GET, HttpMethod.OPTIONS),
-//            "/api/instructors/**", List.of(HttpMethod.GET, HttpMethod.OPTIONS)
+//            "**", List.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS) // for testing, allow all
+            "/api/auth/**", List.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS),
+            "/api/courses", List.of(HttpMethod.GET, HttpMethod.OPTIONS),
+            "/api/instructors/**", List.of(HttpMethod.GET, HttpMethod.OPTIONS)
     );
 
     private final AntPathMatcher matcher = new AntPathMatcher();
