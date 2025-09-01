@@ -1,33 +1,30 @@
 spring:
   application:
     name: api-gateway
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
-
   cloud:
     gateway:
       server:
         webflux:
           routes:
-            - id: auth-service
-              uri: lb://AUTH-SERVICE
-              predicates:
-                - Path=/api/auth/**, /oauth2/**, /login/oauth2/**
             - id: user-service
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/users/**, /api/instructors/**,
+                - Path=/api/auth/**, /api/users/**, /api/instructors/**,
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:
-                - Path=/api/courses/**
+                - Path=/api/courses/**,/api/lessons/**,
             - id: assessment-service
               uri: lb://ASSESSMENT-SERVICE
               predicates:
                 - Path=/api/assessments/**
+            - id: media-service
+              uri: lb://MEDIA-SERVICE
+              predicates:
+                - Path=/api/files/**
+
+jwt:
+  secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
 
 server:
   port: 8080
@@ -40,3 +37,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     hostname: localhost
+
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://152.42.189.244:8761/eureka/
+#  instance:
+#    prefer-ip-address: true
