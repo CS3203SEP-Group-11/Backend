@@ -10,13 +10,12 @@
         <module name="api-gateway" />
         <module name="config-server" />
         <module name="eureka-server" />
-        <module name="media-service" />
       </profile>
       <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath>
+        <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="course-service" />
@@ -26,6 +25,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="auth-service" target="17" />
+      <module name="media-service" target="17" />
       <module name="user-service (1)" target="17" />
     </bytecodeTargetLevel>
   </component>
