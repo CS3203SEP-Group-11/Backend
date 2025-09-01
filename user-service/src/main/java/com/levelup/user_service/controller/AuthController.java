@@ -1,9 +1,9 @@
-package com.levelup.auth_service.controller;
+package com.levelup.user_service.controller;
 
-import com.levelup.auth_service.dto.GoogleAuthRequest;
-import com.levelup.auth_service.dto.LoginRequest;
-import com.levelup.auth_service.dto.RegisterRequest;
-import com.levelup.auth_service.service.AuthService;
+import com.levelup.user_service.dto.GoogleAuthRequest;
+import com.levelup.user_service.dto.LoginRequest;
+import com.levelup.user_service.dto.RegisterRequest;
+import com.levelup.user_service.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/auth")

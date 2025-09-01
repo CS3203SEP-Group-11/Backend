@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Document(collection = "users")
 @Data
@@ -23,7 +24,20 @@ import java.util.Date;
 @Builder
 public class User {
     @Id
-    private String id;
+    String id = UUID.randomUUID().toString();
+
+    @NotBlank
+    @Email
+    private String email;
+
+    private Boolean emailVerified;
+
+    @JsonIgnore
+    private String password;
+
+    private AuthProvider authProvider;
+
+    private String googleId;
 
     @NotBlank
     private String firstName;
@@ -31,12 +45,9 @@ public class User {
     @NotBlank
     private String lastName;
 
-    @NotBlank
-    @Email
-    private String email;
-
     private String profileImageUrl;
 
+    @NotBlank
     private Role role;
 
     @Past

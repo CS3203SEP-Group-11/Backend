@@ -1,6 +1,6 @@
-package com.levelup.auth_service.security;
+package com.levelup.user_service.security;
 
-import com.levelup.auth_service.dto.Role;
+import com.levelup.user_service.model.Role;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
