@@ -48,5 +48,4 @@ jobs:
     - name: Build & Test Service
       working-directory: ${{ matrix.service }}
       run: |
-        mvn clean install -DskipTests
-        # mvn clean verify
+        mvn clean verify
