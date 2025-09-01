@@ -28,7 +28,9 @@ public class Instructor {
     private String userId;
 
     private String bio;
+
     private List<String> expertise;
+
     private ContactDetails contactDetails;
 
     @CreatedDate

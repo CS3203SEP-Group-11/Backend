@@ -1,4 +1,4 @@
-package com.levelup.auth_service.exception;
+package com.levelup.user_service.exception;
 
 public class AuthException extends RuntimeException {
     public AuthException(String message) {

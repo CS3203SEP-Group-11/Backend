@@ -10,7 +10,6 @@
         <option value="$PROJECT_DIR$/course-service/pom.xml" />
         <option value="$PROJECT_DIR$/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/user-service/pom.xml" />
-        <option value="$PROJECT_DIR$/auth-service/pom.xml" />
         <option value="$PROJECT_DIR$/media-service/pom.xml" />
       </list>
     </option>

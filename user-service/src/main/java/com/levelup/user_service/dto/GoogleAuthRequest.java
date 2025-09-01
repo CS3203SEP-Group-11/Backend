@@ -1,4 +1,4 @@
-package com.levelup.auth_service.dto;
+package com.levelup.user_service.dto;
 
 import lombok.Data;
 

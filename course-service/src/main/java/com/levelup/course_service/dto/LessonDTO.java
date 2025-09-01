@@ -14,19 +14,12 @@ public class LessonDTO {
     private String courseId;
     private String title;
     private String contentType;
-    private List<ContentUrlDto> contentUrl;
+    private String contentUrl;
+    private String contentId; // Optional, if using cloud storage
     private String textContent;
     private String quizId;
     private int order;
     private Lesson.Status status;
     private Instant createdAt;
     private Instant updatedAt;
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ContentUrlDto {
-        private String type;
-        private String url;
-    }
 }
