@@ -1,4 +1,4 @@
-package com.levelup.auth_service.exception;
+package com.levelup.user_service.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

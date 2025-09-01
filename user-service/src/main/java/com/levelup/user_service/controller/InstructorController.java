@@ -47,7 +47,7 @@ public class InstructorController {
     }
 
 
-@GetMapping("/{userId}/validate")
+    @GetMapping("/{userId}/validate")
     public ResponseEntity<InstructorValidationResponseDTO> validateInstructorByUserId(@PathVariable String userId) {
         return ResponseEntity.ok(instructorService.validateInstructorByUserId(userId));
     }

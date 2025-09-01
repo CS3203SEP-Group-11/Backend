@@ -5,6 +5,13 @@ spring:
     mongodb:
       uri: ${USER_DB_URL}
 
+jwt:
+  secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+  jwtExpirationMs: 3600000 # 1 hour
+
+google:
+  clientId: ${GOOGLE_CLIENT_ID}
+
 server:
   port: 8081
 
