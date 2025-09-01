@@ -20,7 +20,8 @@ public class Lesson {
     private String courseId;
     private String title;
     private ContentType contentType;
-    private List<ContentUrl> contentUrl;
+    private String contentUrl;
+    private String contentId; // Optional, if using cloud storage
     private String textContent;
     private String quizId;
     private int order;
@@ -35,13 +36,5 @@ public class Lesson {
 
     public enum Status {
         DRAFT, PUBLISHED
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ContentUrl {
-        private String type; // e.g., 'video', 'pdf'
-        private String url;
     }
 }
