@@ -1,5 +1,6 @@
 package com.levelup.api_gateway.filter;
 
+import com.levelup.api_gateway.config.PublicRouteConfig;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -8,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,19 +30,21 @@ import java.util.List;
 public class AuthFilter implements WebFilter, Ordered {
 
     private final String jwtSecret;
+    private final PublicRouteConfig publicRouteConfig;
 
-    public AuthFilter(@Value("${jwt.secret}") String jwtSecret) {
+    public AuthFilter(@Value("${jwt.secret}") String jwtSecret, PublicRouteConfig publicRouteConfig) {
         this.jwtSecret = jwtSecret;
+        this.publicRouteConfig = publicRouteConfig;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         var request = exchange.getRequest();
         var path = request.getPath().pathWithinApplication().value();
+        var method = request.getMethod();
 
-        // Allow preflight and auth endpoints to pass through without authentication
-        if (request.getMethod() == HttpMethod.OPTIONS || path.startsWith("/api/auth/")) {
-            log.debug("Allowing unauthenticated request to: {}", path);
+        // Check if the path is public
+        if (publicRouteConfig.isPublic(path, method)) {
             return chain.filter(exchange);
         }
 
@@ -73,7 +75,6 @@ public class AuthFilter implements WebFilter, Ordered {
                 return unauthorized(exchange, "Authentication token expired");
             }
 
-            // Extract user information from claims
             String userId = claims.getSubject();
             String email = claims.getStringClaim("email");
             String role = claims.getStringClaim("role");
@@ -94,11 +95,9 @@ public class AuthFilter implements WebFilter, Ordered {
                     })
                     .build();
 
-            // Create Spring Security authentication object
             List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
             Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
-            // Continue the filter chain with authentication context
             return chain.filter(exchange.mutate().request(mutatedRequest).build())
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
 
