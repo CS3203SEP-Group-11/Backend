@@ -4,13 +4,10 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -24,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements WebFilter {
 
@@ -47,14 +43,14 @@ public class JwtAuthenticationFilter implements WebFilter {
 
             JWSVerifier verifier = new MACVerifier(jwtSecret);
             if (!signedJWT.verify(verifier)) {
-                return unauthorized(exchange, "Invalid authentication token");
+                return chain.filter(exchange);
             }
 
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
 
             Date exp = claims.getExpirationTime();
             if (exp != null && exp.before(new Date())) {
-                return unauthorized(exchange, "Token expired");
+                return chain.filter(exchange);
             }
 
             String userId = claims.getSubject();
@@ -75,12 +71,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
 
         } catch (Exception e) {
-            return unauthorized(exchange, "Invalid token");
+            return chain.filter(exchange);
         }
-    }
-
-    private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        return exchange.getResponse().setComplete();
     }
 }
