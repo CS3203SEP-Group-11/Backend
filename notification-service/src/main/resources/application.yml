@@ -22,4 +22,14 @@ eureka:
     ip-address: 127.0.0.1
     hostname: localhost
 
-sendgrid.api-key: ${SENDGRID_API_KEY}
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://152.42.189.244:8761/eureka/
+#  instance:
+#    prefer-ip-address: true
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY}
+  from-email: premierleaguekasunyahimani@gmail.com
+

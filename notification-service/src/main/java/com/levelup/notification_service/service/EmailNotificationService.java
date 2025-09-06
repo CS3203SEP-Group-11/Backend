@@ -1,4 +1,3 @@
-
 package com.levelup.notification_service.service;
 
 import com.sendgrid.*;
@@ -15,11 +14,14 @@ public class EmailNotificationService {
     @Value("${sendgrid.api-key}")
     private String sendGridApiKey;
 
+    @Value("${sendgrid.from-email}")
+    private String fromEmail;
+
     public boolean sendEmail(String to, String subject, String content) {
-        Email fromEmail = new Email("premierleaguekasunyahimani@gmail.com");
+        Email fromEmailObj = new Email(fromEmail);
         Email toEmail = new Email(to);
         Content emailContent = new Content("text/plain", content);
-        Mail mail = new Mail(fromEmail, subject, toEmail, emailContent);
+        Mail mail = new Mail(fromEmailObj, subject, toEmail, emailContent);
 
         SendGrid sg = new SendGrid(sendGridApiKey);
         Request request = new Request();

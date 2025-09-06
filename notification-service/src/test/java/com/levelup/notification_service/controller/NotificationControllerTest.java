@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levelup.notification_service.dto.EmailNotificationRequest;
 import com.levelup.notification_service.entity.*;
 import com.levelup.notification_service.service.NotificationService;
+import com.levelup.notification_service.service.EmailNotificationService;
+import com.levelup.notification_service.client.UserServiceClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,6 +30,12 @@ class NotificationControllerTest {
     @MockBean
     private NotificationService notificationService;
 
+    @MockBean
+    private EmailNotificationService emailNotificationService;
+
+    @MockBean
+    private UserServiceClient userServiceClient;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -51,11 +59,22 @@ class NotificationControllerTest {
         expectedEmailNotification.setId(expectedNotification.getId());
         expectedEmailNotification.setSubject("Test Subject");
         expectedEmailNotification.setBody("Test Body");
-        expectedEmailNotification.setRecipientEmail(userId);
+        expectedEmailNotification.setRecipientEmail("test@example.com");
 
         when(notificationService.createNotification(eq(userId), eq(NotificationType.EMAIL), eq("Test Body")))
                 .thenReturn(expectedNotification);
-        when(notificationService.createEmailNotification(any(Notification.class), eq("Test Subject"), eq("Test Body"), eq(userId)))
+        
+        // Mock the Feign Client call to return user data
+        java.util.Map<String, Object> userResponse = new java.util.HashMap<>();
+        userResponse.put("email", "test@example.com");
+        when(userServiceClient.getUserById(eq(userId.toString())))
+                .thenReturn(userResponse);
+        
+        when(emailNotificationService.sendEmail(eq("test@example.com"), eq("Test Subject"), eq("Test Body")))
+                .thenReturn(true);
+        when(notificationService.updateNotificationStatus(eq(expectedNotification.getId()), eq(NotificationStatus.SENT)))
+                .thenReturn(expectedNotification);
+        when(notificationService.createEmailNotification(any(Notification.class), eq("Test Subject"), eq("Test Body"), eq("test@example.com")))
                 .thenReturn(expectedEmailNotification);
 
         // When & Then

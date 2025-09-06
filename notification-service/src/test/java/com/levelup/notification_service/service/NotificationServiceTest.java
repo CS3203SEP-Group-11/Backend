@@ -61,7 +61,7 @@ class NotificationServiceTest {
         notification.setId(UUID.randomUUID());
         String subject = "Test Subject";
         String body = "Test Body";
-        UUID recipientEmail = UUID.randomUUID();
+        String recipientEmail = "test@example.com";
 
         EmailNotification expectedEmailNotification = new EmailNotification();
         expectedEmailNotification.setId(notification.getId());
