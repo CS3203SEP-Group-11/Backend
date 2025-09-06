@@ -8,7 +8,6 @@ import com.levelup.user_service.model.User;
 import com.levelup.user_service.repository.InstructorRepository;
 import com.levelup.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -106,6 +105,13 @@ public class InstructorService {
     }
 
 
+    public String updateMyInstructorProfile(InstructorDTO instructorDTO, String currentUserId) {
+        Instructor instructor = instructorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Instructor profile not found for this user"));
+
+        return updateInstructor(instructorDTO, instructor.getId(), currentUserId);
+    }
+
     public String deleteInstructor(String instructorId, String currentUserId) {
         Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
@@ -132,6 +138,7 @@ public class InstructorService {
                         .website(instructor.getContactDetails().getWebsite())
                         .build())
                 .instructorName(user.getFirstName() + " " + user.getLastName())
+                .createdAt(instructor.getCreatedAt())
                 .build();
     }
 
@@ -153,5 +160,12 @@ public class InstructorService {
                     .instructorId(instructor.getId())
                     .isValidInstructor(true)
                     .build();
+    }
+
+    public InstructorDTO getMyInstructorProfile(String userId) {
+        Instructor instructor = instructorRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Instructor profile not found for this user"));
+
+        return ConvertToDTO(instructor);
     }
 }

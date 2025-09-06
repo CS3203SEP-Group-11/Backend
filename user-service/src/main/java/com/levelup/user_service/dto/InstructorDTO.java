@@ -4,6 +4,7 @@ import com.levelup.user_service.model.Instructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -13,8 +14,8 @@ public class InstructorDTO {
     private String bio;
     private List<String> expertise;
     private ContactDetails contactDetails;
-
     private String instructorName;
+    private Instant createdAt;
 
     @Data
     @Builder
@@ -23,4 +24,5 @@ public class InstructorDTO {
         private String linkedin;
         private String website;
     }
+
 }
