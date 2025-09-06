@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EmailNotificationRepository extends JpaRepository<EmailNotification, UUID> {
-    List<EmailNotification> findByRecipientEmail(UUID recipientEmail);
+    List<EmailNotification> findByRecipientEmail(String recipientEmail);
 }
