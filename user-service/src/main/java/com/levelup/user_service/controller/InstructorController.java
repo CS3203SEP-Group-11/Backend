@@ -31,6 +31,16 @@ public class InstructorController {
         return ResponseEntity.ok(instructorService.getAllInstructors());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<InstructorDTO> getMyInstructorProfile(@RequestHeader("X-User-ID") String userId) {
+        return ResponseEntity.ok(instructorService.getMyInstructorProfile(userId));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<String> updateMyInstructorProfile(@RequestBody InstructorDTO instructorDTO, @RequestHeader("X-User-ID") String userId) {
+        return ResponseEntity.ok(instructorService.updateMyInstructorProfile(instructorDTO, userId));
+    }
+
     @GetMapping("/{InstructorId}")
     public ResponseEntity<InstructorDTO> getInstructorById(@PathVariable String InstructorId) {
         return ResponseEntity.ok(instructorService.getInstructorById(InstructorId));

@@ -54,8 +54,6 @@ public class LessonServiceImpl implements LessonService {
             
         Lesson updated = mapToEntityForUpdate(dto);
         updated.setId(id);
-        updated.setCreatedAt(existing.getCreatedAt());
-        updated.setUpdatedAt(Instant.now());
         
         LessonDTO updatedLesson = mapToDto(lessonRepository.save(updated));
         log.info("Lesson updated successfully: {}", updatedLesson.getId());
@@ -162,7 +160,7 @@ public class LessonServiceImpl implements LessonService {
                 .textContent(dto.getTextContent())
                 .quizId(dto.getQuizId())
                 .order(dto.getOrder())
-
+                .status(dto.getStatus())
                 .updatedAt(Instant.now())
                 .build();
     }
