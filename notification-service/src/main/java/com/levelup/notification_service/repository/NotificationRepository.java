@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-    List<Notification> findByUserId(UUID userId);
+    List<Notification> findByUserId(String userId);
     List<Notification> findByType(NotificationType type);
     List<Notification> findByStatus(NotificationStatus status);
 }

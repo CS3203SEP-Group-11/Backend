@@ -12,3 +12,4 @@ public interface UserServiceClient {
     @GetMapping("/{userId}")
     Map<String, Object> getUserById(@PathVariable String userId);
 }
+

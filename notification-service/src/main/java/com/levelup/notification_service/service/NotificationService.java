@@ -18,7 +18,7 @@ public class NotificationService {
     @Autowired
     private InAppNotificationRepository inAppNotificationRepository;
 
-    public Notification createNotification(UUID userId, NotificationType type, String content) {
+    public Notification createNotification(String userId, NotificationType type, String content) {
         Notification notification = new Notification();
         notification.setId(UUID.randomUUID());
         notification.setUserId(userId);
@@ -65,7 +65,7 @@ public class NotificationService {
         return notificationRepository;
     }
 
-    public List<Notification> getNotificationsByUserId(UUID userId) {
+    public List<Notification> getNotificationsByUserId(String userId) {
         return notificationRepository.findByUserId(userId);
     }
 

@@ -31,5 +31,5 @@ eureka:
 
 sendgrid:
   api-key: ${SENDGRID_API_KEY}
-  from-email: premierleaguekasunyahimani@gmail.com
+  from-email: kasunyahimani@gmail.com
 

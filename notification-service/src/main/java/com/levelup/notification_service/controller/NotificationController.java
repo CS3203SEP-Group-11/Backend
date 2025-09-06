@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
 import java.util.Map;
 import java.util.List;
+import java.util.UUID;
 import com.levelup.notification_service.dto.EmailNotificationRequest;
 
 @RestController
@@ -58,7 +58,7 @@ public class NotificationController {
     }
 
     @PostMapping("/in-app")
-    public ResponseEntity<Notification> createInAppNotification(@RequestParam UUID userId, @RequestParam String title, @RequestParam String body, @RequestParam InAppType type) {
+    public ResponseEntity<Notification> createInAppNotification(@RequestParam String userId, @RequestParam String title, @RequestParam String body, @RequestParam InAppType type) {
         log.info("Creating in-app notification for user: {}", userId);
         Notification notification = notificationService.createNotification(userId, NotificationType.IN_APP, body);
         notificationService.createInAppNotification(notification, title, type, body);
@@ -66,9 +66,9 @@ public class NotificationController {
     }
 
     // Helper method to fetch user email from user-service via Feign Client
-    private String getUserEmailById(UUID userId) {
+    private String getUserEmailById(String userId) {
         try {
-            Map<String, Object> userResponse = userServiceClient.getUserById(userId.toString());
+            Map<String, Object> userResponse = userServiceClient.getUserById(userId);
             
             if (userResponse == null || userResponse.get("email") == null) {
                 throw new RuntimeException("User not found or email not available for user ID: " + userId);
@@ -87,7 +87,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getNotificationsByUserId(@PathVariable UUID userId) {
+    public ResponseEntity<List<Notification>> getNotificationsByUserId(@PathVariable String userId) {
         log.info("Fetching notifications for user: {}", userId);
         List<Notification> notifications = notificationService.getNotificationsByUserId(userId);
         return ResponseEntity.ok(notifications);
