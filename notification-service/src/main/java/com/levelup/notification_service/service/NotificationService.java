@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
@@ -16,7 +18,7 @@ public class NotificationService {
     @Autowired
     private InAppNotificationRepository inAppNotificationRepository;
 
-    public Notification createNotification(UUID userId, NotificationType type, String content) {
+    public Notification createNotification(String userId, NotificationType type, String content) {
         Notification notification = new Notification();
         notification.setId(UUID.randomUUID());
         notification.setUserId(userId);
@@ -28,7 +30,7 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public EmailNotification createEmailNotification(Notification notification, String subject, String body, UUID recipientEmail) {
+    public EmailNotification createEmailNotification(Notification notification, String subject, String body, String recipientEmail) {
         EmailNotification emailNotification = new EmailNotification();
         emailNotification.setId(notification.getId());
         emailNotification.setSubject(subject);
@@ -48,5 +50,30 @@ public class NotificationService {
         return inAppNotificationRepository.save(inAppNotification);
     }
 
-    // Additional methods for updating status, marking as read, etc.
+    public Notification updateNotificationStatus(UUID notificationId, NotificationStatus status) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        notification.setStatus(status);
+        if (status == NotificationStatus.SENT) {
+            notification.setSentAt(Instant.now());
+        }
+        notification.setUpdatedAt(Instant.now());
+        return notificationRepository.save(notification);
+    }
+
+    public NotificationRepository getNotificationRepository() {
+        return notificationRepository;
+    }
+
+    public List<Notification> getNotificationsByUserId(String userId) {
+        return notificationRepository.findByUserId(userId);
+    }
+
+    public Optional<Notification> getNotificationById(UUID id) {
+        return notificationRepository.findById(id);
+    }
+
+    public List<Notification> getNotificationsByStatus(NotificationStatus status) {
+        return notificationRepository.findByStatus(status);
+    }
 }
