@@ -1,14 +1,15 @@
 package com.levelup.course_service.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
-@Document(collection = "courses")
+@Entity
+@Table(name = "courses")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,26 +17,66 @@ import java.util.List;
 public class Course {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @Column(nullable = false, length = 255)
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "instructor_id")
     private String instructorId;
+
+    @Column(length = 100)
     private String category;
+
+    @ElementCollection
+    @CollectionTable(name = "course_tags", joinColumns = @JoinColumn(name = "course_id"))
+    @Column(name = "tag")
     private List<String> tags;
+
+    @Column(length = 50)
     private String language;
+
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
-    private String thumbnailId; // Optional, if using cloud storage
+
+    @Column(name = "thumbnail_id")
+    private String thumbnailId;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "published_at")
     private Instant publishedAt;
+
+    @Column(name = "enrollment_count")
     private int enrollmentCount;
 
-    private Price price;
-    private Rating rating;
-    private Integer duration; // in hours
-    private CourseLevel level; // Beginner, Intermediate, Advanced
+    @Column(name = "price_amount", precision = 12, scale = 2)
+    private BigDecimal priceAmount;
 
+    @Column(name = "price_currency", length = 10)
+    private String priceCurrency;
+
+    @Column(name = "rating_average", precision = 3, scale = 2)
+    private BigDecimal ratingAverage;
+
+    @Column(name = "rating_count")
+    private int ratingCount;
+
+    @Column(name = "duration")
+    private Integer duration; // in hours
+
+    @Enumerated(EnumType.STRING)
+    private CourseLevel level;
+
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
+
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
     public enum Status {
@@ -44,21 +85,5 @@ public class Course {
 
     public enum CourseLevel {
         BEGINNER, INTERMEDIATE, ADVANCED
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Price {
-        private BigDecimal amount;
-        private String currency;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Rating {
-        private BigDecimal average;
-        private int count;
     }
 }

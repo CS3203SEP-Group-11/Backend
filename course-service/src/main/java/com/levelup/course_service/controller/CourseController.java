@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
+
 import com.levelup.course_service.model.Course;
 import com.levelup.course_service.service.CourseService;
 import com.levelup.course_service.dto.CourseDTO;
@@ -32,7 +34,7 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable String id) {
+    public ResponseEntity<Course> getCourseById(@PathVariable UUID id) {
         return courseService.getCourseById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -40,7 +42,7 @@ public class CourseController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Course> updateCourse(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @RequestBody CourseDTO dto,
             @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(courseService.updateCourse(id, dto, currentUserId));
@@ -48,7 +50,7 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourse(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @RequestHeader("X-User-ID") String currentUserId) {
         courseService.deleteCourse(id, currentUserId);
         return ResponseEntity.noContent().build();
@@ -60,7 +62,7 @@ public class CourseController {
     }
 
     @PutMapping("/state/{status}/{courseId}")
-    public ResponseEntity<String> changeCourseState(@PathVariable String courseId, @PathVariable String status, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> changeCourseState(@PathVariable UUID courseId, @PathVariable String status, @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
     }
 

@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/lessons")
@@ -24,25 +25,25 @@ public class LessonController {
 
     @PutMapping("/{id}")
     public ResponseEntity<LessonDTO> updateLesson(
-            @PathVariable String id, 
+            @PathVariable UUID id,
             @RequestBody LessonDTO dto,
             @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(lessonService.updateLesson(id, dto, currentUserId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LessonDTO> getLesson(@PathVariable String id) {
+    public ResponseEntity<LessonDTO> getLesson(@PathVariable UUID id) {
         return ResponseEntity.ok(lessonService.getLessonById(id));
     }
 
     @GetMapping("/course/{courseId}")
-    public ResponseEntity<List<LessonDTO>> getLessonsByCourse(@PathVariable String courseId) {
+    public ResponseEntity<List<LessonDTO>> getLessonsByCourse(@PathVariable UUID courseId) {
         return ResponseEntity.ok(lessonService.getLessonsByCourse(courseId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLesson(
-            @PathVariable String id,
+            @PathVariable UUID id,
             @RequestHeader("X-User-ID") String currentUserId) {
         lessonService.deleteLesson(id, currentUserId);
         return ResponseEntity.noContent().build();
@@ -50,7 +51,7 @@ public class LessonController {
 
     @PutMapping("/state/{lessonId}")
     public ResponseEntity<String> changeLessonState(
-            @PathVariable String lessonId,
+            @PathVariable UUID lessonId,
             @RequestHeader("X-User-ID") String currentUserId,
             @RequestBody String status) {
         return ResponseEntity.ok(lessonService.changeLessonState(lessonId, currentUserId, status));

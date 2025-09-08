@@ -4,20 +4,21 @@ import com.levelup.course_service.model.Lesson;
 import lombok.*;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class LessonDTO {
-    private String id;
-    private String courseId;
+    private UUID id;
+    private UUID courseId;
     private String title;
     private String contentType;
     private String contentUrl;
     private String contentId; // Optional, if using cloud storage
     private String textContent;
-    private String quizId;
+    private UUID quizId;
     private int order;
     private Lesson.Status status;
     private Instant createdAt;
