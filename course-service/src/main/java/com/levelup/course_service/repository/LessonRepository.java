@@ -1,6 +1,6 @@
 package com.levelup.course_service.repository;
 
-import com.levelup.course_service.model.Lesson;
+import com.levelup.course_service.entity.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

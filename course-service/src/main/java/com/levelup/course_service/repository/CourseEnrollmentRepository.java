@@ -1,6 +1,6 @@
 package com.levelup.course_service.repository;
 
-import com.levelup.course_service.model.CourseEnrollment;
+import com.levelup.course_service.entity.CourseEnrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.levelup.course_service.service.CourseService;
 import com.levelup.course_service.client.UserServiceClient;
 import com.levelup.course_service.repository.CourseRepository;
-import com.levelup.course_service.model.Course;
+import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.dto.CourseDTO;
 import com.levelup.course_service.dto.InstructorValidationResponseDTO;
 

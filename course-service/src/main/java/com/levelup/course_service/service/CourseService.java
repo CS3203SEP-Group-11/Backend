@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.levelup.course_service.model.Course;
+import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.dto.CourseDTO;
 
 public interface CourseService {

@@ -2,8 +2,8 @@ package com.levelup.course_service.service.impl;
 
 import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
-import com.levelup.course_service.model.CourseEnrollment;
-import com.levelup.course_service.model.Lesson;
+import com.levelup.course_service.entity.CourseEnrollment;
+import com.levelup.course_service.entity.Lesson;
 import com.levelup.course_service.repository.CourseEnrollmentRepository;
 import com.levelup.course_service.repository.LessonRepository;
 import com.levelup.course_service.service.CourseEnrollmentService;
