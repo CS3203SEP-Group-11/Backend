@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,75 +29,101 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonDTO createLesson(LessonDTO dto, String currentUserId) {
         log.info("Creating lesson for course {} by user: {}", dto.getCourseId(), currentUserId);
-        
+
         // Validate that the user is an instructor and owns the course
         validateUserCanModifyCourse(dto.getCourseId(), currentUserId);
-        
+
         Lesson lesson = mapToEntityForCreate(dto);
         lesson.setStatus(Lesson.Status.DRAFT);
         lesson.setCreatedAt(Instant.now());
         lesson.setUpdatedAt(Instant.now());
-        
+
         LessonDTO createdLesson = mapToDto(lessonRepository.save(lesson));
         log.info("Lesson created successfully: {}", createdLesson.getId());
         return createdLesson;
     }
 
     @Override
-    public LessonDTO updateLesson(String id, LessonDTO dto, String currentUserId) {
+    public LessonDTO updateLesson(UUID id, LessonDTO dto, String currentUserId) {
         log.info("Updating lesson {} by user: {}", id, currentUserId);
-        
-        // Validate that the user is an instructor and owns the course
-        validateUserCanModifyCourse(dto.getCourseId(), currentUserId);
-        
+        // Load existing lesson first (ensures we keep non-updated relationships like
+        // course)
         Lesson existing = lessonRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Lesson not found"));
-            
-        Lesson updated = mapToEntityForUpdate(dto);
-        updated.setId(id);
-        
-        LessonDTO updatedLesson = mapToDto(lessonRepository.save(updated));
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+
+        // Validate using the existing lesson's course (client cannot change course of a
+        // lesson)
+        validateUserCanModifyCourse(existing.getCourse().getId(), currentUserId);
+
+        // If client attempts to change courseId, reject it explicitly
+        if (dto.getCourseId() != null && !dto.getCourseId().equals(existing.getCourse().getId())) {
+            throw new RuntimeException("Course of a lesson cannot be changed");
+        }
+
+        // Update mutable fields only if provided (null-safe partial update)
+        if (dto.getTitle() != null)
+            existing.setTitle(dto.getTitle());
+        if (dto.getContentType() != null) {
+            existing.setContentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()));
+        }
+        if (dto.getContentUrl() != null)
+            existing.setContentUrl(dto.getContentUrl());
+        if (dto.getContentId() != null)
+            existing.setContentId(dto.getContentId());
+        if (dto.getTextContent() != null)
+            existing.setTextContent(dto.getTextContent());
+        if (dto.getQuizId() != null)
+            existing.setQuizId(dto.getQuizId());
+        // order (primitive int) treat 0 as legitimate; decide if client wants to update
+        if (dto.getOrder() != 0)
+            existing.setOrder(dto.getOrder());
+        if (dto.getStatus() != null)
+            existing.setStatus(dto.getStatus());
+
+        existing.setUpdatedAt(Instant.now());
+
+        LessonDTO updatedLesson = mapToDto(lessonRepository.save(existing));
         log.info("Lesson updated successfully: {}", updatedLesson.getId());
         return updatedLesson;
     }
 
     @Override
-    public void deleteLesson(String id, String currentUserId) {
+    public void deleteLesson(UUID id, String currentUserId) {
         log.info("Deleting lesson {} by user: {}", id, currentUserId);
-        
+
         // Get lesson to find the course ID
         Lesson lesson = lessonRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Lesson not found"));
-            
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+
         // Validate that the user is an instructor and owns the course
-        validateUserCanModifyCourse(lesson.getCourseId(), currentUserId);
-        
+        validateUserCanModifyCourse(lesson.getCourse().getId(), currentUserId);
+
         lessonRepository.deleteById(id);
         log.info("Lesson deleted successfully: {}", id);
     }
 
     @Override
-    public LessonDTO getLessonById(String id) {
+    public LessonDTO getLessonById(UUID id) {
         return lessonRepository.findById(id).map(this::mapToDto)
-            .orElseThrow(() -> new RuntimeException("Lesson not found"));
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
     }
 
     @Override
-    public List<LessonDTO> getLessonsByCourse(String courseId) {
+    public List<LessonDTO> getLessonsByCourse(UUID courseId) {
         return lessonRepository.findByCourseId(courseId)
-            .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     @Override
-    public String changeLessonState(String lessonId, String currentUserId, String status) {
+    public String changeLessonState(UUID lessonId, String currentUserId, String status) {
         log.info("Changing lesson state for {} by user: {}", lessonId, currentUserId);
 
         // Get lesson to find the course ID
         Lesson lesson = lessonRepository.findById(lessonId)
-            .orElseThrow(() -> new RuntimeException("Lesson not found"));
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
 
         // Validate that the user is an instructor and owns the course
-        validateUserCanModifyCourse(lesson.getCourseId(), currentUserId);
+        validateUserCanModifyCourse(lesson.getCourse().getId(), currentUserId);
 
         // Update the status
         Lesson.Status newStatus = Lesson.Status.valueOf(status.toUpperCase());
@@ -108,36 +135,38 @@ public class LessonServiceImpl implements LessonService {
         return "Lesson state changed successfully";
     }
 
-    private void validateUserCanModifyCourse(String courseId, String currentUserId) {
+    private void validateUserCanModifyCourse(UUID courseId, String currentUserId) {
         // Step 1: Get instructor validation from user service using the user ID
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
-        
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
+
         // Step 2: Check if user is a valid instructor
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Access denied: User is not a valid instructor");
         }
-        
+
         // Step 3: Get the instructor ID from the validation response
         String instructorId = validationResponse.getInstructorId();
         log.info("User {} validated as instructor with ID: {}", currentUserId, instructorId);
-        
+
         // Step 4: Get the course to check ownership
         Course course = courseRepository.findById(courseId)
-            .orElseThrow(() -> new RuntimeException("Course not found"));
-        
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
         // Step 5: Check if the instructor ID matches the course's instructor ID
         if (!course.getInstructorId().equals(instructorId)) {
             throw new RuntimeException("Access denied: You can only modify lessons for courses that you own");
         }
-        
+
         log.info("Access granted: Instructor {} can modify course {}", instructorId, courseId);
     }
 
-
-
     private Lesson mapToEntityForCreate(LessonDTO dto) {
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
         return Lesson.builder()
-                .courseId(dto.getCourseId())
+                .course(course)
                 .title(dto.getTitle())
                 .contentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()))
                 .contentUrl(dto.getContentUrl())
@@ -150,11 +179,15 @@ public class LessonServiceImpl implements LessonService {
     }
 
     private Lesson mapToEntityForUpdate(LessonDTO dto) {
+        // No longer used for full replacement updates because it dropped the mandatory
+        // course relation.
+        // Kept for backwards compatibility if needed elsewhere; consider removing if
+        // unused.
         return Lesson.builder()
-
-                .courseId(dto.getCourseId())
                 .title(dto.getTitle())
-                .contentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()))
+                .contentType(
+                        dto.getContentType() != null ? Lesson.ContentType.valueOf(dto.getContentType().toUpperCase())
+                                : null)
                 .contentUrl(dto.getContentUrl())
                 .contentId(dto.getContentId())
                 .textContent(dto.getTextContent())
@@ -167,18 +200,18 @@ public class LessonServiceImpl implements LessonService {
 
     private LessonDTO mapToDto(Lesson entity) {
         return LessonDTO.builder()
-            .id(entity.getId())
-            .courseId(entity.getCourseId())
-            .title(entity.getTitle())
-            .contentType(entity.getContentType().name())
-            .contentUrl(entity.getContentUrl())
-            .contentId(entity.getContentId())
-            .textContent(entity.getTextContent())
-            .quizId(entity.getQuizId())
-            .order(entity.getOrder())
-            .status(entity.getStatus())
-            .createdAt(entity.getCreatedAt())
-            .updatedAt(entity.getUpdatedAt())
-            .build();
+                .id(entity.getId())
+                .courseId(entity.getCourse().getId())
+                .title(entity.getTitle())
+                .contentType(entity.getContentType().name())
+                .contentUrl(entity.getContentUrl())
+                .contentId(entity.getContentId())
+                .textContent(entity.getTextContent())
+                .quizId(entity.getQuizId())
+                .order(entity.getOrder())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
     }
 }

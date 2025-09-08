@@ -1,9 +1,15 @@
 spring:
   application:
     name: course-service
-  data:
-    mongodb:
-      uri: ${COURSE_DB_URL}
+  datasource:
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 server:
   port: 8082
 

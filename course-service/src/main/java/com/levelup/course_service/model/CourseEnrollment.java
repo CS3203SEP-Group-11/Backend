@@ -1,39 +1,55 @@
 package com.levelup.course_service.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Document(collection = "course_enrollments")
+@Entity
+@Table(name = "course_enrollments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CourseEnrollment {
+
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "user_id", nullable = false)
     private String userId;
-    private String courseId;
+
+    @Column(name = "course_id", nullable = false)
+    private UUID courseId;
+
+    @Column(name = "enrollment_date", nullable = false)
     private Instant enrollmentDate;
-    private Progress progress;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
+
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "enrollment_completed_lessons",
+            joinColumns = @JoinColumn(name = "enrollment_id")
+    )
+    @Column(name = "lesson_id")
+    private List<UUID> completedLessons;
+
+    @Column(name = "progress_percentage", nullable = false)
+    private double progressPercentage;
 
     public enum Status {
         COMPLETED, IN_PROGRESS
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Progress {
-        private List<String> completedLessons;
-        private int totalLessons;
-        private double progressPercentage;
     }
 }

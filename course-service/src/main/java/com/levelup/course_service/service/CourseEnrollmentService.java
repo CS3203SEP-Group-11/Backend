@@ -4,10 +4,11 @@ import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CourseEnrollmentService {
     CourseEnrollmentResponseDTO enroll(CourseEnrollmentRequestDTO request);
     List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(String userId);
-    List<CourseEnrollmentResponseDTO> getEnrollmentsByCourse(String courseId);
-    void updateProgress(String enrollmentId, List<String> completedLessons);
+    List<CourseEnrollmentResponseDTO> getEnrollmentsByCourse(UUID courseId);
+    void updateProgress(UUID enrollmentId, List<String> completedLessons);
 }
