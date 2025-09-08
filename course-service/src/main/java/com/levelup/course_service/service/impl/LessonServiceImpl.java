@@ -2,8 +2,8 @@ package com.levelup.course_service.service.impl;
 
 import com.levelup.course_service.dto.LessonDTO;
 import com.levelup.course_service.dto.InstructorValidationResponseDTO;
-import com.levelup.course_service.model.Lesson;
-import com.levelup.course_service.model.Course;
+import com.levelup.course_service.entity.Lesson;
+import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.repository.LessonRepository;
 import com.levelup.course_service.repository.CourseRepository;
 import com.levelup.course_service.service.LessonService;
@@ -46,43 +46,33 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonDTO updateLesson(UUID id, LessonDTO dto, String currentUserId) {
         log.info("Updating lesson {} by user: {}", id, currentUserId);
-        // Load existing lesson first (ensures we keep non-updated relationships like
-        // course)
-        Lesson existing = lessonRepository.findById(id)
+
+        Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
 
-        // Validate using the existing lesson's course (client cannot change course of a
-        // lesson)
-        validateUserCanModifyCourse(existing.getCourse().getId(), currentUserId);
+        validateUserCanModifyCourse(lesson.getCourse().getId(), currentUserId);
 
-        // If client attempts to change courseId, reject it explicitly
-        if (dto.getCourseId() != null && !dto.getCourseId().equals(existing.getCourse().getId())) {
-            throw new RuntimeException("Course of a lesson cannot be changed");
-        }
-
-        // Update mutable fields only if provided (null-safe partial update)
         if (dto.getTitle() != null)
-            existing.setTitle(dto.getTitle());
+            lesson.setTitle(dto.getTitle());
         if (dto.getContentType() != null) {
-            existing.setContentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()));
+            lesson.setContentType(Lesson.ContentType.valueOf(dto.getContentType().toUpperCase()));
         }
         if (dto.getContentUrl() != null)
-            existing.setContentUrl(dto.getContentUrl());
+            lesson.setContentUrl(dto.getContentUrl());
         if (dto.getContentId() != null)
-            existing.setContentId(dto.getContentId());
+            lesson.setContentId(dto.getContentId());
         if (dto.getTextContent() != null)
-            existing.setTextContent(dto.getTextContent());
+            lesson.setTextContent(dto.getTextContent());
         if (dto.getQuizId() != null)
-            existing.setQuizId(dto.getQuizId());
-        // order (primitive int) treat 0 as legitimate; decide if client wants to update
+            lesson.setQuizId(dto.getQuizId());
         if (dto.getOrder() != 0)
-            existing.setOrder(dto.getOrder());
+            lesson.setOrder(dto.getOrder());
         if (dto.getStatus() != null)
-            existing.setStatus(dto.getStatus());
+            lesson.setStatus(dto.getStatus());
 
-        existing.setUpdatedAt(Instant.now());
+        lesson.setUpdatedAt(Instant.now());
 
-        LessonDTO updatedLesson = mapToDto(lessonRepository.save(existing));
+        LessonDTO updatedLesson = mapToDto(lessonRepository.save(lesson));
         log.info("Lesson updated successfully: {}", updatedLesson.getId());
         return updatedLesson;
     }
@@ -181,8 +171,6 @@ public class LessonServiceImpl implements LessonService {
     private Lesson mapToEntityForUpdate(LessonDTO dto) {
         // No longer used for full replacement updates because it dropped the mandatory
         // course relation.
-        // Kept for backwards compatibility if needed elsewhere; consider removing if
-        // unused.
         return Lesson.builder()
                 .title(dto.getTitle())
                 .contentType(

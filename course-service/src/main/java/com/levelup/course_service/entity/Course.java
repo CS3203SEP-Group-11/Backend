@@ -1,4 +1,4 @@
-package com.levelup.course_service.model;
+package com.levelup.course_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

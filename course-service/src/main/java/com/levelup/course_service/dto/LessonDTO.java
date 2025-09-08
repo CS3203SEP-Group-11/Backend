@@ -1,9 +1,8 @@
 package com.levelup.course_service.dto;
 
-import com.levelup.course_service.model.Lesson;
+import com.levelup.course_service.entity.Lesson;
 import lombok.*;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Data
