@@ -31,15 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-### Environment Files ###
-.env
-.env.*
-
-# Sensitive configuration files
-application-dev.properties
-application-local.properties
-application-prod.properties
-
-# Batch files with secrets
-start-with-env.bat
