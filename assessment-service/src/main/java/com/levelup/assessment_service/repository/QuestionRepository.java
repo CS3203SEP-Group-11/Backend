@@ -2,6 +2,8 @@ package com.levelup.assessment_service.repository;
 
 import com.levelup.assessment_service.entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,7 @@ public interface QuestionRepository extends JpaRepository<Question, UUID> {
     List<Question> findByQuizId(UUID quizId);
     
     List<Question> findByQuizIdOrderByOrderAsc(UUID quizId);
+
+    @Query("SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.options WHERE q.quiz.id = :quizId ORDER BY q.order")
+    List<Question> findByQuizIdWithOptions(@Param("quizId") UUID quizId);
 } 

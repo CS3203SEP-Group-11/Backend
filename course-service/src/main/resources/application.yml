@@ -5,6 +5,12 @@ spring:
     url: ${PG_DB_URL}
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 30000     # 30s
+      max-lifetime: 600000    # 10 min
+      connection-timeout: 20000  # 20s wait before failing
   jpa:
     hibernate:
       ddl-auto: update

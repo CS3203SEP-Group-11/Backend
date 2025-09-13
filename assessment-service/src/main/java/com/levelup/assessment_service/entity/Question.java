@@ -29,7 +29,7 @@ public class Question {
     @Column(name = "question_text", columnDefinition = "TEXT", nullable = false)
     private String questionText;
     
-    @Column(nullable = false)
+    @Column(name = "question_order", nullable = false)
     private Integer order; // Order of the question in the quiz
     
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
