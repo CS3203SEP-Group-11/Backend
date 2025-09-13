@@ -10,6 +10,7 @@ import com.levelup.assessment_service.repository.QuestionOptionRepository;
 import com.levelup.assessment_service.repository.QuestionRepository;
 import com.levelup.assessment_service.repository.QuizRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class QuestionService {
     
     private final QuestionRepository questionRepository;
@@ -27,6 +29,7 @@ public class QuestionService {
     private final QuizRepository quizRepository;
     
     public QuestionDto addQuestion(UUID quizId, CreateQuestionRequest request) {
+        log.info("{}, {}, {}", request.getOptions(), request.getQuestionText(), request.getOrder());
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found with id: " + quizId));
         
@@ -54,13 +57,41 @@ public class QuestionService {
         
         return QuestionDto.fromEntity(savedQuestion);
     }
-    
+
     @Transactional(readOnly = true)
-    public List<QuestionDto> getQuestionsByQuiz(UUID quizId) {
-        List<Question> questions = questionRepository.findByQuizIdOrderByOrderAsc(quizId);
+    public List<QuestionDto> getQuestionsByQuiz(UUID quizId, String userRole) {
+
+        boolean showCorrectAnswers = "ADMIN".equalsIgnoreCase(userRole) || "INSTRUCTOR".equalsIgnoreCase(userRole);
+
+        List<Question> questions = questionRepository.findByQuizIdWithOptions(quizId);
         return questions.stream()
-                .map(QuestionDto::fromEntity)
+                .map(question -> convertToDto(question, showCorrectAnswers))
                 .collect(Collectors.toList());
+    }
+
+    private QuestionDto convertToDto(Question question, boolean showCorrectAnswers) {
+        QuestionDto dto = QuestionDto.fromEntity(question);
+
+        // Convert options to DTOs
+        if (question.getOptions() != null) {
+            List<QuestionOptionDto> optionDtos = question.getOptions().stream()
+                    .map(option -> convertOptionToDto(option, showCorrectAnswers))
+                    .collect(Collectors.toList());
+            dto.setOptions(optionDtos);
+        }
+        return dto;
+    }
+
+    private QuestionOptionDto convertOptionToDto(QuestionOption option, boolean showCorrectAnswers) {
+        QuestionOptionDto dto = new QuestionOptionDto();
+        dto.setId(option.getId());
+        dto.setOptionText(option.getOptionText());
+        dto.setCreatedAt(option.getCreatedAt());
+        dto.setUpdatedAt(option.getUpdatedAt());
+        if (showCorrectAnswers) {
+            dto.setIsCorrect(option.getIsCorrect());
+        }
+        return dto;
     }
     
     public QuestionDto updateQuestion(UUID quizId, UUID questionId, CreateQuestionRequest request) {
