@@ -1,6 +1,6 @@
 package com.levelup.course_service.dto;
 
-import com.levelup.course_service.model.Course;
+import com.levelup.course_service.entity.Course;
 import lombok.Data;
 
 import java.math.BigDecimal;

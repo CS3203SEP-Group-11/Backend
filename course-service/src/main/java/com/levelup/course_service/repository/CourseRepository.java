@@ -1,10 +1,13 @@
 package com.levelup.course_service.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import com.levelup.course_service.model.Course;
+import java.util.UUID;
 
-public interface CourseRepository extends MongoRepository<Course, String> {
+import com.levelup.course_service.entity.Course;
+
+
+public interface CourseRepository extends JpaRepository<Course, UUID> {
     List<Course> findByInstructorId(String instructorId);
 }
