@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/assessments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class QuizController {
     
     private final QuizService quizService;
@@ -66,8 +65,8 @@ public class QuizController {
     }
     
     @GetMapping("/quizzes/{quizId}/questions")
-    public ResponseEntity<List<QuestionDto>> getQuestionsByQuiz(@PathVariable UUID quizId) {
-        List<QuestionDto> questions = questionService.getQuestionsByQuiz(quizId);
+    public ResponseEntity<List<QuestionDto>> getQuestionsByQuiz(@PathVariable UUID quizId, @RequestHeader("X-User-Role") String userRole) {
+        List<QuestionDto> questions = questionService.getQuestionsByQuiz(quizId, userRole);
         return ResponseEntity.ok(questions);
     }
     

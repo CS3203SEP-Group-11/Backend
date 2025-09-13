@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/enrollments")
@@ -26,13 +27,13 @@ public class CourseEnrollmentController {
     }
 
     @GetMapping("/course/{courseId}")
-    public List<CourseEnrollmentResponseDTO> getByCourse(@PathVariable String courseId) {
+    public List<CourseEnrollmentResponseDTO> getByCourse(@PathVariable UUID courseId) {
         return enrollmentService.getEnrollmentsByCourse(courseId);
     }
 
     @PutMapping("/{enrollmentId}/progress")
     public void updateProgress(
-        @PathVariable String enrollmentId,
+        @PathVariable UUID enrollmentId,
         @RequestBody List<String> completedLessons
     ) {
         enrollmentService.updateProgress(enrollmentId, completedLessons);
