@@ -7,13 +7,15 @@ import org.springframework.stereotype.Service;
 import com.levelup.course_service.service.CourseService;
 import com.levelup.course_service.client.UserServiceClient;
 import com.levelup.course_service.repository.CourseRepository;
-import com.levelup.course_service.model.Course;
+import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.dto.CourseDTO;
 import com.levelup.course_service.dto.InstructorValidationResponseDTO;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +46,10 @@ public class CourseServiceImpl implements CourseService {
                 .thumbnailUrl(dto.getThumbnailUrl())
                 .thumbnailId(dto.getThumbnailId()) // Optional, if using cloud storage
                 .status(Course.Status.DRAFT)
-                .price(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()))
-                .rating(new Course.Rating(null, 0))
+                .priceAmount(dto.getPriceAmount())
+                .priceCurrency(dto.getPriceCurrency())
+                .ratingAverage(BigDecimal.valueOf(0.0))
+                .ratingCount(0)
                 .duration(dto.getDuration())
                 .level(dto.getLevel())
                 .enrollmentCount(0)
@@ -64,12 +68,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Optional<Course> getCourseById(String id) {
+    public Optional<Course> getCourseById(UUID id) {
         return courseRepository.findById(id);
     }
 
     @Override
-    public void deleteCourse(String id, String currentUserId) {
+    public void deleteCourse(UUID id, String currentUserId) {
         log.info("Deleting course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
@@ -93,7 +97,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course updateCourse(String id, CourseDTO dto, String currentUserId) {
+    public Course updateCourse(UUID id, CourseDTO dto, String currentUserId) {
         log.info("Updating course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
@@ -116,7 +120,8 @@ public class CourseServiceImpl implements CourseService {
             course.setLanguage(dto.getLanguage());
             course.setThumbnailUrl(dto.getThumbnailUrl());
             course.setThumbnailId(dto.getThumbnailId()); // Optional, if using cloud storage
-            course.setPrice(new Course.Price(dto.getPriceAmount(), dto.getPriceCurrency()));
+            course.setPriceAmount(dto.getPriceAmount());
+            course.setPriceCurrency(dto.getPriceCurrency());
             course.setDuration(dto.getDuration());
             course.setLevel(dto.getLevel());
             course.setUpdatedAt(Instant.now());
@@ -129,7 +134,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public String changeCourseState(String courseId, String currentUserId, String status) {
+    public String changeCourseState(UUID courseId, String currentUserId, String status) {
         log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId, status);
 
         // Validate instructor using user service
