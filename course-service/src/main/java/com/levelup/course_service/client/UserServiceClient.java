@@ -5,9 +5,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.UUID;
+
 @FeignClient(name = "user-service", path = "/api/instructors")
 public interface UserServiceClient {
     
     @GetMapping("/{userId}/validate")
-    InstructorValidationResponseDTO validateInstructorByUserId(@PathVariable String userId);
+    InstructorValidationResponseDTO validateInstructorByUserId(@PathVariable UUID userId);
 }

@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class CourseEnrollmentResponseDTO {
-    private String userId;
+    private UUID userId;
     private UUID courseId;
     private Instant enrollmentDate;
     private List<String> completedLessons;

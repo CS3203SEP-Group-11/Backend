@@ -43,7 +43,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     }
 
     @Override
-    public List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(String userId) {
+    public List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(UUID userId) {
         return enrollmentRepository.findByUserId(userId).stream().map(this::toDto).collect(Collectors.toList());
     }
 

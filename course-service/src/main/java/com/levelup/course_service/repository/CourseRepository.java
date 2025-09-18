@@ -9,5 +9,5 @@ import com.levelup.course_service.entity.Course;
 
 
 public interface CourseRepository extends JpaRepository<Course, UUID> {
-    List<Course> findByInstructorId(String instructorId);
+    List<Course> findByInstructorId(UUID instructorId);
 }

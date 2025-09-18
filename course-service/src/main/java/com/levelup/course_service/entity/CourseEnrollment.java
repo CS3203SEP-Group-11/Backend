@@ -20,7 +20,7 @@ public class CourseEnrollment {
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private UUID userId;
 
     @Column(name = "course_id", nullable = false)
     private UUID courseId;
