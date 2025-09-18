@@ -29,9 +29,9 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
       
-      COURSE_DB_URL: ${{ secrets.COURSE_DB_URL }}
-      USER_DB_URL: ${{ secrets.USER_DB_URL }}
-      MEDIA_DB_URL: ${{ secrets.MEDIA_DB_URL }}
+      PG_DB_URL: ${{ secrets.PG_DB_URL }}
+      PG_DB_USERNAME: ${{ secrets.PG_DB_USERNAME }}
+      PG_DB_PASSWORD: ${{ secrets.PG_DB_PASSWORD }}
       
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
