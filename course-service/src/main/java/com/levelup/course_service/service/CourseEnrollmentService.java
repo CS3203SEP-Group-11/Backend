@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface CourseEnrollmentService {
     CourseEnrollmentResponseDTO enroll(CourseEnrollmentRequestDTO request);
-    List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(String userId);
+    List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(UUID userId);
     List<CourseEnrollmentResponseDTO> getEnrollmentsByCourse(UUID courseId);
     void updateProgress(UUID enrollmentId, List<String> completedLessons);
 }

@@ -1,12 +1,13 @@
 package com.levelup.user_service.service;
 
 import com.levelup.user_service.dto.UserDTO;
-import com.levelup.user_service.model.User;
+import com.levelup.user_service.entity.User;
 import com.levelup.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +15,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserDTO getUserById(String userId) {
+    public UserDTO getUserById(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -28,7 +29,7 @@ public class UserService {
                 .toList();
     }
 
-    public String updateUser(UserDTO userDTO, String userId, String currentUserId) {
+    public String updateUser(UserDTO userDTO, UUID userId, String currentUserId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -60,7 +61,7 @@ public class UserService {
         return "User updated successfully";
     }
 
-    public String deleteUser(String userId, String currentUserId) {
+    public String deleteUser(UUID userId, String currentUserId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

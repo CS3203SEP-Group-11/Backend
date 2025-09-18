@@ -23,7 +23,7 @@ public class CourseController {
     @PostMapping
     public ResponseEntity<Course> createCourse(
             @RequestBody CourseDTO dto,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         log.info("Creating course for user: {}", currentUserId);
         return ResponseEntity.ok(courseService.createCourse(dto, currentUserId));
     }
@@ -44,14 +44,14 @@ public class CourseController {
     public ResponseEntity<Course> updateCourse(
             @PathVariable UUID id,
             @RequestBody CourseDTO dto,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(courseService.updateCourse(id, dto, currentUserId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourse(
             @PathVariable UUID id,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         courseService.deleteCourse(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
@@ -62,12 +62,12 @@ public class CourseController {
     }
 
     @PutMapping("/state/{status}/{courseId}")
-    public ResponseEntity<String> changeCourseState(@PathVariable UUID courseId, @PathVariable String status, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> changeCourseState(@PathVariable UUID courseId, @PathVariable String status, @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
     }
 
     @GetMapping("/instructor/me")
-    public ResponseEntity<List<Course>> getCoursesByInstructor(@RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<List<Course>> getCoursesByInstructor(@RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(courseService.getMyCourses(currentUserId));
     }
 }

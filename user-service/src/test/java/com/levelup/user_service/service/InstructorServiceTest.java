@@ -2,9 +2,9 @@ package com.levelup.user_service.service;
 
 import com.levelup.user_service.dto.InstructorDTO;
 import com.levelup.user_service.dto.InstructorValidationResponseDTO;
-import com.levelup.user_service.model.Instructor;
-import com.levelup.user_service.model.Role;
-import com.levelup.user_service.model.User;
+import com.levelup.user_service.entity.Instructor;
+import com.levelup.user_service.entity.Role;
+import com.levelup.user_service.entity.User;
 import com.levelup.user_service.repository.InstructorRepository;
 import com.levelup.user_service.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,9 +33,13 @@ class InstructorServiceTest {
     @InjectMocks
     private InstructorService instructorService;
 
+    private static final UUID U1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID U2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID I1 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID I2 = UUID.fromString("00000000-0000-0000-0000-000000000012");
+
     @Test
     void registerInstructor_registersSuccessfully_whenUserExistsAndNotAlreadyInstructor() {
-        String userId = "user1";
         InstructorDTO dto = InstructorDTO.builder()
                 .bio("Experienced instructor")
                 .expertise(Arrays.asList("Java", "Spring"))
@@ -46,17 +51,17 @@ class InstructorServiceTest {
                 .build();
 
         User user = User.builder()
-                .id(userId)
+                .id(U1)
                 .firstName("John")
                 .lastName("Doe")
                 .email("john@example.com")
                 .role(Role.USER)
                 .build();
 
-        when(instructorRepository.existsByUserId(userId)).thenReturn(false);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(instructorRepository.existsByUserId(U1)).thenReturn(false);
+        when(userRepository.findById(U1)).thenReturn(Optional.of(user));
 
-        String result = instructorService.registerInstructor(userId, dto);
+        String result = instructorService.registerInstructor(U1, dto);
 
         assertEquals("Instructor registered successfully", result);
         verify(userRepository).save(argThat(savedUser -> savedUser.getRole() == Role.INSTRUCTOR));
@@ -65,13 +70,12 @@ class InstructorServiceTest {
 
     @Test
     void registerInstructor_throwsException_whenInstructorAlreadyExists() {
-        String userId = "user1";
         InstructorDTO dto = InstructorDTO.builder().build();
 
-        when(instructorRepository.existsByUserId(userId)).thenReturn(true);
+        when(instructorRepository.existsByUserId(U1)).thenReturn(true);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instructorService.registerInstructor(userId, dto));
+                () -> instructorService.registerInstructor(U1, dto));
 
         assertEquals("Instructor already registered for this user", exception.getMessage());
         verify(userRepository, never()).save(any());
@@ -80,14 +84,13 @@ class InstructorServiceTest {
 
     @Test
     void registerInstructor_throwsException_whenUserNotFound() {
-        String userId = "user1";
         InstructorDTO dto = InstructorDTO.builder().build();
 
-        when(instructorRepository.existsByUserId(userId)).thenReturn(false);
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(instructorRepository.existsByUserId(U1)).thenReturn(false);
+        when(userRepository.findById(U1)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instructorService.registerInstructor(userId, dto));
+                () -> instructorService.registerInstructor(U1, dto));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -95,91 +98,87 @@ class InstructorServiceTest {
     @Test
     void getAllInstructors_returnsListOfInstructorDTOs() {
         Instructor instructor1 = Instructor.builder()
-                .id("1")
-                .userId("user1")
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .bio("Bio 1")
                 .expertise(Arrays.asList("Java"))
                 .contactDetails(new Instructor.ContactDetails("test1@example.com", "linkedin1", "website1"))
                 .build();
 
         Instructor instructor2 = Instructor.builder()
-                .id("2")
-                .userId("user2")
+                .id(I2)
+                .user(User.builder().id(U2).build())
                 .bio("Bio 2")
                 .expertise(Arrays.asList("Python"))
                 .contactDetails(new Instructor.ContactDetails("test2@example.com", "linkedin2", "website2"))
                 .build();
 
         User user1 = User.builder()
-                .id("user1")
+                .id(U1)
                 .firstName("John")
                 .lastName("Doe")
                 .profileImageUrl("image1.jpg")
                 .build();
 
         User user2 = User.builder()
-                .id("user2")
+                .id(U2)
                 .firstName("Jane")
                 .lastName("Smith")
                 .profileImageUrl("image2.jpg")
                 .build();
 
         when(instructorRepository.findAll()).thenReturn(Arrays.asList(instructor1, instructor2));
-        when(userRepository.findById("user1")).thenReturn(Optional.of(user1));
-        when(userRepository.findById("user2")).thenReturn(Optional.of(user2));
+        when(userRepository.findById(U1)).thenReturn(Optional.of(user1));
+        when(userRepository.findById(U2)).thenReturn(Optional.of(user2));
 
         List<InstructorDTO> result = instructorService.getAllInstructors();
 
         assertEquals(2, result.size());
-        assertEquals("John Doe", result.get(0).getInstructorName());
-        assertEquals("Jane Smith", result.get(1).getInstructorName());
+        // Assert fields present in the updated DTO
+        assertEquals("Bio 1", result.get(0).getBio());
+        assertEquals("Bio 2", result.get(1).getBio());
+        assertEquals("test1@example.com", result.get(0).getContactDetails().getEmail());
+        assertEquals("test2@example.com", result.get(1).getContactDetails().getEmail());
     }
 
     @Test
     void getInstructorById_returnsInstructorDTO_whenInstructorExists() {
-        String instructorId = "instructor1";
         Instructor instructor = Instructor.builder()
-                .id(instructorId)
-                .userId("user1")
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .bio("Experienced instructor")
                 .expertise(Arrays.asList("Java", "Spring"))
                 .contactDetails(new Instructor.ContactDetails("test@example.com", "linkedin", "website"))
                 .build();
 
         User user = User.builder()
-                .id("user1")
+                .id(U1)
                 .firstName("John")
                 .lastName("Doe")
                 .profileImageUrl("image.jpg")
                 .build();
 
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.of(instructor));
-        when(userRepository.findById("user1")).thenReturn(Optional.of(user));
+        when(instructorRepository.findById(I1)).thenReturn(Optional.of(instructor));
+        when(userRepository.findById(U1)).thenReturn(Optional.of(user));
 
-        InstructorDTO result = instructorService.getInstructorById(instructorId);
+        InstructorDTO result = instructorService.getInstructorById(I1);
 
         assertEquals("Experienced instructor", result.getBio());
-        assertEquals("John Doe", result.getInstructorName());
         assertEquals("test@example.com", result.getContactDetails().getEmail());
     }
 
     @Test
     void getInstructorById_throwsException_whenInstructorNotFound() {
-        String instructorId = "nonexistent";
-
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.empty());
+        when(instructorRepository.findById(I1)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instructorService.getInstructorById(instructorId));
+                () -> instructorService.getInstructorById(I1));
 
         assertEquals("Instructor not found", exception.getMessage());
     }
 
     @Test
     void updateInstructor_updatesSuccessfully_whenAuthorized() {
-        String instructorId = "instructor1";
-        String currentUserId = "user1";
-
         InstructorDTO dto = InstructorDTO.builder()
                 .bio("Updated bio")
                 .expertise(Arrays.asList("Java", "Spring", "Docker"))
@@ -191,15 +190,15 @@ class InstructorServiceTest {
                 .build();
 
         Instructor instructor = Instructor.builder()
-                .id(instructorId)
-                .userId(currentUserId)
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .bio("Old bio")
                 .contactDetails(new Instructor.ContactDetails("old@example.com", "old-linkedin", "old-website"))
                 .build();
 
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.of(instructor));
+        when(instructorRepository.findById(I1)).thenReturn(Optional.of(instructor));
 
-        String result = instructorService.updateInstructor(dto, instructorId, currentUserId);
+        String result = instructorService.updateInstructor(dto, I1, U1);
 
         assertEquals("Instructor updated successfully", result);
         verify(instructorRepository).save(argThat(savedInstructor ->
@@ -211,20 +210,16 @@ class InstructorServiceTest {
 
     @Test
     void updateInstructor_throwsException_whenUnauthorized() {
-        String instructorId = "instructor1";
-        String currentUserId = "user2";
-        String instructorUserId = "user1";
-
         InstructorDTO dto = InstructorDTO.builder().build();
         Instructor instructor = Instructor.builder()
-                .id(instructorId)
-                .userId(instructorUserId)
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .build();
 
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.of(instructor));
+        when(instructorRepository.findById(I1)).thenReturn(Optional.of(instructor));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instructorService.updateInstructor(dto, instructorId, currentUserId));
+                () -> instructorService.updateInstructor(dto, I1, U2));
 
         assertEquals("Unauthorized to update this instructor", exception.getMessage());
         verify(instructorRepository, never()).save(any());
@@ -232,17 +227,14 @@ class InstructorServiceTest {
 
     @Test
     void deleteInstructor_deletesSuccessfully_whenAuthorized() {
-        String instructorId = "instructor1";
-        String currentUserId = "user1";
-
         Instructor instructor = Instructor.builder()
-                .id(instructorId)
-                .userId(currentUserId)
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .build();
 
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.of(instructor));
+        when(instructorRepository.findById(I1)).thenReturn(Optional.of(instructor));
 
-        String result = instructorService.deleteInstructor(instructorId, currentUserId);
+        String result = instructorService.deleteInstructor(I1, U1);
 
         assertEquals("Instructor deleted successfully", result);
         verify(instructorRepository).delete(instructor);
@@ -250,19 +242,15 @@ class InstructorServiceTest {
 
     @Test
     void deleteInstructor_throwsException_whenUnauthorized() {
-        String instructorId = "instructor1";
-        String currentUserId = "user2";
-        String instructorUserId = "user1";
-
         Instructor instructor = Instructor.builder()
-                .id(instructorId)
-                .userId(instructorUserId)
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .build();
 
-        when(instructorRepository.findById(instructorId)).thenReturn(Optional.of(instructor));
+        when(instructorRepository.findById(I1)).thenReturn(Optional.of(instructor));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instructorService.deleteInstructor(instructorId, currentUserId));
+                () -> instructorService.deleteInstructor(I1, U2));
 
         assertEquals("Unauthorized to delete this instructor", exception.getMessage());
         verify(instructorRepository, never()).delete(any());
@@ -270,27 +258,24 @@ class InstructorServiceTest {
 
     @Test
     void validateInstructorByUserId_returnsTrue_whenInstructorExists() {
-        String userId = "user1";
         Instructor instructor = Instructor.builder()
-                .id("instructor1")
-                .userId(userId)
+                .id(I1)
+                .user(User.builder().id(U1).build())
                 .build();
 
-        when(instructorRepository.findByUserId(userId)).thenReturn(Optional.of(instructor));
+        when(instructorRepository.findByUserId(U1)).thenReturn(Optional.of(instructor));
 
-        InstructorValidationResponseDTO result = instructorService.validateInstructorByUserId(userId);
+        InstructorValidationResponseDTO result = instructorService.validateInstructorByUserId(U1);
 
         assertTrue(result.getIsValidInstructor());
-        assertEquals("instructor1", result.getInstructorId());
+        assertEquals(I1, result.getInstructorId());
     }
 
     @Test
     void validateInstructorByUserId_returnsFalse_whenInstructorNotExists() {
-        String userId = "user1";
+        when(instructorRepository.findByUserId(U1)).thenReturn(Optional.empty());
 
-        when(instructorRepository.findByUserId(userId)).thenReturn(Optional.empty());
-
-        InstructorValidationResponseDTO result = instructorService.validateInstructorByUserId(userId);
+        InstructorValidationResponseDTO result = instructorService.validateInstructorByUserId(U1);
 
         assertFalse(result.getIsValidInstructor());
         assertNull(result.getInstructorId());

@@ -22,7 +22,7 @@ public class CourseEnrollmentController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<CourseEnrollmentResponseDTO> getByUser(@PathVariable String userId) {
+    public List<CourseEnrollmentResponseDTO> getByUser(@PathVariable UUID userId) {
         return enrollmentService.getEnrollmentsByUser(userId);
     }
 

@@ -26,7 +26,7 @@ public class CourseServiceImpl implements CourseService {
     private final UserServiceClient userServiceClient;
 
     @Override
-    public Course createCourse(CourseDTO dto, String currentUserId) {
+    public Course createCourse(CourseDTO dto, UUID currentUserId) {
         
         // Send token's userID to user service and get validation DTO response
         InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
@@ -73,7 +73,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void deleteCourse(UUID id, String currentUserId) {
+    public void deleteCourse(UUID id, UUID currentUserId) {
         log.info("Deleting course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
@@ -97,7 +97,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course updateCourse(UUID id, CourseDTO dto, String currentUserId) {
+    public Course updateCourse(UUID id, CourseDTO dto, UUID currentUserId) {
         log.info("Updating course {} by instructor: {}", id, currentUserId);
         
         // Validate instructor using user service
@@ -134,7 +134,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public String changeCourseState(UUID courseId, String currentUserId, String status) {
+    public String changeCourseState(UUID courseId, UUID currentUserId, String status) {
         log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId, status);
 
         // Validate instructor using user service
@@ -170,7 +170,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> getMyCourses(String currentUserId) {
+    public List<Course> getMyCourses(UUID currentUserId) {
         InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
 
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {

@@ -19,7 +19,7 @@ public class LessonController {
     @PostMapping
     public ResponseEntity<LessonDTO> createLesson(
             @RequestBody LessonDTO dto,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createLesson(dto, currentUserId));
     }
 
@@ -27,7 +27,7 @@ public class LessonController {
     public ResponseEntity<LessonDTO> updateLesson(
             @PathVariable UUID id,
             @RequestBody LessonDTO dto,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(lessonService.updateLesson(id, dto, currentUserId));
     }
 
@@ -44,7 +44,7 @@ public class LessonController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLesson(
             @PathVariable UUID id,
-            @RequestHeader("X-User-ID") String currentUserId) {
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         lessonService.deleteLesson(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
@@ -52,7 +52,7 @@ public class LessonController {
     @PutMapping("/state/{lessonId}")
     public ResponseEntity<String> changeLessonState(
             @PathVariable UUID lessonId,
-            @RequestHeader("X-User-ID") String currentUserId,
+            @RequestHeader("X-User-ID") UUID currentUserId,
             @RequestBody String status) {
         return ResponseEntity.ok(lessonService.changeLessonState(lessonId, currentUserId, status));
     }

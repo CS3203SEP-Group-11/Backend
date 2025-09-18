@@ -2,15 +2,16 @@ package com.levelup.user_service.service;
 
 import com.levelup.user_service.dto.InstructorDTO;
 import com.levelup.user_service.dto.InstructorValidationResponseDTO;
-import com.levelup.user_service.model.Instructor;
-import com.levelup.user_service.model.Role;
-import com.levelup.user_service.model.User;
+import com.levelup.user_service.entity.Instructor;
+import com.levelup.user_service.entity.Role;
+import com.levelup.user_service.entity.User;
 import com.levelup.user_service.repository.InstructorRepository;
 import com.levelup.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class InstructorService {
     private final InstructorRepository instructorRepository;
     private final UserRepository userRepository;
 
-    public String registerInstructor(String userId, InstructorDTO instructorDTO) {
+    public String registerInstructor(UUID userId, InstructorDTO instructorDTO) {
 
         if (instructorRepository.existsByUserId(userId)) {
             throw new RuntimeException("Instructor already registered for this user");
@@ -29,7 +30,7 @@ public class InstructorService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Instructor instructor = Instructor.builder()
-                .userId(userId)
+                .user(user)
                 .bio(instructorDTO.getBio())
                 .expertise(instructorDTO.getExpertise())
                 .contactDetails(new Instructor.ContactDetails(
@@ -54,18 +55,18 @@ public class InstructorService {
                 .toList();
     }
 
-    public InstructorDTO getInstructorById(String instructorId) {
+    public InstructorDTO getInstructorById(UUID instructorId) {
         Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
         return ConvertToDTO(instructor);
     }
 
-    public String updateInstructor(InstructorDTO instructorDTO, String instructorId, String currentUserId) {
+    public String updateInstructor(InstructorDTO instructorDTO, UUID instructorId, UUID currentUserId) {
         Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
-        if (!instructor.getUserId().equals(currentUserId)) {
+        if (!instructor.getUser().getId().equals(currentUserId)) {
             throw new RuntimeException("Unauthorized to update this instructor");
         }
 
@@ -105,18 +106,18 @@ public class InstructorService {
     }
 
 
-    public String updateMyInstructorProfile(InstructorDTO instructorDTO, String currentUserId) {
+    public String updateMyInstructorProfile(InstructorDTO instructorDTO, UUID currentUserId) {
         Instructor instructor = instructorRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Instructor profile not found for this user"));
 
         return updateInstructor(instructorDTO, instructor.getId(), currentUserId);
     }
 
-    public String deleteInstructor(String instructorId, String currentUserId) {
+    public String deleteInstructor(UUID instructorId, UUID currentUserId) {
         Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
-        if (!instructor.getUserId().equals(currentUserId)) {
+        if (!instructor.getUser().getId().equals(currentUserId)) {
             throw new RuntimeException("Unauthorized to delete this instructor");
         }
 
@@ -125,10 +126,11 @@ public class InstructorService {
     }
 
     private InstructorDTO ConvertToDTO(Instructor instructor) {
-        User user = userRepository.findById(instructor.getUserId())
+        User user = userRepository.findById(instructor.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not found for instructor"));
 
         return InstructorDTO.builder()
+
                 .profileImageUrl(user.getProfileImageUrl())
                 .bio(instructor.getBio())
                 .expertise(instructor.getExpertise())
@@ -142,7 +144,7 @@ public class InstructorService {
                 .build();
     }
 
-    public InstructorValidationResponseDTO validateInstructorByUserId(String userId) {
+    public InstructorValidationResponseDTO validateInstructorByUserId(UUID userId) {
 
             Instructor instructor = instructorRepository.findByUserId(userId)
                     .orElse(null);
@@ -162,7 +164,7 @@ public class InstructorService {
                     .build();
     }
 
-    public InstructorDTO getMyInstructorProfile(String userId) {
+    public InstructorDTO getMyInstructorProfile(UUID userId) {
         Instructor instructor = instructorRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Instructor profile not found for this user"));
 
