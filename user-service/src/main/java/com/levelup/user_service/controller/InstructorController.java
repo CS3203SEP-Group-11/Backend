@@ -2,7 +2,6 @@ package com.levelup.user_service.controller;
 
 import com.levelup.user_service.dto.InstructorDTO;
 import com.levelup.user_service.dto.InstructorValidationResponseDTO;
-import com.levelup.user_service.model.Instructor;
 import com.levelup.user_service.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/instructors")
@@ -21,8 +20,7 @@ public class InstructorController {
     private final InstructorService instructorService;
 
     @PostMapping
-    public ResponseEntity<String> registerInstructor(@RequestHeader ("X-User-ID") String userId, @RequestBody InstructorDTO instructorDTO) {
-        log.info(userId);
+    public ResponseEntity<String> registerInstructor(@RequestHeader ("X-User-ID") UUID userId, @RequestBody InstructorDTO instructorDTO) {
         return ResponseEntity.ok(instructorService.registerInstructor(userId, instructorDTO));
     }
 
@@ -32,33 +30,33 @@ public class InstructorController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<InstructorDTO> getMyInstructorProfile(@RequestHeader("X-User-ID") String userId) {
+    public ResponseEntity<InstructorDTO> getMyInstructorProfile(@RequestHeader("X-User-ID") UUID userId) {
         return ResponseEntity.ok(instructorService.getMyInstructorProfile(userId));
     }
 
     @PutMapping("/me")
-    public ResponseEntity<String> updateMyInstructorProfile(@RequestBody InstructorDTO instructorDTO, @RequestHeader("X-User-ID") String userId) {
+    public ResponseEntity<String> updateMyInstructorProfile(@RequestBody InstructorDTO instructorDTO, @RequestHeader("X-User-ID") UUID userId) {
         return ResponseEntity.ok(instructorService.updateMyInstructorProfile(instructorDTO, userId));
     }
 
     @GetMapping("/{InstructorId}")
-    public ResponseEntity<InstructorDTO> getInstructorById(@PathVariable String InstructorId) {
+    public ResponseEntity<InstructorDTO> getInstructorById(@PathVariable UUID InstructorId) {
         return ResponseEntity.ok(instructorService.getInstructorById(InstructorId));
     }
 
     @PutMapping("/{InstructorId}")
-    public ResponseEntity<String> updateInstructor(@RequestBody InstructorDTO instructorDTO, @PathVariable String InstructorId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> updateInstructor(@RequestBody InstructorDTO instructorDTO, @PathVariable UUID InstructorId, @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(instructorService.updateInstructor(instructorDTO, InstructorId, currentUserId));
     }
 
     @DeleteMapping("/{InstructorId}")
-    public ResponseEntity<String> deleteInstructor(@PathVariable String InstructorId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> deleteInstructor(@PathVariable UUID InstructorId, @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(instructorService.deleteInstructor(InstructorId, currentUserId));
     }
 
 
     @GetMapping("/{userId}/validate")
-    public ResponseEntity<InstructorValidationResponseDTO> validateInstructorByUserId(@PathVariable String userId) {
+    public ResponseEntity<InstructorValidationResponseDTO> validateInstructorByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(instructorService.validateInstructorByUserId(userId));
     }
 }

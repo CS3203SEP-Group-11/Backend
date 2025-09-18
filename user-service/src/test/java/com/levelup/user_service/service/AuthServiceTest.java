@@ -7,9 +7,9 @@ import com.levelup.user_service.dto.RegisterRequest;
 import com.levelup.user_service.exception.InvalidCredentialsException;
 import com.levelup.user_service.exception.UserAlreadyExistsException;
 import com.levelup.user_service.exception.UserNotFoundException;
-import com.levelup.user_service.model.AuthProvider;
-import com.levelup.user_service.model.Role;
-import com.levelup.user_service.model.User;
+import com.levelup.user_service.entity.AuthProvider;
+import com.levelup.user_service.entity.Role;
+import com.levelup.user_service.entity.User;
 import com.levelup.user_service.repository.UserRepository;
 import com.levelup.user_service.security.GoogleTokenUtil;
 import com.levelup.user_service.security.JwtUtil;
@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -38,6 +39,10 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
+    private static final UUID U1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID U123 = UUID.fromString("00000000-0000-0000-0000-000000000123");
+    private static final UUID U456 = UUID.fromString("00000000-0000-0000-0000-000000000456");
+
     @Test
     void login_returnsJwt_whenCredentialsValid() {
         LoginRequest req = new LoginRequest();
@@ -45,7 +50,7 @@ class AuthServiceTest {
         req.setPassword("secret");
 
         User user = User.builder()
-                .id("u1")
+                .id(U1)
                 .email("john@example.com")
                 .password("$2a$hash")
                 .role(Role.USER)
@@ -56,7 +61,7 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("secret", "$2a$hash")).thenReturn(true);
-        when(jwtUtil.generateJwtToken("u1", "john@example.com", Role.USER)).thenReturn("jwt-token");
+        when(jwtUtil.generateJwtToken(U1, "john@example.com", Role.USER)).thenReturn("jwt-token");
 
         String token = authService.login(req);
 
@@ -81,7 +86,7 @@ class AuthServiceTest {
         req.setPassword("bad");
 
         User user = User.builder()
-                .id("u1")
+                .id(U1)
                 .email("john@example.com")
                 .password("$2a$hash")
                 .role(Role.USER)
@@ -106,10 +111,10 @@ class AuthServiceTest {
         when(passwordEncoder.encode("secret123")).thenReturn("$2a$encoded");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
-            u.setId("u-123");
+            u.setId(U123);
             return u;
         });
-        when(jwtUtil.generateJwtToken("u-123", "new@example.com", Role.USER)).thenReturn("jwt-token");
+        when(jwtUtil.generateJwtToken(U123, "new@example.com", Role.USER)).thenReturn("jwt-token");
 
         String token = authService.register(req);
 
@@ -146,14 +151,14 @@ class AuthServiceTest {
         when(googleTokenUtil.getTokenPayload("g-token")).thenReturn(payload);
 
         User user = User.builder()
-                .id("u1")
+                .id(U1)
                 .email("john@example.com")
                 .role(Role.USER)
                 .authProvider(AuthProvider.GOOGLE)
                 .build();
 
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
-        when(jwtUtil.generateJwtToken("u1", "john@example.com", Role.USER)).thenReturn("jwt-token");
+        when(jwtUtil.generateJwtToken(U1, "john@example.com", Role.USER)).thenReturn("jwt-token");
 
         String token = authService.googleLogin(req);
 
@@ -190,10 +195,10 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("newgoogle@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
-            u.setId("u-456");
+            u.setId(U456);
             return u;
         });
-        when(jwtUtil.generateJwtToken("u-456", "newgoogle@example.com", Role.USER)).thenReturn("jwt-token");
+        when(jwtUtil.generateJwtToken(U456, "newgoogle@example.com", Role.USER)).thenReturn("jwt-token");
 
         String token = authService.googleRegister(req);
 

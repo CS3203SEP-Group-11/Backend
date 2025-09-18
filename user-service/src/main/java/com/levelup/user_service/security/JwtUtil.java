@@ -1,6 +1,6 @@
 package com.levelup.user_service.security;
 
-import com.levelup.user_service.model.Role;
+import com.levelup.user_service.entity.Role;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -24,9 +25,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateJwtToken(String userId, String email, Role role) {
+    public String generateJwtToken(UUID userId, String email, Role role) {
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(userId.toString())
                 .claim("email", email)
                 .claim("role", role)
                 .setIssuedAt(new Date())
