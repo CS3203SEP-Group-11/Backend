@@ -27,7 +27,7 @@ public class LessonServiceImpl implements LessonService {
     private final UserServiceClient userServiceClient;
 
     @Override
-    public LessonDTO createLesson(LessonDTO dto, String currentUserId) {
+    public LessonDTO createLesson(LessonDTO dto, UUID currentUserId) {
         log.info("Creating lesson for course {} by user: {}", dto.getCourseId(), currentUserId);
 
         // Validate that the user is an instructor and owns the course
@@ -44,7 +44,7 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public LessonDTO updateLesson(UUID id, LessonDTO dto, String currentUserId) {
+    public LessonDTO updateLesson(UUID id, LessonDTO dto, UUID currentUserId) {
         log.info("Updating lesson {} by user: {}", id, currentUserId);
 
         Lesson lesson = lessonRepository.findById(id)
@@ -78,7 +78,7 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public void deleteLesson(UUID id, String currentUserId) {
+    public void deleteLesson(UUID id, UUID currentUserId) {
         log.info("Deleting lesson {} by user: {}", id, currentUserId);
 
         // Get lesson to find the course ID
@@ -105,7 +105,7 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public String changeLessonState(UUID lessonId, String currentUserId, String status) {
+    public String changeLessonState(UUID lessonId, UUID currentUserId, String status) {
         log.info("Changing lesson state for {} by user: {}", lessonId, currentUserId);
 
         // Get lesson to find the course ID
@@ -125,7 +125,7 @@ public class LessonServiceImpl implements LessonService {
         return "Lesson state changed successfully";
     }
 
-    private void validateUserCanModifyCourse(UUID courseId, String currentUserId) {
+    private void validateUserCanModifyCourse(UUID courseId, UUID currentUserId) {
         // Step 1: Get instructor validation from user service using the user ID
         InstructorValidationResponseDTO validationResponse = userServiceClient
                 .validateInstructorByUserId(currentUserId);
@@ -136,7 +136,7 @@ public class LessonServiceImpl implements LessonService {
         }
 
         // Step 3: Get the instructor ID from the validation response
-        String instructorId = validationResponse.getInstructorId();
+        UUID instructorId = validationResponse.getInstructorId();
         log.info("User {} validated as instructor with ID: {}", currentUserId, instructorId);
 
         // Step 4: Get the course to check ownership

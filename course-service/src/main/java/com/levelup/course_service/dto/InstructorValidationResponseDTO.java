@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class InstructorValidationResponseDTO {
-    private String instructorId;
+    private UUID instructorId;
     private Boolean isValidInstructor;
 }

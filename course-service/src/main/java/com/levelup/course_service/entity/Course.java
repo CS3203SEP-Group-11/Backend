@@ -27,7 +27,7 @@ public class Course {
     private String description;
 
     @Column(name = "instructor_id")
-    private String instructorId;
+    private UUID instructorId;
 
     @Column(length = 100)
     private String category;

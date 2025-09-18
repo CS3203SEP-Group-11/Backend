@@ -9,6 +9,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class CourseEnrollmentRequestDTO {
-    private String userId;
+    private UUID userId;
     private UUID courseId;
 }

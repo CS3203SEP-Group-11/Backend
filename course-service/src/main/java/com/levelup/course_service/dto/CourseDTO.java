@@ -5,12 +5,13 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class CourseDTO {
     private String title;
     private String description;
-    private String instructorId;
+    private UUID instructorId;
     private String category;
     private List<String> tags;
     private String language;
