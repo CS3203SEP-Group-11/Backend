@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,24 +25,24 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO, @PathVariable String userId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO, @PathVariable UUID userId, @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(userService.updateUser(userDTO, userId, currentUserId));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable String userId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> deleteUser(@PathVariable UUID userId, @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(userService.deleteUser(userId, currentUserId));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader(value = "X-User-ID", required = false) String userId) {
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader(value = "X-User-ID", required = false) UUID userId) {
 
-        if (userId == null || userId.isBlank()) {
+        if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(userService.getUserById(userId));

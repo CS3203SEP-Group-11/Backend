@@ -1,4 +1,4 @@
-package com.levelup.user_service.model;
+package com.levelup.user_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,12 +10,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.annotation.Id;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -92,4 +92,9 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
     private Instant updatedAt;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ToString.Exclude
+    private Instructor instructor;
 }
