@@ -1,4 +1,4 @@
-package com.levelup.user_service.model;
+package com.levelup.user_service.entity;
 
 public enum Role {
     USER,
