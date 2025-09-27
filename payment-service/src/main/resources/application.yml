@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://128.199.128.177:6432/levelup
     username: admin
-    password: G7kP4tZ9mR2wQ8xL
+    password: ${DB_PASSWORD}
 #    hikari:
 #      maximum-pool-size: 2
 #      minimum-idle: 1
