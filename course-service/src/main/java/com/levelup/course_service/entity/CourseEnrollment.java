@@ -52,4 +52,15 @@ public class CourseEnrollment {
     public enum Status {
         COMPLETED, IN_PROGRESS
     }
+
+    @PrePersist
+    @PreUpdate
+    private void updateStatusBasedOnProgress() {
+        if (progressPercentage >= 100.0) {
+            this.status = Status.COMPLETED;
+        } else {
+            this.status = Status.IN_PROGRESS;
+        }
+        this.updatedAt = Instant.now();
+    }
 }
