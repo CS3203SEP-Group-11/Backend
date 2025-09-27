@@ -2,15 +2,15 @@ spring:
   application:
     name: course-service
   datasource:
-    url: ${PG_DB_URL}
-    username: ${PG_DB_USERNAME}
-    password: ${PG_DB_PASSWORD}
-    hikari:
-      maximum-pool-size: 5
-      minimum-idle: 2
-      idle-timeout: 30000     # 30s
-      max-lifetime: 600000    # 10 min
-      connection-timeout: 20000  # 20s wait before failing
+    url: jdbc:postgresql://128.199.128.177:6432/levelup
+    username: admin
+    password: G7kP4tZ9mR2wQ8xL
+  #    hikari:
+#      maximum-pool-size: 5
+#      minimum-idle: 2
+#      idle-timeout: 30000     # 30s
+#      max-lifetime: 600000    # 10 min
+#      connection-timeout: 20000  # 20s wait before failing
   jpa:
     hibernate:
       ddl-auto: update
