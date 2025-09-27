@@ -9,6 +9,8 @@ import com.levelup.course_service.client.UserServiceClient;
 import com.levelup.course_service.repository.CourseRepository;
 import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.dto.CourseDTO;
+import com.levelup.course_service.dto.CourseDetailsResponseDTO;
+import com.levelup.course_service.dto.CourseDetailsDTO;
 import com.levelup.course_service.dto.InstructorValidationResponseDTO;
 
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +30,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course createCourse(CourseDTO dto, UUID currentUserId) {
-        
+
         // Send token's userID to user service and get validation DTO response
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
-        
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
+
         // Check if instructor is valid from DTO response
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
@@ -56,7 +60,7 @@ public class CourseServiceImpl implements CourseService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
-                
+
         Course savedCourse = courseRepository.save(course);
         log.info("Course created successfully by instructor {}: {}", currentUserId, savedCourse.getId());
         return savedCourse;
@@ -75,23 +79,24 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourse(UUID id, UUID currentUserId) {
         log.info("Deleting course {} by instructor: {}", id, currentUserId);
-        
+
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
-        
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
+
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }
-        
+
         // Get the course to check ownership
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
-        
+
         // Validate that instructor owns this course
         if (!course.getInstructorId().equals(currentUserId)) {
             throw new RuntimeException("You can only delete courses that you own");
         }
-        
+
         courseRepository.deleteById(id);
         log.info("Course deleted successfully: {}", id);
     }
@@ -99,20 +104,21 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course updateCourse(UUID id, CourseDTO dto, UUID currentUserId) {
         log.info("Updating course {} by instructor: {}", id, currentUserId);
-        
+
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
-        
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
+
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }
-        
+
         return courseRepository.findById(id).map(course -> {
             // Validate that instructor owns this course
             if (!course.getInstructorId().equals(validationResponse.getInstructorId())) {
                 throw new RuntimeException("You can only update courses that you own");
             }
-            
+
             course.setTitle(dto.getTitle());
             course.setDescription(dto.getDescription());
             course.setCategory(dto.getCategory());
@@ -125,28 +131,28 @@ public class CourseServiceImpl implements CourseService {
             course.setDuration(dto.getDuration());
             course.setLevel(dto.getLevel());
             course.setUpdatedAt(Instant.now());
-            
+
             Course updatedCourse = courseRepository.save(course);
             log.info("Course updated successfully: {}", updatedCourse.getId());
             return updatedCourse;
-            
+
         }).orElseThrow(() -> new RuntimeException("Course not found"));
     }
 
     @Override
     public String changeCourseState(UUID courseId, UUID currentUserId, String status) {
-        log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId, status);
+        log.info("Changing course state for course {} by instructor: {} to status: {}", courseId, currentUserId,
+                status);
 
         // Validate instructor using user service
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
-
-
 
         // Validate and set new status
         try {
@@ -171,12 +177,31 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> getMyCourses(UUID currentUserId) {
-        InstructorValidationResponseDTO validationResponse = userServiceClient.validateInstructorByUserId(currentUserId);
+        InstructorValidationResponseDTO validationResponse = userServiceClient
+                .validateInstructorByUserId(currentUserId);
 
         if (validationResponse.getIsValidInstructor() == null || !validationResponse.getIsValidInstructor()) {
             throw new RuntimeException("Invalid instructor: User is not a valid instructor");
         }
 
         return courseRepository.findByInstructorId(validationResponse.getInstructorId());
+    }
+
+    @Override
+    public CourseDetailsResponseDTO getCourseDetailsByIds(List<UUID> courseIds) {
+        log.info("Fetching course details for IDs: {}", courseIds);
+
+        List<Course> courses = courseRepository.findAllById(courseIds);
+
+        List<CourseDetailsDTO> courseDetails = courses.stream()
+                .map(course -> new CourseDetailsDTO(
+                        course.getId(),
+                        course.getTitle(),
+                        course.getPriceAmount(),
+                        course.getInstructorId()))
+                .collect(Collectors.toList());
+
+        log.info("Found {} courses out of {} requested", courseDetails.size(), courseIds.size());
+        return new CourseDetailsResponseDTO(courseDetails);
     }
 }
