@@ -13,7 +13,7 @@ public class EmailNotification {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    private UUID recipientEmail;
+    private String recipientEmail;
     @Column(columnDefinition = "TEXT")
     private String deliveryResponse;
     private int retryCount;
@@ -25,8 +25,8 @@ public class EmailNotification {
     public void setSubject(String subject) { this.subject = subject; }
     public String getBody() { return body; }
     public void setBody(String body) { this.body = body; }
-    public UUID getRecipientEmail() { return recipientEmail; }
-    public void setRecipientEmail(UUID recipientEmail) { this.recipientEmail = recipientEmail; }
+    public String getRecipientEmail() { return recipientEmail; }
+    public void setRecipientEmail(String recipientEmail) { this.recipientEmail = recipientEmail; }
     public String getDeliveryResponse() { return deliveryResponse; }
     public void setDeliveryResponse(String deliveryResponse) { this.deliveryResponse = deliveryResponse; }
     public int getRetryCount() { return retryCount; }
