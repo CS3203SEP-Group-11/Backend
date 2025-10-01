@@ -84,6 +84,10 @@ public class User {
         @Column(name = "stripe_customer_id", length = 255)
         private String stripeCustomerId;
 
+        @Builder.Default
+        @Column(name = "is_subscribed", nullable = false)
+        private Boolean isSubscribed = false;
+
         @CreationTimestamp
         @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "timestamp with time zone")
         private Instant createdAt;

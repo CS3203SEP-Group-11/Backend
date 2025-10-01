@@ -25,9 +25,7 @@ public class WebhookService {
 
     public void handleStripeWebhook(String payload, String sigHeader) {
         try {
-
-            log.info("this is payload:{}", payload);
-            log.info("this is payload:{}", sigHeader);
+            // log.info("this is payload: " + payload);
             // Verify webhook signature
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
 
@@ -38,6 +36,7 @@ public class WebhookService {
             switch (event.getType()) {
                 // Payment Intent events (for course purchases)
                 case "payment_intent.succeeded":
+
                     handlePaymentIntentSucceeded(event);
                     break;
                 case "payment_intent.payment_failed":
@@ -50,9 +49,6 @@ public class WebhookService {
                     break;
                 case "invoice.payment_failed":
                     subscriptionWebhookService.handleInvoicePaymentFailed(event);
-                    break;
-                case "customer.subscription.deleted":
-                    subscriptionWebhookService.handleSubscriptionDeleted(event);
                     break;
 
                 default:
@@ -95,7 +91,34 @@ public class WebhookService {
             log.info("Processing payment success for PaymentIntent: {} with metadata: {}",
                     paymentIntent.getId(), metadata);
 
-            // Handle payment success with the improved service method
+            // CHECK: Skip subscription PaymentIntents (they have empty metadata or wrong
+            // transaction_type)
+            if (metadata == null || metadata.isEmpty()) {
+                log.info("PaymentIntent {} has no metadata - this is a SUBSCRIPTION payment, skipping. " +
+                        "Subscription payments are handled via invoice.payment_succeeded events.",
+                        paymentIntent.getId());
+                return;
+            }
+
+            // CHECK: Verify it's specifically a course purchase using transaction_type
+            String transactionType = metadata.get("transaction_type");
+            if (!"COURSE_PURCHASE".equals(transactionType)) {
+                log.info("PaymentIntent {} has transaction_type '{}' - not a course purchase, skipping. " +
+                        "Only COURSE_PURCHASE PaymentIntents are processed here.",
+                        paymentIntent.getId(), transactionType);
+                return;
+            }
+
+            // CHECK: Verify it has required course purchase metadata
+            if (!metadata.containsKey("transaction_id") || !metadata.containsKey("user_id")) {
+                log.info(
+                        "PaymentIntent {} missing required course purchase metadata (transaction_id, user_id) - skipping",
+                        paymentIntent.getId());
+                return;
+            }
+
+            // Only process course purchases with proper metadata
+            log.info("Processing COURSE PURCHASE payment for PaymentIntent: {}", paymentIntent.getId());
             paymentService.handlePaymentSuccess(paymentIntent.getId(), metadata);
 
         } catch (Exception e) {

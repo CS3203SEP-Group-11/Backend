@@ -94,6 +94,7 @@ public class UserService {
                 .dateOfBirth(user.getDateOfBirth())
                 .languagePreference(user.getLanguagePreference())
                 .stripeCustomerId(user.getStripeCustomerId())
+                .isSubscribed(user.getIsSubscribed())
                 .build();
     }
 
