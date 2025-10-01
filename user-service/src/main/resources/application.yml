@@ -18,8 +18,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: guest
-    password: guest
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 jwt:
   secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN

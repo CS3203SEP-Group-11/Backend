@@ -3,8 +3,8 @@ spring:
     name: notification-service
   datasource:
     url: jdbc:postgresql://128.199.128.177:6432/levelup
-    username: admin
-    password: G7kP4tZ9mR2wQ8xL
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
