@@ -39,9 +39,6 @@ public class UserSubscriptionPayment {
     @Column(name = "stripe_invoice_id", length = 255)
     private String stripeInvoiceId;
 
-    @Column(name = "stripe_payment_intent_id", length = 255)
-    private String stripePaymentIntentId;
-
     @Column(name = "stripe_refund_id", length = 255)
     private String stripeRefundId;
 

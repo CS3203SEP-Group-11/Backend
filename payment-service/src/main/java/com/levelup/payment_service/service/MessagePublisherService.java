@@ -4,6 +4,7 @@ import com.levelup.payment_service.config.RabbitMQConfig;
 import com.levelup.payment_service.dto.message.CourseEnrollmentMessage;
 import com.levelup.payment_service.dto.message.PaymentNotificationMessage;
 import com.levelup.payment_service.dto.message.SubscriptionMessage;
+import com.levelup.payment_service.dto.message.UserSubscriptionMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -81,6 +82,23 @@ public class MessagePublisherService {
         } catch (Exception e) {
             log.error("Failed to send subscription notification message", e);
             throw new RuntimeException("Failed to send subscription notification message", e);
+        }
+    }
+
+    public void sendUserSubscriptionMessage(UserSubscriptionMessage message) {
+        try {
+            log.info("Sending user subscription message for user: {} with isSubscribed: {}",
+                    message.getUserId(), message.isSubscribed());
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.USER_SUBSCRIPTION_EXCHANGE,
+                    RabbitMQConfig.USER_SUBSCRIPTION_ROUTING_KEY,
+                    message);
+
+            log.info("User subscription message sent successfully");
+        } catch (Exception e) {
+            log.error("Failed to send user subscription message", e);
+            throw new RuntimeException("Failed to send user subscription message", e);
         }
     }
 }

@@ -20,4 +20,5 @@ public class SubscriptionMessage {
     private LocalDateTime endDate;
     private LocalDateTime cancelDate;
     private Integer retryCount;
+    private String failureReason;
 }

@@ -33,8 +33,6 @@ public class Renewal {
     @Column(name = "stripe_invoice_id", length = 255)
     private String stripeInvoiceId;
 
-    @Column(name = "stripe_payment_intent_id", length = 255)
-    private String stripePaymentIntentId;
 
     @Column(name = "retry_count", nullable = false)
     @Builder.Default
