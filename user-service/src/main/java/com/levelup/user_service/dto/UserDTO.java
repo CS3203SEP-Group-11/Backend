@@ -23,4 +23,5 @@ public class UserDTO {
     private LocalDate dateOfBirth;
     private String languagePreference;
     private String stripeCustomerId;
+    private Boolean isSubscribed;
 }

@@ -1,4 +1,4 @@
-package com.levelup.payment_service.dto.message;
+package com.levelup.course_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

@@ -3,8 +3,11 @@ package com.levelup.payment_service.service;
 import com.levelup.payment_service.client.UserServiceClient;
 import com.levelup.payment_service.dto.external.UserDto;
 import com.levelup.payment_service.dto.message.SubscriptionMessage;
+import com.levelup.payment_service.dto.message.UserSubscriptionMessage;
 import com.levelup.payment_service.dto.request.CreateSubscriptionRequest;
 import com.levelup.payment_service.dto.response.SubscriptionResponse;
+import com.levelup.payment_service.dto.response.SubscriptionCancelResponse;
+import com.levelup.payment_service.dto.response.SubscriptionRefundResponse;
 import com.levelup.payment_service.model.SubscriptionPlan;
 import com.levelup.payment_service.model.Transaction;
 import com.levelup.payment_service.model.UserSubscriptionPayment;
@@ -85,8 +88,9 @@ public class SubscriptionService {
 
             return SubscriptionResponse.builder()
                     .clientSecret(clientSecret)
-                    .paymentIntentId(subscription.getLatestInvoice() != null ?
-                            Invoice.retrieve(subscription.getLatestInvoice()).getPaymentIntent() : null)
+                    .paymentIntentId(subscription.getLatestInvoice() != null
+                            ? Invoice.retrieve(subscription.getLatestInvoice()).getPaymentIntent()
+                            : null)
                     .subscriptionId(subscription.getId())
                     .planName(plan.getName())
                     .amount(plan.getAmount())
@@ -128,6 +132,7 @@ public class SubscriptionService {
         metadata.put("user_id", userId.toString());
         metadata.put("transaction_id", transactionId.toString());
         metadata.put("subscription_plan_id", plan.getId().toString());
+        metadata.put("transaction_type", "SUBSCRIPTION_PAYMENT");
 
         SubscriptionCreateParams params = SubscriptionCreateParams.builder()
                 .setCustomer(customerId)
@@ -143,12 +148,13 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public void cancelSubscription(UUID subscriptionId, UUID userId) {
+    public SubscriptionCancelResponse cancelSubscription(UUID subscriptionId, UUID userId) {
+        UserSubscriptionPayment subscription = null;
         try {
             log.info("Canceling subscription: {} for user: {}", subscriptionId, userId);
 
             // Find subscription and verify ownership
-            UserSubscriptionPayment subscription = userSubscriptionPaymentRepository
+            subscription = userSubscriptionPaymentRepository
                     .findByIdAndUserId(subscriptionId, userId)
                     .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
@@ -156,78 +162,168 @@ public class SubscriptionService {
                 throw new RuntimeException("Subscription is not active");
             }
 
-            // Cancel in Stripe
-            com.stripe.model.Subscription.retrieve(subscription.getStripeSubscriptionId()).cancel();
+            // Cancel the subscription and capture the returned object
+            com.stripe.model.Subscription canceledSubscription = com.stripe.model.Subscription
+                    .retrieve(subscription.getStripeSubscriptionId()).cancel();
 
-            // Update database
+            log.info("Stripe cancellation successful. Status: {}, Canceled at: {}",
+                    canceledSubscription.getStatus(), canceledSubscription.getCanceledAt());
+
+            // ONLY UPDATE DATABASE IF STRIPE CANCELLATION SUCCEEDS
             subscription.setStatus(UserSubscriptionPayment.SubscriptionStatus.CANCELED);
             subscription.setCanceledAt(LocalDateTime.now());
             subscription.setIsAutoRenew(false);
             userSubscriptionPaymentRepository.save(subscription);
 
-            // Send messages
-            sendSubscriptionCancelMessages(subscription);
+            // Send user subscription message (set is_subscribed = false)
+            sendUserSubscriptionMessage(subscription.getUserId(), false, "CANCELED");
 
             log.info("Subscription canceled successfully");
 
+            return SubscriptionCancelResponse.builder()
+                    .subscriptionId(subscriptionId)
+                    .stripeSubscriptionId(subscription.getStripeSubscriptionId())
+                    .status("CANCELED")
+                    .message("Subscription canceled successfully")
+                    .canceledAt(subscription.getCanceledAt())
+                    .success(true)
+                    .build();
+
         } catch (StripeException e) {
-            log.error("Stripe error while canceling subscription", e);
-            throw new RuntimeException("Failed to cancel subscription", e);
+            log.error("Stripe error while canceling subscription: {}", e.getMessage(), e);
+
+            // Handle cancellation failure - send notification only, don't update database
+            if (subscription != null) {
+                sendCancelFailureNotification(subscription, e.getMessage());
+            }
+
+            return SubscriptionCancelResponse.builder()
+                    .subscriptionId(subscriptionId)
+                    .stripeSubscriptionId(subscription != null ? subscription.getStripeSubscriptionId() : null)
+                    .status("CANCEL_FAILED")
+                    .message("Failed to cancel subscription")
+                    .failureReason(e.getMessage())
+                    .success(false)
+                    .build();
+
         } catch (Exception e) {
-            log.error("Error canceling subscription", e);
-            throw new RuntimeException("Failed to cancel subscription", e);
+            log.error("Error canceling subscription: {}", e.getMessage(), e);
+
+            // Handle general failure - send notification only, don't update database
+            if (subscription != null) {
+                sendCancelFailureNotification(subscription, e.getMessage());
+            }
+
+            return SubscriptionCancelResponse.builder()
+                    .subscriptionId(subscriptionId)
+                    .stripeSubscriptionId(subscription != null ? subscription.getStripeSubscriptionId() : null)
+                    .status("CANCEL_FAILED")
+                    .message("Failed to cancel subscription")
+                    .failureReason(e.getMessage())
+                    .success(false)
+                    .build();
         }
     }
 
     @Transactional
-    public void refundSubscription(UUID subscriptionId, UUID userId) {
+    public SubscriptionRefundResponse refundSubscription(UUID subscriptionId, UUID userId) {
+        UserSubscriptionPayment subscription = null;
         try {
             log.info("Processing refund for subscription: {} and user: {}", subscriptionId, userId);
 
             // Find subscription and verify ownership
-            UserSubscriptionPayment subscription = userSubscriptionPaymentRepository
+            subscription = userSubscriptionPaymentRepository
                     .findByIdAndUserId(subscriptionId, userId)
                     .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
             // Verify refund eligibility
             validateRefundEligibility(subscription);
 
-            // Process refund in Stripe
-            com.stripe.model.Refund refund = com.stripe.model.Refund.create(Map.of(
-                    "payment_intent", subscription.getStripePaymentIntentId(),
-                    "reason", "requested_by_customer"));
+            // Process refund in Stripe using invoice
+            Invoice invoice = Invoice.retrieve(subscription.getStripeInvoiceId());
+            com.stripe.model.Refund refund = null;
 
-            // Create refund transaction
-            Transaction refundTransaction = Transaction.builder()
-                    .type(Transaction.TransactionType.REFUND)
-                    .amount(subscription.getTransaction().getAmount())
-                    .currency(subscription.getTransaction().getCurrency())
-                    .status(Transaction.TransactionStatus.SUCCESS)
-                    .build();
+            if (invoice.getPaymentIntent() != null) {
+                refund = com.stripe.model.Refund.create(Map.of(
+                        "payment_intent", invoice.getPaymentIntent(),
+                        "reason", "requested_by_customer"));
 
-            transactionRepository.save(refundTransaction);
+                log.info("Stripe refund successful with ID: {}", refund.getId());
 
-            // Update subscription
-            subscription.setStatus(UserSubscriptionPayment.SubscriptionStatus.REFUNDED);
-            subscription.setStripeRefundId(refund.getId());
-            subscription.setCanceledAt(LocalDateTime.now());
-            subscription.setIsAutoRenew(false);
-            userSubscriptionPaymentRepository.save(subscription);
+                // ONLY UPDATE DATABASE IF STRIPE REFUND SUCCEEDS
+                // Create refund transaction
+                Transaction refundTransaction = Transaction.builder()
+                        .type(Transaction.TransactionType.REFUND)
+                        .amount(subscription.getTransaction().getAmount())
+                        .currency(subscription.getTransaction().getCurrency())
+                        .status(Transaction.TransactionStatus.SUCCESS)
+                        .build();
 
-            // Cancel subscription in Stripe
-            com.stripe.model.Subscription.retrieve(subscription.getStripeSubscriptionId()).cancel();
+                transactionRepository.save(refundTransaction);
+                log.info("Refund transaction created with ID: {}", refundTransaction.getId());
 
-            // Send messages
-            sendSubscriptionRefundMessages(subscription);
+                // Update subscription
+                subscription.setStatus(UserSubscriptionPayment.SubscriptionStatus.REFUNDED);
+                subscription.setStripeRefundId(refund.getId());
+                subscription.setCanceledAt(LocalDateTime.now());
+                subscription.setIsAutoRenew(false);
+                userSubscriptionPaymentRepository.save(subscription);
 
-            log.info("Subscription refunded successfully");
+                // Cancel subscription in Stripe
+                com.stripe.model.Subscription.retrieve(subscription.getStripeSubscriptionId()).cancel();
+
+                // Send user subscription message (set is_subscribed = false)
+                sendUserSubscriptionMessage(subscription.getUserId(), false, "REFUNDED");
+
+                log.info("Subscription refunded successfully");
+
+                return SubscriptionRefundResponse.builder()
+                        .subscriptionId(subscriptionId)
+                        .stripeSubscriptionId(subscription.getStripeSubscriptionId())
+                        .stripeRefundId(refund.getId())
+                        .status("REFUNDED")
+                        .message("Subscription refunded successfully")
+                        .refundedAt(subscription.getCanceledAt())
+                        .success(true)
+                        .build();
+
+            } else {
+                throw new RuntimeException("Cannot process refund: No payment intent found for invoice");
+            }
 
         } catch (StripeException e) {
-            log.error("Stripe error while processing refund", e);
-            throw new RuntimeException("Failed to process refund", e);
+            log.error("Stripe error while processing refund: {}", e.getMessage(), e);
+
+            // Handle refund failure - send notification only, don't update database
+            if (subscription != null) {
+                sendRefundFailureNotification(subscription, e.getMessage());
+            }
+
+            return SubscriptionRefundResponse.builder()
+                    .subscriptionId(subscriptionId)
+                    .stripeSubscriptionId(subscription != null ? subscription.getStripeSubscriptionId() : null)
+                    .status("REFUND_FAILED")
+                    .message("Failed to process refund")
+                    .failureReason(e.getMessage())
+                    .success(false)
+                    .build();
+
         } catch (Exception e) {
-            log.error("Error processing refund", e);
-            throw new RuntimeException("Failed to process refund", e);
+            log.error("Error processing refund: {}", e.getMessage(), e);
+
+            // Handle general failure - send notification only, don't update database
+            if (subscription != null) {
+                sendRefundFailureNotification(subscription, e.getMessage());
+            }
+
+            return SubscriptionRefundResponse.builder()
+                    .subscriptionId(subscriptionId)
+                    .stripeSubscriptionId(subscription != null ? subscription.getStripeSubscriptionId() : null)
+                    .status("REFUND_FAILED")
+                    .message("Failed to process refund")
+                    .failureReason(e.getMessage())
+                    .success(false)
+                    .build();
         }
     }
 
@@ -276,7 +372,58 @@ public class SubscriptionService {
         messagePublisherService.sendSubscriptionNotificationMessage(message);
     }
 
+    private void sendRefundFailureNotification(UserSubscriptionPayment subscription, String failureReason) {
+        log.info("Sending refund failure notification for subscription: {} with reason: {}",
+                subscription.getId(), failureReason);
+
+        SubscriptionMessage message = SubscriptionMessage.builder()
+                .userId(subscription.getUserId())
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .status("REFUND_FAILED")
+                .failureReason(failureReason)
+                .build();
+
+        // Send ONLY to notification service (don't send to course service since refund
+        // failed)
+        messagePublisherService.sendSubscriptionNotificationMessage(message);
+
+        log.info("Refund failure notification sent for user: {}", subscription.getUserId());
+    }
+
+    private void sendCancelFailureNotification(UserSubscriptionPayment subscription, String failureReason) {
+        log.info("Sending cancel failure notification for subscription: {} with reason: {}",
+                subscription.getId(), failureReason);
+
+        SubscriptionMessage message = SubscriptionMessage.builder()
+                .userId(subscription.getUserId())
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .status("CANCEL_FAILED")
+                .failureReason(failureReason)
+                .build();
+
+        // Send ONLY to notification service (don't send to course service since
+        // cancellation failed)
+        messagePublisherService.sendSubscriptionNotificationMessage(message);
+
+        log.info("Cancel failure notification sent for user: {}", subscription.getUserId());
+    }
+
     public LocalDateTime convertTimestampToLocalDateTime(long timestamp) {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.UTC);
+    }
+
+    private void sendUserSubscriptionMessage(UUID userId, boolean isSubscribed, String status) {
+        try {
+            UserSubscriptionMessage message = UserSubscriptionMessage.builder()
+                    .userId(userId)
+                    .isSubscribed(isSubscribed)
+                    .status(status)
+                    .build();
+
+            messagePublisherService.sendUserSubscriptionMessage(message);
+            log.info("User subscription message sent for user: {} with isSubscribed: {}", userId, isSubscribed);
+        } catch (Exception e) {
+            log.error("Failed to send user subscription message for user: {}", userId, e);
+        }
     }
 }
