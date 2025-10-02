@@ -1,9 +1,11 @@
 package com.levelup.payment_service.service;
 
+import com.levelup.payment_service.dto.message.PaymentNotificationMessage;
 import com.levelup.payment_service.dto.message.SubscriptionMessage;
 import com.levelup.payment_service.dto.message.UserSubscriptionMessage;
 import com.levelup.payment_service.model.*;
 import com.levelup.payment_service.repository.RenewalRepository;
+import com.levelup.payment_service.repository.SubscriptionPlanRepository;
 import com.levelup.payment_service.repository.TransactionRepository;
 import com.levelup.payment_service.repository.UserSubscriptionPaymentRepository;
 import com.stripe.model.Event;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class SubscriptionWebhookService {
     private final UserSubscriptionPaymentRepository userSubscriptionPaymentRepository;
     private final TransactionRepository transactionRepository;
     private final RenewalRepository renewalRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final MessagePublisherService messagePublisherService;
     private final SubscriptionService subscriptionService;
 
@@ -187,6 +189,9 @@ public class SubscriptionWebhookService {
         log.info("Subscription saved with subscription_id: {}, period: {} to {}",
                 subscriptionId, periodStart, periodEnd);
 
+        // Send subscription success email notification
+        sendSubscriptionSuccessNotification(subscription, metadata, invoice);
+
         // Send user subscription message (set is_subscribed = true)
         sendUserSubscriptionMessage(userId, true, "SUBSCRIBED");
     }
@@ -238,6 +243,10 @@ public class SubscriptionWebhookService {
         // Send failure notification
         if (metadata.containsKey("user_id")) {
             UUID userId = UUID.fromString(metadata.get("user_id"));
+
+            // Send subscription failure email notification
+            sendSubscriptionFailureNotification(userId, metadata, invoice);
+
             SubscriptionMessage message = SubscriptionMessage.builder()
                     .userId(userId)
                     .subscriptionName("Subscription")
@@ -427,6 +436,71 @@ public class SubscriptionWebhookService {
             log.info("User subscription message sent for user: {} with isSubscribed: {}", userId, isSubscribed);
         } catch (Exception e) {
             log.error("Failed to send user subscription message for user: {}", userId, e);
+        }
+    }
+
+    private void sendSubscriptionSuccessNotification(UserSubscriptionPayment subscription, Map<String, String> metadata,
+            Invoice invoice) {
+        try {
+            // Get subscription plan name
+            SubscriptionPlan subscriptionPlan = subscriptionPlanRepository
+                    .findById(UUID.fromString(metadata.get("subscription_plan_id")))
+                    .orElse(null);
+
+            String subscriptionName = subscriptionPlan != null ? subscriptionPlan.getName() : "Premium Subscription";
+
+            // Get invoice PDF URL from Stripe
+            String invoicePdfUrl = invoice.getHostedInvoiceUrl();
+
+            PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                    .userId(subscription.getUserId())
+                    .eventType("SUBSCRIPTION_SUCCESS")
+                    .subscriptionName(subscriptionName)
+                    .amount(subscription.getTransaction().getAmount().toString())
+                    .currency(subscription.getTransaction().getCurrency().toUpperCase())
+                    .invoicePdfUrl(invoicePdfUrl)
+                    .build();
+
+            messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+            log.info("Subscription success notification sent for user: {} and subscription: {} with invoice: {}",
+                    subscription.getUserId(), subscriptionName, invoicePdfUrl);
+        } catch (Exception e) {
+            log.error("Failed to send subscription success notification for user: {}",
+                    subscription.getUserId(), e);
+        }
+    }
+
+    private void sendSubscriptionFailureNotification(UUID userId, Map<String, String> metadata, Invoice invoice) {
+        try {
+            // Get subscription plan name if available
+            String subscriptionName = "Premium Subscription";
+            if (metadata.containsKey("subscription_plan_id")) {
+                SubscriptionPlan subscriptionPlan = subscriptionPlanRepository
+                        .findById(UUID.fromString(metadata.get("subscription_plan_id")))
+                        .orElse(null);
+                if (subscriptionPlan != null) {
+                    subscriptionName = subscriptionPlan.getName();
+                }
+            }
+
+            // Get amount and currency from invoice
+            String amount = invoice.getAmountDue() != null ? String.valueOf(invoice.getAmountDue() / 100.0) : "0.00";
+            String currency = invoice.getCurrency() != null ? invoice.getCurrency().toUpperCase() : "USD";
+
+            PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                    .userId(userId)
+                    .eventType("SUBSCRIPTION_FAILED")
+                    .subscriptionName(subscriptionName)
+                    .amount(amount)
+                    .currency(currency)
+                    .invoicePdfUrl(null) // No PDF for failed payments
+                    .build();
+
+            messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+            log.info("Subscription failure notification sent for user: {} and subscription: {}",
+                    userId, subscriptionName);
+        } catch (Exception e) {
+            log.error("Failed to send subscription failure notification for user: {}", userId, e);
         }
     }
 }

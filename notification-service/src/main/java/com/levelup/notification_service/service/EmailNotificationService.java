@@ -42,6 +42,9 @@ public class EmailNotificationService {
             log.info("SendGrid response headers: {}", response.getHeaders());
             
             boolean success = response.getStatusCode() >= 200 && response.getStatusCode() < 300;
+            if (!success) {
+                log.error("Failed to send email via SendGrid. Status: {}, Body: {}", response.getStatusCode(), response.getBody());
+            }
             log.info("Email send result: {}", success ? "SUCCESS" : "FAILED");
             
             return success;
