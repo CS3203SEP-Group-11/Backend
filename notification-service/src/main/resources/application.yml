@@ -3,12 +3,17 @@ spring:
     name: notification-service
   datasource:
     url: jdbc:postgresql://128.199.128.177:6432/levelup
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 server:
   port: 8087

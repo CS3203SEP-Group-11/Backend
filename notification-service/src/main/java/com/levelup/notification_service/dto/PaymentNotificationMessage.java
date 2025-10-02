@@ -1,4 +1,4 @@
-package com.levelup.payment_service.dto.message;
+package com.levelup.notification_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

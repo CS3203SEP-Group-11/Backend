@@ -2,9 +2,9 @@ spring:
   application:
     name: course-service
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://128.199.128.177:6432/levelup
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
   #    hikari:
 #      maximum-pool-size: 5
 #      minimum-idle: 2
