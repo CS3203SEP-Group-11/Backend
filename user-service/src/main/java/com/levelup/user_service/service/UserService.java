@@ -73,6 +73,16 @@ public class UserService {
         return "User deleted successfully";
     }
 
+    public String updateStripeCustomerId(UUID userId, String stripeCustomerId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setStripeCustomerId(stripeCustomerId);
+        userRepository.save(user);
+
+        return "Stripe customer ID updated successfully";
+    }
+
     private UserDTO convertToDTO(User user) {
         return UserDTO.builder()
                 .id(user.getId())
@@ -83,6 +93,8 @@ public class UserService {
                 .role(user.getRole())
                 .dateOfBirth(user.getDateOfBirth())
                 .languagePreference(user.getLanguagePreference())
+                .stripeCustomerId(user.getStripeCustomerId())
+                .isSubscribed(user.getIsSubscribed())
                 .build();
     }
 

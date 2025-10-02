@@ -11,6 +11,8 @@ import java.util.UUID;
 import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.service.CourseService;
 import com.levelup.course_service.dto.CourseDTO;
+import com.levelup.course_service.dto.CourseDetailsRequestDTO;
+import com.levelup.course_service.dto.CourseDetailsResponseDTO;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -62,12 +64,19 @@ public class CourseController {
     }
 
     @PutMapping("/state/{status}/{courseId}")
-    public ResponseEntity<String> changeCourseState(@PathVariable UUID courseId, @PathVariable String status, @RequestHeader("X-User-ID") UUID currentUserId) {
+    public ResponseEntity<String> changeCourseState(@PathVariable UUID courseId, @PathVariable String status,
+            @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(courseService.changeCourseState(courseId, currentUserId, status));
     }
 
     @GetMapping("/instructor/me")
     public ResponseEntity<List<Course>> getCoursesByInstructor(@RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(courseService.getMyCourses(currentUserId));
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<CourseDetailsResponseDTO> getCourseDetails(@RequestBody CourseDetailsRequestDTO request) {
+        log.info("Fetching course details for IDs: {}", request.getCourseIds());
+        return ResponseEntity.ok(courseService.getCourseDetailsByIds(request.getCourseIds()));
     }
 }

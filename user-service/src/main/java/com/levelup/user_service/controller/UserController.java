@@ -30,12 +30,14 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO, @PathVariable UUID userId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO, @PathVariable UUID userId,
+            @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(userService.updateUser(userDTO, userId, currentUserId));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable UUID userId, @RequestHeader("X-User-ID") String currentUserId) {
+    public ResponseEntity<String> deleteUser(@PathVariable UUID userId,
+            @RequestHeader("X-User-ID") String currentUserId) {
         return ResponseEntity.ok(userService.deleteUser(userId, currentUserId));
     }
 
@@ -51,5 +53,11 @@ public class UserController {
     @GetMapping("/all")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PutMapping("/{userId}/stripe-customer")
+    public ResponseEntity<String> updateStripeCustomerId(@PathVariable UUID userId,
+            @RequestBody String stripeCustomerId) {
+        return ResponseEntity.ok(userService.updateStripeCustomerId(userId, stripeCustomerId));
     }
 }
