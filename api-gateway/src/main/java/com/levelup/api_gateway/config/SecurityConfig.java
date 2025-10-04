@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/instructors/**").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/api/subscription-plans/active").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)

@@ -20,7 +20,7 @@ public class SubscriptionPlanController {
 
     private final SubscriptionPlanService subscriptionPlanService;
 
-    @PostMapping("/admin/create")
+    @PostMapping("/create")
     public ResponseEntity<SubscriptionPlanResponse> createSubscriptionPlan(
             @Valid @RequestBody SubscriptionPlanCreateRequest request) {
 

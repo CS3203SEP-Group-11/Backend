@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, UUID> {
     List<Lesson> findByCourseId(UUID courseId);
+    Integer countByCourseId(UUID courseId);
 }
