@@ -73,7 +73,8 @@ class NotificationServiceTest {
         when(emailNotificationRepository.save(any(EmailNotification.class))).thenReturn(expectedEmailNotification);
 
         // When
-        EmailNotification result = notificationService.createEmailNotification(notification, subject, body, recipientEmail);
+        EmailNotification result = notificationService.createEmailNotification(notification, subject, body,
+                recipientEmail);
 
         // Then
         assertEquals(notification.getId(), result.getId());
