@@ -32,7 +32,8 @@ class NotificationServiceTest {
     @Test
     void createNotification_returnsNotification_whenValidInput() {
         // Given
-        UUID userId = UUID.randomUUID();
+        UUID userIdUuid = UUID.randomUUID();
+        String userId = userIdUuid.toString();
         String content = "Test notification";
         Notification expectedNotification = new Notification();
         expectedNotification.setId(UUID.randomUUID());
