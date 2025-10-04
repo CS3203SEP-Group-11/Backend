@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [user-service]
+        service: [user-service, notification-service]
 
     env:     
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -32,6 +32,8 @@ jobs:
       PG_DB_URL: ${{ secrets.PG_DB_URL }}
       PG_DB_USERNAME: ${{ secrets.PG_DB_USERNAME }}
       PG_DB_PASSWORD: ${{ secrets.PG_DB_PASSWORD }}
+
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
