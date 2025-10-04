@@ -44,13 +44,13 @@ class NotificationControllerTest {
         // Given
         UUID userId = UUID.randomUUID();
         EmailNotificationRequest request = new EmailNotificationRequest();
-        request.setUserId(userId);
+        request.setUserId(userId.toString());
         request.setSubject("Test Subject");
         request.setBody("Test Body");
 
         Notification expectedNotification = new Notification();
         expectedNotification.setId(UUID.randomUUID());
-        expectedNotification.setUserId(userId);
+        expectedNotification.setUserId(userId.toString());
         expectedNotification.setType(NotificationType.EMAIL);
         expectedNotification.setContent("Test Body");
         expectedNotification.setStatus(NotificationStatus.PENDING);
@@ -61,18 +61,18 @@ class NotificationControllerTest {
         expectedEmailNotification.setBody("Test Body");
         expectedEmailNotification.setRecipientEmail("test@example.com");
 
-        when(notificationService.createNotification(eq(userId), eq(NotificationType.EMAIL), eq("Test Body")))
+        when(notificationService.createNotification(eq(userId.toString()), eq(NotificationType.EMAIL), eq("Test Body")))
                 .thenReturn(expectedNotification);
         
         // Mock the Feign Client call to return user data
         java.util.Map<String, Object> userResponse = new java.util.HashMap<>();
         userResponse.put("email", "test@example.com");
-        when(userServiceClient.getUserById(eq(userId.toString())))
+        when(userServiceClient.getUserById(userId.toString()))
                 .thenReturn(userResponse);
         
         when(emailNotificationService.sendEmail(eq("test@example.com"), eq("Test Subject"), eq("Test Body")))
                 .thenReturn(true);
-        when(notificationService.updateNotificationStatus(eq(expectedNotification.getId()), eq(NotificationStatus.SENT)))
+        when(notificationService.updateNotificationStatus(expectedNotification.getId(), NotificationStatus.SENT))
                 .thenReturn(expectedNotification);
         when(notificationService.createEmailNotification(any(Notification.class), eq("Test Subject"), eq("Test Body"), eq("test@example.com")))
                 .thenReturn(expectedEmailNotification);
@@ -94,7 +94,7 @@ class NotificationControllerTest {
         UUID userId = UUID.randomUUID();
         Notification expectedNotification = new Notification();
         expectedNotification.setId(UUID.randomUUID());
-        expectedNotification.setUserId(userId);
+        expectedNotification.setUserId(userId.toString());
         expectedNotification.setType(NotificationType.IN_APP);
         expectedNotification.setContent("Test Body");
         expectedNotification.setStatus(NotificationStatus.PENDING);
@@ -106,7 +106,7 @@ class NotificationControllerTest {
         expectedInAppNotification.setBody("Test Body");
         expectedInAppNotification.setRead(false);
 
-        when(notificationService.createNotification(eq(userId), eq(NotificationType.IN_APP), eq("Test Body")))
+        when(notificationService.createNotification(userId.toString(), NotificationType.IN_APP, "Test Body"))
                 .thenReturn(expectedNotification);
         when(notificationService.createInAppNotification(any(Notification.class), eq("Test Title"), eq(InAppType.INFO), eq("Test Body")))
                 .thenReturn(expectedInAppNotification);
