@@ -107,4 +107,31 @@ public class NotificationController {
         List<Notification> notifications = notificationService.getNotificationsByStatus(status);
         return ResponseEntity.ok(notifications);
     }
+
+    @PutMapping("/in-app/{notificationId}/mark-read")
+    public ResponseEntity<InAppNotification> markInAppNotificationAsRead(@PathVariable UUID notificationId) {
+        log.info("Marking in-app notification as read: {}", notificationId);
+        try {
+            InAppNotification notification = notificationService.markInAppNotificationAsRead(notificationId);
+            return ResponseEntity.ok(notification);
+        } catch (RuntimeException e) {
+            log.error("Error marking notification as read: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/in-app/user/{userId}")
+    public ResponseEntity<List<InAppNotification>> getInAppNotificationsByUserId(@PathVariable String userId) {
+        log.info("Fetching in-app notifications for user: {}", userId);
+        List<InAppNotification> notifications = notificationService.getInAppNotificationsByUserId(userId);
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/in-app/{notificationId}")
+    public ResponseEntity<InAppNotification> getInAppNotificationById(@PathVariable UUID notificationId) {
+        log.info("Fetching in-app notification by ID: {}", notificationId);
+        return notificationService.getInAppNotificationById(notificationId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

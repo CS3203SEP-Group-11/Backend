@@ -76,4 +76,28 @@ public class NotificationService {
     public List<Notification> getNotificationsByStatus(NotificationStatus status) {
         return notificationRepository.findByStatus(status);
     }
+
+    public InAppNotification markInAppNotificationAsRead(UUID notificationId) {
+        InAppNotification inAppNotification = inAppNotificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("In-app notification not found"));
+        inAppNotification.setRead(true);
+        inAppNotification.setReadAt(Instant.now());
+        return inAppNotificationRepository.save(inAppNotification);
+    }
+
+    public List<InAppNotification> getInAppNotificationsByUserId(String userId) {
+        // Get all notifications for the user
+        List<Notification> userNotifications = notificationRepository.findByUserId(userId);
+        // Filter for in-app notifications and return them
+        return userNotifications.stream()
+                .filter(notification -> notification.getType() == NotificationType.IN_APP)
+                .map(notification -> inAppNotificationRepository.findById(notification.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    public Optional<InAppNotification> getInAppNotificationById(UUID id) {
+        return inAppNotificationRepository.findById(id);
+    }
 }
