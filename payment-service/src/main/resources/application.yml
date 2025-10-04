@@ -2,15 +2,16 @@ spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:postgresql://128.199.128.177:6432/levelup
-    username: admin
+    datasource:
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
-#    hikari:
-#      maximum-pool-size: 2
-#      minimum-idle: 1
-#      idle-timeout: 30000     # 30s
-#      max-lifetime: 600000    # 10 min
-#      connection-timeout: 20000  # 20s wait before failing
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
@@ -39,3 +40,12 @@ user-service:
 webclient:
   connection-timeout: 5000
   read-timeout: 10000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: localhost

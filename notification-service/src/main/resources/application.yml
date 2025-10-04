@@ -2,9 +2,15 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:postgresql://128.199.128.177:6432/levelup
+    url: ${PG_DB_URL}
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
