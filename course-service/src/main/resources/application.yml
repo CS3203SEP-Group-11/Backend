@@ -2,15 +2,15 @@ spring:
   application:
     name: course-service
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-  #    hikari:
-#      maximum-pool-size: 5
-#      minimum-idle: 2
-#      idle-timeout: 30000     # 30s
-#      max-lifetime: 600000    # 10 min
-#      connection-timeout: 20000  # 20s wait before failing
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,6 +23,14 @@ spring:
 
 server:
   port: 8082
+
+certifier:
+    issueUrl: ${CERTIFIER_ISSUE_URL}
+    validateUrl: ${CERTIFIER_VALIDATE_URL}
+    apiKey: ${CERTIFIER_API_KEY}
+    groupId: ${CERTIFIER_GROUP_ID}
+    version: ${CERTIFIER_VERSION}
+
 
 eureka:
   client:

@@ -2,8 +2,10 @@ package com.levelup.course_service.controller;
 
 import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
+import com.levelup.course_service.service.CertificateService;
 import com.levelup.course_service.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class CourseEnrollmentController {
 
     private final CourseEnrollmentService enrollmentService;
+    private final CertificateService certificateService;
 
     @PostMapping
     public CourseEnrollmentResponseDTO enroll(@RequestBody CourseEnrollmentRequestDTO request) {
@@ -37,5 +40,10 @@ public class CourseEnrollmentController {
         @RequestBody List<String> completedLessons
     ) {
         enrollmentService.updateProgress(enrollmentId, completedLessons);
+    }
+
+    @GetMapping("/certificate/{enrollmentId}")
+    public ResponseEntity<String> requestCertificate(@PathVariable UUID enrollmentId, @RequestHeader("X-User-ID") UUID currentUserId) {
+        return ResponseEntity.ok(certificateService.requestCertificate(enrollmentId, currentUserId));
     }
 }
