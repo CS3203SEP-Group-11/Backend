@@ -2,11 +2,11 @@ package com.levelup.media_service.service;
 
 import com.levelup.media_service.dto.FileRespond;
 import com.levelup.media_service.exception.FileNotFoundException;
+import com.levelup.media_service.exception.FileUploadException;
 import com.levelup.media_service.exception.UnauthorizedActionException;
-import com.levelup.media_service.model.FileMetadata;
+import com.levelup.media_service.entity.FileMetadata;
 import com.levelup.media_service.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,8 @@ public class FileStorageService {
     private String bucketName;
 
     @Transactional
-    public FileRespond uploadFile(MultipartFile file, FileMetadata.FileType fileType, String userId) throws IOException {
+    public FileRespond uploadFile(MultipartFile file, FileMetadata.FileType fileType, UUID userId)
+            throws IOException {
 
         String folder = switch (fileType) {
             case IMAGE -> "images/";
@@ -52,7 +53,8 @@ public class FileStorageService {
 
             s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            FileMetadata fileMetadata = getFileMetadata(key, file.getOriginalFilename(), fileType, file.getSize(), userId);
+            FileMetadata fileMetadata = getFileMetadata(key, file.getOriginalFilename(), fileType, file.getSize(),
+                    userId);
 
             fileRepository.save(fileMetadata);
 
@@ -72,8 +74,15 @@ public class FileStorageService {
     }
 
     @Transactional
-    public String deleteFile(String fileId, String userId) {
-        FileMetadata fileMetadata = fileRepository.findById(fileId)
+    public String deleteFile(String fileId, UUID userId) {
+        UUID fileUuid;
+        try {
+            fileUuid = UUID.fromString(fileId);
+        } catch (IllegalArgumentException e) {
+            throw new FileNotFoundException("Invalid file ID format");
+        }
+
+        FileMetadata fileMetadata = fileRepository.findById(fileUuid)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
 
         if (!fileMetadata.getOwnerId().equals(userId)) {
@@ -106,7 +115,8 @@ public class FileStorageService {
         return s3Client.utilities().getUrl(request).toExternalForm();
     }
 
-    private FileMetadata getFileMetadata(String key, String filename, FileMetadata.FileType fileType, long fileSize, String ownerId) {
+    private FileMetadata getFileMetadata(String key, String filename, FileMetadata.FileType fileType, long fileSize,
+            UUID ownerId) {
         return FileMetadata.builder()
                 .key(key)
                 .filename(filename)
@@ -119,7 +129,7 @@ public class FileStorageService {
 
     private FileRespond createFileResponse(FileMetadata fileMetadata) {
         return FileRespond.builder()
-                .id(fileMetadata.getId())
+                .id(fileMetadata.getId().toString())
                 .fileUrl(generateFileUrl(fileMetadata.getKey()))
                 .build();
     }
