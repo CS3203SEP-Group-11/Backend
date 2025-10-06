@@ -1,11 +1,13 @@
 package com.levelup.media_service.repository;
 
-import com.levelup.media_service.model.FileMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.levelup.media_service.entity.FileMetadata;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface FileRepository extends MongoRepository<FileMetadata, String> {
+@Repository
+public interface FileRepository extends JpaRepository<FileMetadata, UUID> {
     Optional<FileMetadata> findByKey(String key);
-
 }
