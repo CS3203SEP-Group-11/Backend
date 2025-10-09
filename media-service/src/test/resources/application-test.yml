@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: media-service
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    com.levelup.media_service: DEBUG
