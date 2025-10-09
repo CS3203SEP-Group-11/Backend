@@ -1,0 +1,20 @@
+spring:
+  data:
+    mongodb:
+      # External MongoDB cluster
+      uri: ${MEDIA_DB_URL}
+
+cloud:
+  aws:
+    credentials:
+      access-key: dummy-access-key
+      secret-key: dummy-secret-key
+    region:
+      static: us-east-1
+    s3:
+      bucket-name: dummy-bucket
+
+# Eureka disabled for Kubernetes deployment
+eureka:
+  client:
+    enabled: false

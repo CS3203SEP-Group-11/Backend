@@ -30,8 +30,8 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8086/actuator/health || exit 1
+  CMD curl -f http://localhost:8083/actuator/health || exit 1
 
-EXPOSE 8086
+EXPOSE 8083
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -1,0 +1,56 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: api-backend-config
+  namespace: default
+spec:
+  # CORS configuration
+  cors:
+    allowOrigins:
+    - "*"
+    allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    allowHeaders:
+    - "DNT"
+    - "User-Agent"
+    - "X-Requested-With"
+    - "If-Modified-Since"
+    - "Cache-Control"
+    - "Content-Type"
+    - "Range"
+    - "Authorization"
+    maxAge: 3600
+    allowCredentials: true
+  
+  # Health check configuration
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /actuator/health
+    port: 8080
+  
+  # Connection draining timeout
+  connectionDraining:
+    drainingTimeoutSec: 60
+  
+  # Session affinity (optional)
+  sessionAffinity:
+    affinityType: "CLIENT_IP"
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: sem5-project-ssl
+  namespace: default
+spec:
+  domains:
+  - api.sem5-project.com
+  - frontend.sem5-project.com
+  - admin.sem5-project.com

@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot application
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM maven:3.9.6-openjdk-21-slim AS build
 
 WORKDIR /app
 
@@ -30,8 +30,8 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8086/actuator/health || exit 1
+  CMD curl -f http://localhost:8085/actuator/health || exit 1
 
-EXPOSE 8086
+EXPOSE 8085
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
