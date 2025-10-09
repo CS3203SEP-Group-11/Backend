@@ -1,16 +1,6 @@
 spring:
   application:
     name: assessment-service
-  datasource:
-    url: ${PG_DB_URL}
-    username: ${PG_DB_USERNAME}
-    password: ${PG_DB_PASSWORD}
-    hikari:
-      maximum-pool-size: 5    # Adjust to fit your DB / PgBouncer pool
-      minimum-idle: 2
-      idle-timeout: 30000     # 30s
-      max-lifetime: 600000    # 10 min
-      connection-timeout: 20000  # 20s wait before failing
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,12 +8,3 @@ spring:
 
 server:
   port: 8083
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
-    hostname: localhost
