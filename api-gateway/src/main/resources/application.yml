@@ -9,7 +9,8 @@ spring:
             - id: user-service
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/auth/**, /api/users/**, /api/instructors/**,
+                # Include both the collection root and subpaths so POST /api/instructor-applications routes correctly
+                - Path=/api/auth/**, /api/users/**, /api/instructors/**, /api/instructor-applications, /api/instructor-applications/**
             - id: course-service
               uri: lb://COURSE-SERVICE
               predicates:
