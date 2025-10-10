@@ -16,8 +16,8 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# Copy jar from build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy only the re-packaged Spring Boot jar (avoid copying the *.jar.original)
+COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
