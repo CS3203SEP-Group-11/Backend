@@ -16,19 +16,8 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
-# Copy jar from build stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Change ownership
-RUN chown -R appuser:appuser /app
-USER appuser
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8087/actuator/health || exit 1
+# Copy only the re-packaged Spring Boot jar (avoid copying the *.jar.original)
+COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 
 EXPOSE 8087
 
