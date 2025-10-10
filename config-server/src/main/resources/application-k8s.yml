@@ -1,0 +1,2 @@
+# Config Server - Not needed in Kubernetes
+# Configuration handled via ConfigMaps and Secrets

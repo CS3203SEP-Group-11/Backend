@@ -1,6 +1,5 @@
 package com.levelup.course_service.controller;
 
-import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
 import com.levelup.course_service.service.CertificateService;
 import com.levelup.course_service.service.CourseEnrollmentService;
@@ -19,11 +18,6 @@ public class CourseEnrollmentController {
     private final CourseEnrollmentService enrollmentService;
     private final CertificateService certificateService;
 
-    @PostMapping
-    public CourseEnrollmentResponseDTO enroll(@RequestBody CourseEnrollmentRequestDTO request) {
-        return enrollmentService.enroll(request);
-    }
-
     @GetMapping("/user/{userId}")
     public List<CourseEnrollmentResponseDTO> getByUser(@PathVariable UUID userId) {
         return enrollmentService.getEnrollmentsByUser(userId);
@@ -36,9 +30,8 @@ public class CourseEnrollmentController {
 
     @PutMapping("/{enrollmentId}/progress")
     public void updateProgress(
-        @PathVariable UUID enrollmentId,
-        @RequestBody List<String> completedLessons
-    ) {
+            @PathVariable UUID enrollmentId,
+            @RequestBody List<String> completedLessons) {
         enrollmentService.updateProgress(enrollmentId, completedLessons);
     }
 

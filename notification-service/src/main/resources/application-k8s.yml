@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    # External DigitalOcean PostgreSQL
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
+  rabbitmq:
+    host: rabbitmq-service
+    port: 5672
+    username: user
+    password: password
+
+sendgrid:
+  api-key: dummy-sendgrid-key
+  from-email: kasunyahimani@gmail.com
+
+# Eureka disabled for Kubernetes deployment
+eureka:
+  client:
+    enabled: false

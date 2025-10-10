@@ -1,0 +1,45 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: levelup-ssl-cert
+  namespace: levelup-learning
+spec:
+  domains:
+    - api.levelup-learning.com
+    - app.levelup-learning.com
+    - admin.levelup-learning.com
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-backend-config
+  namespace: levelup-learning
+  annotations:
+    cloud.google.com/backend-config: '{"default": "api-backend-config"}'
+spec:
+  # This is just a placeholder service for backend config
+  selector:
+    app: api-gateway
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: api-backend-config
+  namespace: levelup-learning
+spec:
+  timeoutSec: 40
+  connectionDraining:
+    drainingTimeoutSec: 60
+  logging:
+    enable: true
+    sampleRate: 1.0
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /actuator/health
