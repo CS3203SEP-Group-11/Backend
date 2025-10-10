@@ -5,9 +5,9 @@ metadata:
   namespace: levelup-learning
 spec:
   domains:
-    - api.levelup-learning.com
-    - app.levelup-learning.com
-    - admin.levelup-learning.com
+    - api.levelups.app
+    - app.levelups.app
+    - admin.levelups.app
 ---
 apiVersion: v1
 kind: Service
