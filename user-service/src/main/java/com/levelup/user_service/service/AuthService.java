@@ -64,6 +64,29 @@ public class AuthService {
         return jwtUtil.generateJwtToken(user.getId(), user.getEmail(), user.getRole());
     }
 
+    @Transactional
+    public String registerAdmin(@Valid RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException("Email already exists");
+        }
+
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .authProvider(AuthProvider.LOCAL)
+                .emailVerified(true) // Auto-verify admin emails
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .role(Role.ADMIN)
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+
+        userRepository.save(user);
+
+        return jwtUtil.generateJwtToken(user.getId(), user.getEmail(), user.getRole());
+    }
+
     public String googleLogin(GoogleAuthRequest request) {
 
         GoogleIdToken.Payload payload = googleTokenUtil.getTokenPayload(request.getToken());

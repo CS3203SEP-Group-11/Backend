@@ -34,6 +34,13 @@ public class AuthController {
         return ResponseEntity.ok("Registration successful");
     }
 
+    @PostMapping("/register/admin")
+    public ResponseEntity<String> registerAdmin(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
+        String jwtToken = authService.registerAdmin(request);
+        addJwtToCookie(response, jwtToken);
+        return ResponseEntity.ok("Admin registration successful");
+    }
+
     @PostMapping("/google/login")
     public ResponseEntity<String> googleLogin(@RequestBody GoogleAuthRequest request, HttpServletResponse response) {
         String jwtToken = authService.googleLogin(request);
