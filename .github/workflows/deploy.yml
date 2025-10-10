@@ -1,0 +1,93 @@
+name: Multi-Service CI/CD
+
+on:
+  push:
+    branches: [deploy-test]
+  # pull_request:
+  #   branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api-gateway
+            jdk: "17"
+            docker_image: levelup/api-gateway
+          - service: assessment-service
+            jdk: "17"
+            docker_image: levelup/assessment-service
+          - service: course-service
+            jdk: "17"
+            docker_image: levelup/course-service
+          - service: media-service
+            jdk: "17"
+            docker_image: levelup/media-service
+          - service: notification-service
+            jdk: "17"
+            docker_image: levelup/notification-service
+          - service: payment-service
+            jdk: "17"
+            docker_image: levelup/payment-service
+          - service: user-service
+            jdk: "17"
+            docker_image: levelup/user-service
+
+    env:
+      GKE_CLUSTER: levelup-cluster
+      GKE_ZONE: asia-south1-a
+      K8S_NAMESPACE: levelup-learning
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.jdk }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.jdk }}
+          distribution: temurin
+          cache: maven
+
+      - name: Run tests
+        working-directory: ${{ matrix.service }}
+        run: mvn -q clean test
+
+      - name: Build application (skip tests)
+        working-directory: ${{ matrix.service }}
+        run: mvn -q clean package -DskipTests
+
+      - name: Login to Docker Hub (deployment branch only)
+        if: github.ref == 'refs/heads/deployment'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image (deployment branch only)
+        if: github.ref == 'refs/heads/deployment'
+        working-directory: ${{ matrix.service }}
+        run: |
+          docker build -t ${{ matrix.docker_image }}:${{ github.sha }} \
+                       -t ${{ matrix.docker_image }}:latest .
+          docker push ${{ matrix.docker_image }}:${{ github.sha }}
+          docker push ${{ matrix.docker_image }}:latest
+
+      - name: Setup Google Cloud CLI (deployment branch only)
+        if: github.ref == 'refs/heads/deployment'
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy to GKE (deployment branch only)
+        if: github.ref == 'refs/heads/deployment'
+        run: |
+          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
+          kubectl set image deployment/${{ matrix.service }} \
+            ${{ matrix.service }}=${{ matrix.docker_image }}:${{ github.sha }} \
+            --namespace=${{ env.K8S_NAMESPACE }}
+          kubectl rollout status deployment/${{ matrix.service }} --namespace=${{ env.K8S_NAMESPACE }}
