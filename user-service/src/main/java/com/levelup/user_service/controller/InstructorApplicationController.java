@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/instructor-applications")
+@RequestMapping({"/api/instructor-applications", "/api/instructor-applications/"})
 @RequiredArgsConstructor
 public class InstructorApplicationController {
 

@@ -25,12 +25,11 @@ public class InstructorApplication {
     @Id
     @UuidGenerator
     @JdbcTypeCode(SqlTypes.UUID)
-    @Column(name = "id", columnDefinition = "uuid")
+    @Column(name = "id",columnDefinition = "uuid")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "uuid",
-            foreignKey = @ForeignKey(name = "fk_instructor_app_user"))
+    @JoinColumn(name = "user_id", columnDefinition = "uuid", nullable = false, foreignKey = @ForeignKey(name = "fk_instructor_app_user"))
     private User user;
 
     @Column(name = "experience_years")
