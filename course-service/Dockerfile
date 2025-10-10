@@ -3,15 +3,13 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy pom.xml and pre-fetch dependencies using Maven (avoid wrapper)
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN ./mvnw dependency:go-offline -B
+RUN mvn -B -e -Dmaven.test.skip=true dependency:go-offline
 
 # Copy source code and build
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn -q clean package -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:17-jre
