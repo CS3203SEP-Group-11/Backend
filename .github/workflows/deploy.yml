@@ -40,6 +40,7 @@ jobs:
       GKE_CLUSTER: levelup-cluster
       GKE_ZONE: asia-south1-a
       K8S_NAMESPACE: levelup-learning
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout repository
@@ -71,10 +72,11 @@ jobs:
         if: github.ref == 'refs/heads/deploy-test'
         working-directory: ${{ matrix.service }}
         run: |
-          docker build -t ${{ matrix.docker_image }}:${{ github.sha }} \
-                       -t ${{ matrix.docker_image }}:latest .
-          docker push ${{ matrix.docker_image }}:${{ github.sha }}
-          docker push ${{ matrix.docker_image }}:latest
+          IMAGE="${{ env.DOCKERHUB_USERNAME }}/${{ matrix.service }}"
+          echo "Pushing $IMAGE"
+          docker build -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
 
       - name: Setup Google Cloud CLI (deployment branch only)
         if: github.ref == 'refs/heads/deploy-test'
@@ -88,6 +90,6 @@ jobs:
         run: |
           gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
           kubectl set image deployment/${{ matrix.service }} \
-            ${{ matrix.service }}=${{ matrix.docker_image }}:${{ github.sha }} \
+            ${{ matrix.service }}=${{ env.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }} \
             --namespace=${{ env.K8S_NAMESPACE }}
           kubectl rollout status deployment/${{ matrix.service }} --namespace=${{ env.K8S_NAMESPACE }}
