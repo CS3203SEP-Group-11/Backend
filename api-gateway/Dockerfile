@@ -1,32 +1,27 @@
-# Multi-stage build for Spring Boot application
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Simple single-stage Dockerfile for Spring Boot application
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
-COPY pom.xml .
-COPY .mvn .mvn
+# Copy Maven wrapper and pom.xml
 COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# ✅ Fix permission issue
+# Fix permission issue
 RUN chmod +x mvnw
 
 # Download dependencies
 RUN ./mvnw dependency:go-offline -B
 
-# Copy source code and build
+# Copy source code
 COPY src ./src
+
+# Build the application
 RUN ./mvnw clean package -DskipTests
-
-# Runtime stage
-FROM eclipse-temurin:21-jre
-
-WORKDIR /app
-
-# Copy jar from build stage
-COPY --from=build /app/target/*.jar app.jar
 
 # Expose application port
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/target/*.jar"]
