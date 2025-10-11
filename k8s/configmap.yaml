@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
-  namespace: default
+  namespace: levelup-learning
 data:
   # Database Configuration
   PG_DB_URL: "jdbc:postgresql://128.199.128.177:6432/levelup"
