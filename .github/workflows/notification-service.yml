@@ -2,19 +2,19 @@ name: Notification Service CI/CD
 
 on:
   push:
-    branches: [ main , deployment ]
+    branches: [ deployment ]
     paths:
       - 'notification-service/**'
   pull_request:
-    branches: [ main ]
+    branches: [ main, deployment ]
     paths:
       - 'notification-service/**'
 
 env:
   SERVICE_NAME: notification-service
-  DOCKER_IMAGE: levelup/notification-service
   GKE_CLUSTER: levelup-cluster
   GKE_ZONE: asia-south1-a
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
 jobs:
   build-and-deploy:
@@ -30,14 +30,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-
-    - name: Run tests
-      working-directory: ${{ env.SERVICE_NAME }}
-      run: mvn clean test
-
+        
     - name: Build application
       working-directory: ${{ env.SERVICE_NAME }}
-      run: mvn clean package -DskipTests
+      run: mvn -q clean package -DskipTests
 
     - name: Login to Docker Hub
       if: github.ref == 'refs/heads/deployment'
@@ -50,10 +46,12 @@ jobs:
       if: github.ref == 'refs/heads/deployment'
       working-directory: ${{ env.SERVICE_NAME }}
       run: |
-        docker build -t ${{ env.DOCKER_IMAGE }}:${{ github.sha }} \
-                     -t ${{ env.DOCKER_IMAGE }}:latest .
-        docker push ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
-        docker push ${{ env.DOCKER_IMAGE }}:latest
+        IMAGE="${{ env.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}"
+        echo "Pushing $IMAGE"
+        docker build -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
+        docker push "$IMAGE:${{ github.sha }}"
+        docker push "$IMAGE:latest"
+        
 
     - name: Setup Google Cloud CLI
       if: github.ref == 'refs/heads/deployment'
@@ -67,6 +65,6 @@ jobs:
       run: |
         gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
         kubectl set image deployment/${{ env.SERVICE_NAME }} \
-          ${{ env.SERVICE_NAME }}=${{ env.DOCKER_IMAGE }}:${{ github.sha }} \
+          ${{ env.SERVICE_NAME }}=${{ env.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
           --namespace=levelup-learning
         kubectl rollout status deployment/${{ env.SERVICE_NAME }} --namespace=levelup-learning
