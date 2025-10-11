@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq
-  namespace: default
+  namespace: levelup-learning
 spec:
   replicas: 1
   selector:
@@ -43,7 +43,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq-service
-  namespace: default
+  namespace: levelup-learning
 spec:
   selector:
     app: rabbitmq
@@ -60,7 +60,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: rabbitmq-pvc
-  namespace: default
+  namespace: levelup-learning
 spec:
   accessModes:
   - ReadWriteOnce

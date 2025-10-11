@@ -2,9 +2,12 @@ apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
   name: api-backend-config
-  namespace: default
+  namespace: levelup-learning
 spec:
-  # CORS configuration
+  # Timeout configuration
+  timeoutSec: 40
+  
+  # CORS configuration (Essential for frontend-backend communication)
   cors:
     allowOrigins:
     - "*"
@@ -36,21 +39,15 @@ spec:
     requestPath: /actuator/health
     port: 8080
   
-  # Connection draining timeout
+  # Connection draining for graceful deployments
   connectionDraining:
     drainingTimeoutSec: 60
   
-  # Session affinity (optional)
+  # Logging configuration
+  logging:
+    enable: true
+    sampleRate: 1.0
+  
+  # Session affinity (optional - for sticky sessions)
   sessionAffinity:
     affinityType: "CLIENT_IP"
----
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  name: sem5-project-ssl
-  namespace: default
-spec:
-  domains:
-  - api.sem5-project.com
-  - frontend.sem5-project.com
-  - admin.sem5-project.com
