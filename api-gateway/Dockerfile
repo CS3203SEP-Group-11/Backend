@@ -7,6 +7,11 @@ WORKDIR /app
 COPY pom.xml .
 COPY .mvn .mvn
 COPY mvnw .
+
+# ✅ Fix permission issue
+RUN chmod +x mvnw
+
+# Download dependencies
 RUN ./mvnw dependency:go-offline -B
 
 # Copy source code and build
