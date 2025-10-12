@@ -20,5 +20,4 @@ management:
 
 # Default CORS Configuration (overridden by profiles)
 cors:
-  allowed-origins:
-    - "http://localhost:3000"
+  allowed-origins: "http://localhost:3000"

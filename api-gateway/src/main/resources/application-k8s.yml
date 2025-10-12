@@ -29,12 +29,9 @@ spring:
               predicates:
                 - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhooks/**
 
-# CORS Configuration for Production
+# CORS Configuration for Production (comma-separated for Spring Boot array binding)
 cors:
-  allowed-origins:
-    - "https://api.levelups.app"
-    - "https://app.levelups.app"
-    - "https://admin.levelups.app"
+  allowed-origins: "https://api.levelups.app,https://app.levelups.app,https://admin.levelups.app"
 
 # Eureka disabled for Kubernetes deployment
 eureka:
