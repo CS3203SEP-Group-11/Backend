@@ -7,3 +7,13 @@ jwt:
 
 server:
   port: 8080
+
+# Actuator configuration for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
