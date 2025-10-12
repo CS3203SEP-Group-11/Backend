@@ -27,6 +27,7 @@ spring:
           predicates:
             - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhooks/**
 
+
 eureka:
   client:
     service-url:

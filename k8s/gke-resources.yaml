@@ -4,32 +4,8 @@ metadata:
   name: api-backend-config
   namespace: levelup-learning
 spec:
-  # Timeout configuration
   timeoutSec: 40
-  
-  # CORS configuration (Essential for frontend-backend communication)
-  cors:
-    allowOrigins:
-    - "*"
-    allowMethods:
-    - GET
-    - POST
-    - PUT
-    - DELETE
-    - OPTIONS
-    allowHeaders:
-    - "DNT"
-    - "User-Agent"
-    - "X-Requested-With"
-    - "If-Modified-Since"
-    - "Cache-Control"
-    - "Content-Type"
-    - "Range"
-    - "Authorization"
-    maxAge: 3600
-    allowCredentials: true
-  
-  # Health check configuration
+
   healthCheck:
     checkIntervalSec: 10
     timeoutSec: 5
@@ -38,16 +14,13 @@ spec:
     type: HTTP
     requestPath: /actuator/health
     port: 8080
-  
-  # Connection draining for graceful deployments
+
   connectionDraining:
     drainingTimeoutSec: 60
-  
-  # Logging configuration
+
   logging:
     enable: true
     sampleRate: 1.0
-  
-  # Session affinity (optional - for sticky sessions)
+
   sessionAffinity:
     affinityType: "CLIENT_IP"
