@@ -1,51 +1,14 @@
 spring:
   application:
     name: payment-service
-  datasource:
-    datasource:
-    url: ${PG_DB_URL}
-    username: ${PG_DB_USERNAME}
-    password: ${PG_DB_PASSWORD}
-    hikari:
-      maximum-pool-size: 2
-      minimum-idle: 1
-      idle-timeout: 30000
-      max-lifetime: 600000
-      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 
 server:
   port: 8085
 
-stripe:
-  secret:
-    key: ${STRIPE_SECRET_KEY}
-  webhook:
-    secret: ${STRIPE_WEBHOOK_SECRET}
-
-course-service:
-  base-url: http://localhost:8082
-
-user-service:
-  base-url: http://localhost:8081
-
 webclient:
   connection-timeout: 5000
   read-timeout: 10000
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
-    hostname: localhost

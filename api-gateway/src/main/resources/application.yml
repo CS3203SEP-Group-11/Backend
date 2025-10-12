@@ -1,36 +1,6 @@
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: user-service
-              uri: lb://USER-SERVICE
-              predicates:
-                # Include both the collection root and subpaths so POST /api/instructor-applications routes correctly
-                - Path=/api/auth/**, /api/users/**, /api/instructors/**, /api/instructor-applications, /api/instructor-applications/**
-            - id: course-service
-              uri: lb://COURSE-SERVICE
-              predicates:
-                - Path=/api/courses/**, /api/lessons/**, /api/enrollments/**
-            - id: assessment-service
-              uri: lb://ASSESSMENT-SERVICE
-              predicates:
-                - Path=/api/assessments/**
-            - id: media-service
-              uri: lb://MEDIA-SERVICE
-              predicates:
-                - Path=/api/files/**
-            - id: notification-service
-              uri: lb://NOTIFICATION-SERVICE
-              predicates:
-                - Path=/api/notifications/**
-            - id: payment-service
-              uri: lb://PAYMENT-SERVICE
-              predicates:
-                - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhooks/**
 
 jwt:
   secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
@@ -38,19 +8,12 @@ jwt:
 server:
   port: 8080
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
-    hostname: localhost
-
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://152.42.189.244:8761/eureka/
-#  instance:
-#    prefer-ip-address: true
+# Actuator configuration for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
