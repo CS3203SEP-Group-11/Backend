@@ -17,3 +17,8 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+# Default CORS Configuration (overridden by profiles)
+cors:
+  allowed-origins:
+    - "http://localhost:3000"

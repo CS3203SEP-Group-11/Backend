@@ -6,7 +6,10 @@ metadata:
 spec:
   timeoutSec: 40
 
-  # Health check commented out - no actuator endpoint available
+  # CORS is handled by Spring Boot API Gateway - no need for GCP CORS
+  # This avoids conflicts and ensures consistent behavior
+
+  # Health check - uncomment when actuator endpoint is available
   # healthCheck:
   #   checkIntervalSec: 10
   #   timeoutSec: 5
