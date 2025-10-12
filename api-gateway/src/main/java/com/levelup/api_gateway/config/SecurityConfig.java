@@ -25,8 +25,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    // Use String instead of String array for comma-separated values
+    @Value("${cors.allowed-origins:http://localhost:3000}")
+    private String allowedOriginsString;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -55,8 +56,11 @@ public class SecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Use profile-based origins from application properties
-        allowedOrigins.forEach(config::addAllowedOrigin);
+        // Split comma-separated origins and add to config
+        String[] originsArray = allowedOriginsString.split(",");
+        for (String origin : originsArray) {
+            config.addAllowedOrigin(origin.trim()); // trim to remove any extra spaces
+        }
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));

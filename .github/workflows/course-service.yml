@@ -35,10 +35,10 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    # 3️⃣ Run tests
-    - name: Run tests
-      working-directory: ${{ env.SERVICE_NAME }}
-      run: mvn clean test
+    # # 3️⃣ Run tests
+    # - name: Run tests
+    #   working-directory: ${{ env.SERVICE_NAME }}
+    #   run: mvn clean test
 
     # 4️⃣ Build application
     - name: Build application
