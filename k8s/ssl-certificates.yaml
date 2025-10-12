@@ -1,10 +1,61 @@
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  name: levelup-ssl-cert
-  namespace: levelup-learning
-spec:
-  domains:
-    - api.levelups.app
-    - app.levelups.app
-    - admin.levelups.app
+# ===================================================================
+# CLOUDFLARE SSL CONFIGURATION GUIDE
+# ===================================================================
+# 
+# Instead of using GCP Managed Certificates, you're using Cloudflare SSL.
+# This file is now a reference guide for Cloudflare configuration.
+#
+# CLOUDFLARE SETUP STEPS:
+# 
+# 1. Add Domains to Cloudflare:
+#    - api.levelups.app
+#    - app.levelups.app  
+#    - admin.levelups.app
+#
+# 2. DNS Configuration in Cloudflare:
+#    Create A records pointing to your Load Balancer IP:
+#    
+#    NAME               TYPE    VALUE
+#    api.levelups.app   A       <LOAD_BALANCER_IP>
+#    app.levelups.app   A       <LOAD_BALANCER_IP>
+#    admin.levelups.app A       <LOAD_BALANCER_IP>
+#
+# 3. SSL/TLS Settings in Cloudflare Dashboard:
+#    - Go to SSL/TLS tab
+#    - Set SSL/TLS encryption mode to "Full (strict)"
+#    - Enable "Always Use HTTPS"
+#    - Enable "Automatic HTTPS Rewrites"
+#
+# 4. Edge Certificates (Cloudflare Dashboard):
+#    - Universal SSL Certificate: ON
+#    - Always Use HTTPS: ON
+#    - HTTP Strict Transport Security (HSTS): Enable
+#
+# 5. Origin Certificates (Optional but Recommended):
+#    - Create Origin Certificate in Cloudflare
+#    - Download certificate and key
+#    - Create Kubernetes TLS secret if needed
+#
+# GET YOUR LOAD BALANCER IP:
+# kubectl get ingress ingress-service -n levelup-learning
+#
+# VERIFY SSL AFTER SETUP:
+# curl -I https://api.levelups.app
+# curl -I https://app.levelups.app
+# curl -I https://admin.levelups.app
+#
+# ===================================================================
+
+# The following GCP Managed Certificate resource has been REMOVED
+# for Cloudflare SSL compatibility:
+
+# apiVersion: networking.gke.io/v1
+# kind: ManagedCertificate
+# metadata:
+#   name: levelup-ssl-cert
+#   namespace: levelup-learning
+# spec:
+#   domains:
+#     - api.levelups.app
+#     - app.levelups.app
+#     - admin.levelups.app

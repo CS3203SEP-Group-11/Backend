@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: media-service
-        image: media-service:latest
+        image: heshanheshan/media-service:latest
         ports:
         - containerPort: 8086
         env:
@@ -53,18 +53,18 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8086
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8086
-          initialDelaySeconds: 60
-          periodSeconds: 30
+        # readinessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8086
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8086
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 30
 ---
 apiVersion: v1
 kind: Service
