@@ -6,14 +6,15 @@ metadata:
 spec:
   timeoutSec: 40
 
-  healthCheck:
-    checkIntervalSec: 10
-    timeoutSec: 5
-    healthyThreshold: 1
-    unhealthyThreshold: 3
-    type: HTTP
-    requestPath: /actuator/health
-    port: 8080
+  # Health check commented out - no actuator endpoint available
+  # healthCheck:
+  #   checkIntervalSec: 10
+  #   timeoutSec: 5
+  #   healthyThreshold: 1
+  #   unhealthyThreshold: 3
+  #   type: HTTP
+  #   requestPath: /actuator/health
+  #   port: 8080
 
   connectionDraining:
     drainingTimeoutSec: 60
