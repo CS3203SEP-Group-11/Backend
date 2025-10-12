@@ -2,6 +2,7 @@ package com.levelup.payment_service.service;
 
 import com.levelup.payment_service.client.UserServiceClient;
 import com.levelup.payment_service.dto.external.UserDto;
+import com.levelup.payment_service.dto.message.PaymentNotificationMessage;
 import com.levelup.payment_service.dto.message.SubscriptionMessage;
 import com.levelup.payment_service.dto.message.UserSubscriptionMessage;
 import com.levelup.payment_service.dto.request.CreateSubscriptionRequest;
@@ -178,6 +179,9 @@ public class SubscriptionService {
             // Send user subscription message (set is_subscribed = false)
             sendUserSubscriptionMessage(subscription.getUserId(), false, "CANCELED");
 
+            // Send cancellation success email notification
+            sendCancellationSuccessNotification(subscription);
+
             log.info("Subscription canceled successfully");
 
             return SubscriptionCancelResponse.builder()
@@ -274,6 +278,9 @@ public class SubscriptionService {
 
                 // Send user subscription message (set is_subscribed = false)
                 sendUserSubscriptionMessage(subscription.getUserId(), false, "REFUNDED");
+
+                // Send refund success email notification
+                sendRefundSuccessNotification(subscription);
 
                 log.info("Subscription refunded successfully");
 
@@ -376,6 +383,19 @@ public class SubscriptionService {
         log.info("Sending refund failure notification for subscription: {} with reason: {}",
                 subscription.getId(), failureReason);
 
+        // Send email notification via PaymentNotificationMessage
+        PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                .userId(subscription.getUserId())
+                .eventType("REFUND_FAILED")
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .amount(subscription.getTransaction().getAmount().toString())
+                .currency(subscription.getTransaction().getCurrency())
+                .build();
+
+        messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+
+        // Also send SubscriptionMessage for backward compatibility (existing
+        // notification system)
         SubscriptionMessage message = SubscriptionMessage.builder()
                 .userId(subscription.getUserId())
                 .subscriptionName(subscription.getSubscriptionPlan().getName())
@@ -394,6 +414,19 @@ public class SubscriptionService {
         log.info("Sending cancel failure notification for subscription: {} with reason: {}",
                 subscription.getId(), failureReason);
 
+        // Send email notification via PaymentNotificationMessage
+        PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                .userId(subscription.getUserId())
+                .eventType("CANCELLATION_FAILED")
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .amount(subscription.getTransaction().getAmount().toString())
+                .currency(subscription.getTransaction().getCurrency())
+                .build();
+
+        messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+
+        // Also send SubscriptionMessage for backward compatibility (existing
+        // notification system)
         SubscriptionMessage message = SubscriptionMessage.builder()
                 .userId(subscription.getUserId())
                 .subscriptionName(subscription.getSubscriptionPlan().getName())
@@ -406,6 +439,36 @@ public class SubscriptionService {
         messagePublisherService.sendSubscriptionNotificationMessage(message);
 
         log.info("Cancel failure notification sent for user: {}", subscription.getUserId());
+    }
+
+    private void sendRefundSuccessNotification(UserSubscriptionPayment subscription) {
+        log.info("Sending refund success notification for subscription: {}", subscription.getId());
+
+        PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                .userId(subscription.getUserId())
+                .eventType("REFUND_SUCCESS")
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .amount(subscription.getTransaction().getAmount().toString())
+                .currency(subscription.getTransaction().getCurrency())
+                .build();
+
+        messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+        log.info("Refund success notification sent for user: {}", subscription.getUserId());
+    }
+
+    private void sendCancellationSuccessNotification(UserSubscriptionPayment subscription) {
+        log.info("Sending cancellation success notification for subscription: {}", subscription.getId());
+
+        PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
+                .userId(subscription.getUserId())
+                .eventType("CANCELLATION_SUCCESS")
+                .subscriptionName(subscription.getSubscriptionPlan().getName())
+                .amount(subscription.getTransaction().getAmount().toString())
+                .currency(subscription.getTransaction().getCurrency())
+                .build();
+
+        messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
+        log.info("Cancellation success notification sent for user: {}", subscription.getUserId());
     }
 
     public LocalDateTime convertTimestampToLocalDateTime(long timestamp) {

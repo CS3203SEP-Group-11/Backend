@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: levelup-ingress
+  namespace: levelup-learning
+  annotations:
+    # GKE Ingress with Google Cloud Load Balancer
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "levelup-static-ip"
+    ingress.gcp.kubernetes.io/managed-certificates: "levelup-ssl-cert"
+    kubernetes.io/ingress.allow-http: "true"
+    # CORS configuration for GKE
+    cloud.google.com/backend-config: '{"default": "api-backend-config"}'
+spec:
+  rules:
+  # Backend API Gateway
+  - host: api.levelups.app
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
+  # Student Frontend
+  - host: app.levelups.app
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: frontend-student
+            port:
+              number: 80
+  # Admin Frontend
+  - host: admin.levelups.app
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: frontend-admin
+            port:
+              number: 80
