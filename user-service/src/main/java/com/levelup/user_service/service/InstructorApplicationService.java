@@ -62,6 +62,10 @@ public class InstructorApplicationService {
                     .user(user)
                     .bio(app.getBio())
                     .expertise(app.getExpertise() != null ? List.of(app.getExpertise().split(",")) : null)
+                    .contactDetails(new Instructor.ContactDetails(
+                            user.getEmail(),
+                            null,
+                            null))
                     .build();
             instructorRepository.save(instructor);
         }
