@@ -14,8 +14,6 @@ env:
   GKE_CLUSTER: autopilot-cluster-1
   GKE_ZONE: asia-south1
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  IMAGE_NAME: levelup/media-service
   SERVICE_NAME: media-service
 
 jobs:
@@ -56,14 +54,14 @@ jobs:
     - name: Build Docker image
       working-directory: ${{ env.SERVICE_NAME }}
       run: |
-        docker build -t $IMAGE_NAME:$GITHUB_SHA \
-                     -t $IMAGE_NAME:latest .
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+                     -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}:latest .
 
     # 7️⃣ Push Docker images
     - name: Push Docker image
       run: |
-        docker push $IMAGE_NAME:$GITHUB_SHA
-        docker push $IMAGE_NAME:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.SERVICE_NAME }}:latest
 
     # 8️⃣ Authenticate to Google Cloud
     - name: Authenticate to Google Cloud
@@ -91,7 +89,7 @@ jobs:
 
         # Update deployment image
         kubectl set image deployment/$SERVICE_NAME \
-          $SERVICE_NAME=$IMAGE_NAME:$GITHUB_SHA \
+          $SERVICE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }} \
           --namespace=levelup-learning
 
         # Wait for rollout to complete
