@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 import static com.levelup.payment_service.dto.response.PaymentIntentResponse.*;
 
+import com.levelup.payment_service.dto.response.RevenueSummaryResponse;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -118,6 +120,36 @@ public class PaymentService {
                         log.error("Error creating course purchase payment", e);
                         throw new RuntimeException("Failed to create course purchase payment", e);
                 }
+        }
+
+        /**
+         * Calculates total revenue as 20% of all PURCHASE and USER_SUBSCRIPTION_PAYMENT transactions (SUCCESS), minus all REFUND transactions (SUCCESS).
+         * Returns a RevenueSummaryResponse with the revenue value.
+         */
+        public RevenueSummaryResponse getRevenueSummary() {
+            // Get all transactions
+            var transactions = transactionRepository.findAll();
+            java.math.BigDecimal revenue = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal totalIncome = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal totalRefund = java.math.BigDecimal.ZERO;
+
+            int count = 0;
+            for (var tx : transactions) {
+                if (tx.getStatus() != null && tx.getStatus().name().equals("SUCCESS")) {
+                    if (tx.getType() != null && (tx.getType().name().equals("PURCHASE") || tx.getType().name().equals("USER_SUBSCRIPTION_PAYMENT"))) {
+                        totalIncome = totalIncome.add(tx.getAmount().multiply(new java.math.BigDecimal("0.2")));
+                        count++;
+                        log.info("Revenue TX: {} {} {} -> +{}", tx.getId(), tx.getType(), tx.getAmount(), tx.getAmount().multiply(new java.math.BigDecimal("0.2")));
+                    } else if (tx.getType() != null && tx.getType().name().equals("REFUND")) {
+                        totalRefund = totalRefund.add(tx.getAmount().multiply(new java.math.BigDecimal("0.2")));
+                        log.info("Refund TX: {} {} {} -> -{}", tx.getId(), tx.getType(), tx.getAmount(), tx.getAmount().multiply(new java.math.BigDecimal("0.2")));
+                    }
+                }
+            }
+            revenue = totalIncome.subtract(totalRefund);
+            log.info("Total transactions: {} | Revenue income: {} | Refund: {} | Final revenue: {}", transactions.size(), totalIncome, totalRefund, revenue);
+            log.info("Counted revenue transactions: {}", count);
+            return new RevenueSummaryResponse(revenue);
         }
 
         private PaymentIntent createStripePaymentIntent(BigDecimal amount, UUID userId, UUID transactionId)

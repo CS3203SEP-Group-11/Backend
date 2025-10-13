@@ -2,6 +2,7 @@ package com.levelup.payment_service.controller;
 
 import com.levelup.payment_service.dto.request.CoursePurchaseRequest;
 import com.levelup.payment_service.dto.response.PaymentIntentResponse;
+import com.levelup.payment_service.dto.response.RevenueSummaryResponse;
 import com.levelup.payment_service.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,13 @@ public class PaymentController {
             log.error("Error processing course purchase request", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    /**
+     * Returns the revenue summary (20% of all purchases/subscriptions minus refunds).
+     */
+    @GetMapping("/revenue-summary")
+    public ResponseEntity<RevenueSummaryResponse> getRevenueSummary() {
+        return ResponseEntity.ok(paymentService.getRevenueSummary());
     }
 }
