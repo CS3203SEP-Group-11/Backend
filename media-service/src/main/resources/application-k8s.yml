@@ -1,8 +1,12 @@
 spring:
-  data:
-    mongodb:
-      # External MongoDB cluster
-      uri: ${MEDIA_DB_URL}
+  datasource:
+    # External PostgreSQL database
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+
+
+
 
 cloud:
   aws:
