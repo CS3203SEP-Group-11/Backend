@@ -2,7 +2,6 @@ package com.levelup.course_service.controller;
 
 import com.levelup.course_service.dto.CertificateDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
-import com.levelup.course_service.entity.Certificate;
 import com.levelup.course_service.service.CertificateService;
 import com.levelup.course_service.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
