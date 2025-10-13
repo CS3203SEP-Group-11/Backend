@@ -38,11 +38,11 @@ spec:
               key: PG_DB_PASSWORD
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"    # Quiz and assessment data processing
+            cpu: "100m"        # Simple CRUD operations
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "384Mi"    # Sufficient for assessment logic
+            cpu: "200m"
         # readinessProbe:
         #   httpGet:
         #     path: /actuator/health

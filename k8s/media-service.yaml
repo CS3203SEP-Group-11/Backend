@@ -58,11 +58,11 @@ spec:
               key: AWS_S3_BUCKET_NAME
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"    # File upload/download operations
+            cpu: "100m"        # I/O intensive, less CPU needed
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"    # Higher limit for file processing
+            cpu: "200m"
         # readinessProbe:
         #   httpGet:
         #     path: /actuator/health

@@ -63,11 +63,11 @@ spec:
               key: JWT_SECRET
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "384Mi"    # User service with auth operations
+            cpu: "150m"        # Moderate CPU for authentication
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "640Mi"    # Authentication can be memory intensive
+            cpu: "300m"
         # readinessProbe:
         #   httpGet:
         #     path: /actuator/health
