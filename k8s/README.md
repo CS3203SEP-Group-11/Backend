@@ -16,7 +16,6 @@ The backend consists of the following microservices:
 ## Infrastructure Services
 
 - **PostgreSQL** - External database hosted on DigitalOcean
-- **MongoDB** - External database hosted on MongoDB Atlas/Cluster
 - **RabbitMQ** - Message broker deployed in Kubernetes cluster
 
 ## Configuration Profiles

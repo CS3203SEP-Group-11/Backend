@@ -46,6 +46,13 @@ public class SubscriptionController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<SubscriptionResponse> getUserSubscription(
+            @RequestHeader("X-User-Id") UUID currentUserId) {
+        SubscriptionResponse response = subscriptionService.getUserSubscription(currentUserId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{subscriptionId}/cancel")
     public ResponseEntity<SubscriptionCancelResponse> cancelSubscription(
             @PathVariable UUID subscriptionId,
