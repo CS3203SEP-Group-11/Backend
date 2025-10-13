@@ -21,21 +21,27 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "k8s"
-        - name: MEDIA_DB_URL
+        - name: PG_DB_URL
           valueFrom:
             configMapKeyRef:
               name: app-config
-              key: MEDIA_DB_URL
+              key: PG_DB_URL
+        - name: PG_DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PG_DB_USERNAME
+        - name: PG_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: PG_DB_PASSWORD
         - name: AWS_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: app-secrets
               key: AWS_ACCESS_KEY
-        - name: AWS_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: AWS_SECRET_KEY
+       
         - name: AWS_REGION
           valueFrom:
             configMapKeyRef:
