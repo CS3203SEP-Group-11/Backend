@@ -28,6 +28,7 @@ course-service:
 user-service:
   base-url: http://user-service:8081
 
+
 # Eureka disabled for Kubernetes deployment
 eureka:
   client:
