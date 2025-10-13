@@ -2,6 +2,7 @@ package com.levelup.api_gateway.config;
 
 import com.levelup.api_gateway.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -22,6 +24,10 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // Use String instead of String array for comma-separated values
+    @Value("${cors.allowed-origins:http://localhost:3000}")
+    private String allowedOriginsString;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -33,16 +39,18 @@ public class SecurityConfig {
                         .authenticationEntryPoint((exchange, ex) -> {
                             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                             return exchange.getResponse().setComplete();
-                        })
-                )
+                        }))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health", "/").permitAll() // Health checks and root
+                        .pathMatchers("/debug/**").permitAll() // Debug endpoints
+                        .pathMatchers(HttpMethod.POST, "/api/auth/**").permitAll() // Explicitly allow POST to auth
+                        .pathMatchers(HttpMethod.GET, "/api/auth/**").permitAll()  // Allow GET to auth
+                        .pathMatchers("/api/auth/**").permitAll() // Fallback for all auth methods
                         .pathMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/instructors/**").permitAll()
-                        .pathMatchers(HttpMethod.GET,"/api/subscription-plans/active").permitAll()
-                        .anyExchange().authenticated()
-                )
+                        .pathMatchers(HttpMethod.GET, "/api/subscription-plans/active").permitAll()
+                        .anyExchange().authenticated())
                 .addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .addFilterBefore(corsWebFilter(), SecurityWebFiltersOrder.CORS)
                 .build();
@@ -51,11 +59,17 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("http://localhost:5174");
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Split comma-separated origins and add to config
+        String[] originsArray = allowedOriginsString.split(",");
+        for (String origin : originsArray) {
+            config.addAllowedOrigin(origin.trim()); // trim to remove any extra spaces
+        }
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // REQUIRED for cookies
+        config.setMaxAge(3600L); // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -13,13 +13,13 @@ spring:
   rabbitmq:
     host: rabbitmq-service
     port: 5672
-    username: user
-    password: password
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 certifier:
   issueUrl: http://certifier-service:8080/issue
   validateUrl: http://certifier-service:8080/validate
-  apiKey: dummy-api-key
+  apiKey: ${CERTIFIER_API_KEY}
   groupId: sem5-project
   version: v1
 

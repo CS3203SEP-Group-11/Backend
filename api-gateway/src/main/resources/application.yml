@@ -13,7 +13,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
+  server:
+    port: 8080
+
+# Default CORS Configuration (overridden by profiles)
+cors:
+  allowed-origins: "http://localhost:3000"

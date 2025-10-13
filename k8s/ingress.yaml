@@ -7,10 +7,9 @@ metadata:
     # GKE Ingress with Google Cloud Load Balancer
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.global-static-ip-name: "levelup-static-ip"
-    ingress.gcp.kubernetes.io/managed-certificates: "levelup-ssl-cert"
     kubernetes.io/ingress.allow-http: "true"
-    # CORS configuration for GKE
-    cloud.google.com/backend-config: '{"default": "api-backend-config"}'
+    # Apply BackendConfig ONLY to API Gateway service (port 80)
+    cloud.google.com/backend-config: '{"ports": {"80": "api-backend-config"}}'
 spec:
   rules:
   # Backend API Gateway
@@ -23,7 +22,7 @@ spec:
           service:
             name: api-gateway
             port:
-              number: 8080
+              number: 80
   # Student Frontend
   - host: app.levelups.app
     http:
