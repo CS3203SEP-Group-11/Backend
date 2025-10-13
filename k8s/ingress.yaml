@@ -22,7 +22,7 @@ spec:
           service:
             name: api-gateway
             port:
-              number: 80
+              number: 8080
   # Student Frontend
   - host: app.levelups.app
     http:
