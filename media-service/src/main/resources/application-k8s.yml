@@ -5,9 +5,6 @@ spring:
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
 
-
-
-
 cloud:
   aws:
     credentials:
