@@ -6,18 +6,18 @@ metadata:
 spec:
   timeoutSec: 40
 
-  # CORS is handled by Spring Boot API Gateway - no need for GCP CORS
-  # This avoids conflicts and ensures consistent behavior
+  # CORS is handled by Spring Boot API Gateway
+  # GKE BackendConfig doesn't support CORS field, so we rely on application-level CORS
 
-  # Health check - uncomment when actuator endpoint is available
-  # healthCheck:
-  #   checkIntervalSec: 10
-  #   timeoutSec: 5
-  #   healthyThreshold: 1
-  #   unhealthyThreshold: 3
-  #   type: HTTP
-  #   requestPath: /actuator/health
-  #   port: 8080
+  # Health check - NOW ENABLED
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health
+    port: 8080
 
   connectionDraining:
     drainingTimeoutSec: 60
