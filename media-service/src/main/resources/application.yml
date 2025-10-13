@@ -5,6 +5,20 @@ spring:
     multipart:
       max-file-size: 1000MB
       max-request-size: 1000MB
+  
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
 
 server:
   port: 8086
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
