@@ -13,14 +13,14 @@ spring:
   rabbitmq:
     host: rabbitmq-service
     port: 5672
-    username: user
-    password: password
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 stripe:
   secret:
-    key: dummy-stripe-key
+    key: ${STRIPE_SECRET_KEY}
   webhook:
-    secret: dummy-webhook-secret
+    secret: ${STRIPE_WEBHOOK_SECRET}
 
 course-service:
   base-url: http://course-service:8082
