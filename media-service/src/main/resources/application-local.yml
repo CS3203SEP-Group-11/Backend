@@ -9,6 +9,19 @@ spring:
       idle-timeout: 30000
       max-lifetime: 600000
       connection-timeout: 20000
+  
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
 
 cloud:
   aws:
@@ -19,6 +32,7 @@ cloud:
       static: ${AWS_REGION}
     s3:
       bucket-name: ${AWS_S3_BUCKET_NAME}
+
 
 eureka:
   client:

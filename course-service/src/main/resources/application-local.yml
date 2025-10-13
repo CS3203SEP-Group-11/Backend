@@ -22,6 +22,7 @@ certifier:
   groupId: ${CERTIFIER_GROUP_ID}
   version: ${CERTIFIER_VERSION}
 
+
 eureka:
   client:
     service-url:

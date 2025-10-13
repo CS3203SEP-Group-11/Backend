@@ -27,7 +27,6 @@ spring:
           predicates:
             - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhooks/**
 
-
 eureka:
   client:
     service-url:
@@ -36,3 +35,7 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     hostname: localhost
+
+# CORS Configuration for Local Development (comma-separated for Spring Boot array binding)
+cors:
+  allowed-origins: "http://localhost:3000,http://localhost:5173,http://localhost:5174"

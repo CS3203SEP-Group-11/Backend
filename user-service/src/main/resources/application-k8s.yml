@@ -13,15 +13,16 @@ spring:
   rabbitmq:
     host: rabbitmq-service
     port: 5672
-    username: user
-    password: password
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 jwt:
-  secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
+  secret: ${JWT_SECRET}
   jwtExpirationMs: 3600000 # 1 hour
 
 google:
-  clientId: dummy-client-id
+  clientId: ${GOOGLE_CLIENT_ID}
+
 
 # Eureka disabled for Kubernetes deployment
 eureka:

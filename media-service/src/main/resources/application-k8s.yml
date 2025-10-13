@@ -1,18 +1,19 @@
 spring:
-  data:
-    mongodb:
-      # External MongoDB cluster
-      uri: ${MEDIA_DB_URL}
+  datasource:
+    # External PostgreSQL database
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
 
 cloud:
   aws:
     credentials:
-      access-key: dummy-access-key
-      secret-key: dummy-secret-key
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
     region:
-      static: us-east-1
+      static: ${AWS_REGION}
     s3:
-      bucket-name: dummy-bucket
+      bucket-name: ${AWS_S3_BUCKET_NAME}
 
 # Eureka disabled for Kubernetes deployment
 eureka:

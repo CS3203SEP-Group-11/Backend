@@ -13,11 +13,11 @@ spring:
   rabbitmq:
     host: rabbitmq-service
     port: 5672
-    username: user
-    password: password
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 
 sendgrid:
-  api-key: dummy-sendgrid-key
+  api-key: ${SENDGRID_API_KEY}
   from-email: kasunyahimani@gmail.com
 
 # Eureka disabled for Kubernetes deployment
