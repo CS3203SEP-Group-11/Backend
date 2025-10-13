@@ -1,7 +1,14 @@
 spring:
-  data:
-    mongodb:
-      uri: ${MEDIA_DB_URL}
+  datasource:
+    url: ${PG_DB_URL}/media_service_db
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 20000
 
 cloud:
   aws:

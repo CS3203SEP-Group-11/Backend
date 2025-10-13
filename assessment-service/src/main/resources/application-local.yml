@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${PG_DB_URL}
+    url: ${PG_DB_URL}/assessment_service_db
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
     hikari:

@@ -1,10 +1,6 @@
 spring:
   application:
     name: course-service
-  datasource:
-    url: ${PG_DB_URL}/course_service_db
-    username: ${PG_DB_USERNAME}
-    password: ${PG_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

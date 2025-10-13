@@ -25,7 +25,7 @@ public class UserDTO {
     private Boolean isSubscribed;
 
     public enum Role {
-        STUDENT,
+        USER,
         INSTRUCTOR,
         ADMIN
     }
