@@ -42,6 +42,7 @@ public class SecurityConfig {
                         }))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health").permitAll() // Health checks
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/instructors/**").permitAll()

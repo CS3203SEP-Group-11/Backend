@@ -26,6 +26,11 @@ spec:
             secretKeyRef:
               name: app-secrets
               key: JWT_SECRET
+        - name: CORS_ALLOWED_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: CORS_ALLOWED_ORIGINS
         resources:
           requests:
             memory: "512Mi"
@@ -33,19 +38,23 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
-        # Health checks commented out - no actuator endpoint available
-        # readinessProbe:
-        #   httpGet:
-        #     path: /actuator/health
-        #     port: 8080
-        #   initialDelaySeconds: 30
-        #   periodSeconds: 10
-        # livenessProbe:
-        #   httpGet:
-        #     path: /actuator/health
-        #     port: 8080
-        #   initialDelaySeconds: 60
-        #   periodSeconds: 30
+        # Health checks - NOW ENABLED
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
@@ -59,7 +68,7 @@ spec:
   selector:
     app: api-gateway
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 8080
     protocol: TCP
-  type: NodePort
+  type: ClusterIP

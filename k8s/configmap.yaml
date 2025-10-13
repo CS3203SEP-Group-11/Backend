@@ -34,3 +34,6 @@ data:
   
   # Email Configuration
   FROM_EMAIL: "kasunyahimani@gmail.com"
+  
+  # CORS Configuration for API Gateway
+  CORS_ALLOWED_ORIGINS: "https://api.levelups.app,https://app.levelups.app,https://admin.levelups.app,http://localhost:3000,http://localhost:5173"
