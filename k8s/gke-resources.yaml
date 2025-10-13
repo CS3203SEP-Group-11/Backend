@@ -9,12 +9,12 @@ spec:
   # CORS is handled by Spring Boot API Gateway
   # GKE BackendConfig doesn't support CORS field, so we rely on application-level CORS
 
-  # Health check - NOW ENABLED
+  # Health check - OPTIMIZED FOR GKE LOAD BALANCER
   healthCheck:
-    checkIntervalSec: 10
-    timeoutSec: 5
+    checkIntervalSec: 15
+    timeoutSec: 10
     healthyThreshold: 1
-    unhealthyThreshold: 3
+    unhealthyThreshold: 5
     type: HTTP
     requestPath: /health
     port: 8080
