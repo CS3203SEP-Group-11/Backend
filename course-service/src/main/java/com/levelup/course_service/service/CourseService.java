@@ -26,4 +26,6 @@ public interface CourseService {
     List<Course> getMyCourses(UUID currentUserId);
 
     CourseDetailsResponseDTO getCourseDetailsByIds(List<UUID> courseIds);
+
+    void rateCourse(UUID courseId, UUID currentUserId, int rating);
 }
