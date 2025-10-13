@@ -33,11 +33,11 @@ spec:
               key: CORS_ALLOWED_ORIGINS
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "384Mi"    # Gateway needs moderate memory for routing
+            cpu: "200m"        # Reduced CPU for routing logic
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"    # Lower limit, sufficient for gateway
+            cpu: "400m"
         # Health checks - OPTIMIZED FOR GKE
         readinessProbe:
           httpGet:

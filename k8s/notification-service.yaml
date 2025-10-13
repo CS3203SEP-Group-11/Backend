@@ -58,11 +58,11 @@ spec:
               key: FROM_EMAIL
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"    # Lightweight notification processing
+            cpu: "100m"        # Low CPU for email sending
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "384Mi"    # Sufficient for notification queues
+            cpu: "200m"
         # readinessProbe:
         #   httpGet:
         #     path: /actuator/health

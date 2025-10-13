@@ -29,11 +29,11 @@ spec:
           mountPath: /var/lib/rabbitmq
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "384Mi"    # Message broker needs consistent memory
+            cpu: "200m"        # Moderate CPU for message processing
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "512Mi"    # Stable limit for queue management
+            cpu: "300m"
       volumes:
       - name: rabbitmq-storage
         persistentVolumeClaim:

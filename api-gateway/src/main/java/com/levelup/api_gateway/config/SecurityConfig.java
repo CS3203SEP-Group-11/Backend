@@ -42,9 +42,11 @@ public class SecurityConfig {
                         }))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health", "/").permitAll() // Health checks
-                                                                                                      // and root
-                        .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health", "/").permitAll() // Health checks and root
+                        .pathMatchers("/debug/**").permitAll() // Debug endpoints
+                        .pathMatchers(HttpMethod.POST, "/api/auth/**").permitAll() // Explicitly allow POST to auth
+                        .pathMatchers(HttpMethod.GET, "/api/auth/**").permitAll()  // Allow GET to auth
+                        .pathMatchers("/api/auth/**").permitAll() // Fallback for all auth methods
                         .pathMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/instructors/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/subscription-plans/active").permitAll()
