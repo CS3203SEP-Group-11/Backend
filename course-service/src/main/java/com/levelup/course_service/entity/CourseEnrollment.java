@@ -2,6 +2,7 @@ package com.levelup.course_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.ProblemDetail;
 
 import java.time.Instant;
 import java.util.List;

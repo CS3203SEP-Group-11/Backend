@@ -3,6 +3,8 @@ package com.levelup.course_service.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levelup.course_service.client.UserServiceClient;
+import com.levelup.course_service.dto.CertificateDTO;
+import com.levelup.course_service.dto.CourseDTO;
 import com.levelup.course_service.dto.UserDTO;
 import com.levelup.course_service.entity.Certificate;
 import com.levelup.course_service.entity.Course;
@@ -22,6 +24,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -94,6 +97,25 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             throw new RuntimeException("Error parsing certificate response", e);
         }
+    }
+
+    @Override
+    public List<CertificateDTO> getCertificatesByUser(UUID currentUserId) {
+        List<CourseEnrollment> enrollments = enrollmentRepository.findByUserId(currentUserId);
+        List<Certificate> certificates = certificateRepository.findByEnrollmentIn(enrollments);
+        return certificates.stream()
+                .map(this::getCertificateDTO)
+                .toList();
+    }
+
+    private CertificateDTO getCertificateDTO(Certificate cert) {
+        Course course = courseRepository.findById(cert.getEnrollment().getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        return CertificateDTO.builder()
+                .courseTitle(course.getTitle())
+                .publicId(cert.getPublicId())
+                .certificateUrl(cert.getCertificateUrl())
+                .build();
     }
 
     private ResponseEntity<String> issueCertificate(CourseEnrollment enrollment) {

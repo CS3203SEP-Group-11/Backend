@@ -5,7 +5,7 @@ spring:
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/auth/**, /api/users/**, /api/instructors/**
+            - Path=/api/auth/**, /api/users/**, /api/instructors/**, /api/instructor-applications/**
         - id: course-service
           uri: lb://COURSE-SERVICE
           predicates:
