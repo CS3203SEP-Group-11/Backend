@@ -23,6 +23,7 @@ jwt:
 google:
   clientId: ${GOOGLE_CLIENT_ID}
 
+
 # Eureka disabled for Kubernetes deployment
 eureka:
   client:
