@@ -79,4 +79,10 @@ public class CourseController {
         log.info("Fetching course details for IDs: {}", request.getCourseIds());
         return ResponseEntity.ok(courseService.getCourseDetailsByIds(request.getCourseIds()));
     }
+
+    @PostMapping("/rate/{courseId}/{rating}")
+    public ResponseEntity<String> rateCourse(@PathVariable UUID courseId, @PathVariable int rating, @RequestHeader("X-User-ID") UUID currentUserId) {
+        courseService.rateCourse(courseId, currentUserId, rating);
+        return ResponseEntity.ok("Course rated successfully");
+    }
 }
