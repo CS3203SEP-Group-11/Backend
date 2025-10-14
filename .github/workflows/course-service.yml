@@ -2,11 +2,7 @@ name: Build and Deploy Course Service
 
 on:
   push:
-    branches: [ paymentbranch ]     # Build + deploy on this branch
-    paths:
-      - 'course-service/**'
-  pull_request:
-    branches: [ main ]              # Only build/test on PR to main
+    branches: [ deploy ]     # Build + deploy on this branch
     paths:
       - 'course-service/**'
 
@@ -80,9 +76,9 @@ jobs:
       run: |
         gcloud components install gke-gcloud-auth-plugin -q
 
-    # 1️⃣1️⃣ Deploy to GKE (only on paymentbranch push)
+    # 1️⃣1️⃣ Deploy to GKE (only on deploy push)
     - name: Deploy to GKE
-      if: github.ref == 'refs/heads/paymentbranch'
+      if: github.ref == 'refs/heads/deploy'
       run: |
         # Get cluster credentials
         gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID
