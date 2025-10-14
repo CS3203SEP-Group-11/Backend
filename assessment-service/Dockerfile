@@ -23,5 +23,6 @@ RUN ./mvnw clean package -DskipTests
 # Expose application port
 EXPOSE 8083
 
+
 # Run the application (wildcard expansion works)
 ENTRYPOINT sh -c "java -jar /app/target/*.jar"
