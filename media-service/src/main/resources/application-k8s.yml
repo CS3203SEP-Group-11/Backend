@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    # External PostgreSQL database
+    url: ${PG_DB_URL}
+    username: ${PG_DB_USERNAME}
+    password: ${PG_DB_PASSWORD}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket-name: ${AWS_S3_BUCKET_NAME}
+
+# Eureka disabled for Kubernetes deployment
+eureka:
+  client:
+    enabled: false

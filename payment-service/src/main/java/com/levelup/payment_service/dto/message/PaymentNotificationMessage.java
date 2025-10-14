@@ -14,8 +14,11 @@ import java.util.UUID;
 @Builder
 public class PaymentNotificationMessage {
     private UUID userId;
-    private String eventType; // PURCHASE_SUCCESS, PURCHASE_FAILED
-    private List<String> courseNames;
+    private String eventType; // PURCHASE_SUCCESS, PURCHASE_FAILED, SUBSCRIPTION_SUCCESS, SUBSCRIPTION_FAILED,
+                              // REFUND_SUCCESS, REFUND_FAILED, CANCELLATION_SUCCESS, CANCELLATION_FAILED
+    private List<String> courseNames; // For course purchases
+    private String subscriptionName; // For subscription purchases
     private String amount;
     private String currency;
+    private String invoicePdfUrl; // For subscription invoices
 }

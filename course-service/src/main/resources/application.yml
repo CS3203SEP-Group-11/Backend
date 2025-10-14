@@ -1,49 +1,10 @@
 spring:
   application:
     name: course-service
-  datasource:
-    url: ${PG_DB_URL}
-    username: ${PG_DB_USERNAME}
-    password: ${PG_DB_PASSWORD}
-    hikari:
-      maximum-pool-size: 2
-      minimum-idle: 1
-      idle-timeout: 30000
-      max-lifetime: 600000
-      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 
 server:
   port: 8082
-
-certifier:
-    issueUrl: ${CERTIFIER_ISSUE_URL}
-    validateUrl: ${CERTIFIER_VALIDATE_URL}
-    apiKey: ${CERTIFIER_API_KEY}
-    groupId: ${CERTIFIER_GROUP_ID}
-    version: ${CERTIFIER_VERSION}
-
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
-    hostname: localhost
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://152.42.189.244:8761/eureka/
-#  instance:
-#    prefer-ip-address: true

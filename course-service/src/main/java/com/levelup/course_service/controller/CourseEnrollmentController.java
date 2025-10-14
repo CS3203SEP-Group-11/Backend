@@ -1,6 +1,6 @@
 package com.levelup.course_service.controller;
 
-import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
+import com.levelup.course_service.dto.CertificateDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
 import com.levelup.course_service.service.CertificateService;
 import com.levelup.course_service.service.CourseEnrollmentService;
@@ -19,11 +19,6 @@ public class CourseEnrollmentController {
     private final CourseEnrollmentService enrollmentService;
     private final CertificateService certificateService;
 
-    @PostMapping
-    public CourseEnrollmentResponseDTO enroll(@RequestBody CourseEnrollmentRequestDTO request) {
-        return enrollmentService.enroll(request);
-    }
-
     @GetMapping("/user/{userId}")
     public List<CourseEnrollmentResponseDTO> getByUser(@PathVariable UUID userId) {
         return enrollmentService.getEnrollmentsByUser(userId);
@@ -36,14 +31,23 @@ public class CourseEnrollmentController {
 
     @PutMapping("/{enrollmentId}/progress")
     public void updateProgress(
-        @PathVariable UUID enrollmentId,
-        @RequestBody List<String> completedLessons
-    ) {
+            @PathVariable UUID enrollmentId,
+            @RequestBody List<String> completedLessons) {
         enrollmentService.updateProgress(enrollmentId, completedLessons);
     }
 
-    @GetMapping("/certificate/{enrollmentId}")
+    @GetMapping("/certificate/{enrollmentId}/request")
     public ResponseEntity<String> requestCertificate(@PathVariable UUID enrollmentId, @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(certificateService.requestCertificate(enrollmentId, currentUserId));
+    }
+
+    @GetMapping("/certificate/me")
+    public List<CertificateDTO> getMyCertificates(@RequestHeader("X-User-ID") UUID currentUserId) {
+        return certificateService.getCertificatesByUser(currentUserId);
+    }
+
+    @PostMapping("/{enrollmentId}/lesson/{lessonId}/complete")
+    public ResponseEntity<String> completeLesson(@PathVariable UUID enrollmentId, @PathVariable UUID lessonId) {
+        return ResponseEntity.ok(enrollmentService.completeLesson(enrollmentId, lessonId));
     }
 }
