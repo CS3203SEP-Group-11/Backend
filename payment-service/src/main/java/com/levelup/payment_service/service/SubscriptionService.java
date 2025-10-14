@@ -489,4 +489,17 @@ public class SubscriptionService {
             log.error("Failed to send user subscription message for user: {}", userId, e);
         }
     }
+
+    public SubscriptionResponse getUserSubscription(UUID currentUserId) {
+        return userSubscriptionPaymentRepository
+                .findByUserIdAndStatus(currentUserId, UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
+                .map(subscription -> SubscriptionResponse.builder()
+                        .subscriptionId(subscription.getId().toString())
+                        .planName(subscription.getSubscriptionPlan().getName())
+                        .amount(subscription.getTransaction().getAmount())
+                        .currency(subscription.getTransaction().getCurrency())
+                        .build()
+                )
+                .orElse(null);
+    }
 }

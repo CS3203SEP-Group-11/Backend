@@ -2,10 +2,7 @@ package com.levelup.assessment_service.service;
 
 import com.levelup.assessment_service.dto.SubmitAnswersRequest;
 import com.levelup.assessment_service.dto.UserAnswerDto;
-import com.levelup.assessment_service.entity.Question;
-import com.levelup.assessment_service.entity.QuestionOption;
-import com.levelup.assessment_service.entity.QuizAttempt;
-import com.levelup.assessment_service.entity.UserAnswer;
+import com.levelup.assessment_service.entity.*;
 import com.levelup.assessment_service.repository.QuestionOptionRepository;
 import com.levelup.assessment_service.repository.QuestionRepository;
 import com.levelup.assessment_service.repository.QuizAttemptRepository;
@@ -66,12 +63,14 @@ public class UserAnswerService {
                     return userAnswer;
                 })
                 .collect(Collectors.toList());
-        
+
+        List<Question> allQuestions = questionRepository.findByQuizId(quizId);
+        int totalQuestions = allQuestions.size();
         List<UserAnswer> savedAnswers = userAnswerRepository.saveAll(userAnswers);
         
         // Calculate total score and determine if passed
         long correctAnswers = savedAnswers.stream().filter(UserAnswer::getIsCorrect).count();
-        BigDecimal score = BigDecimal.valueOf(correctAnswers);
+        BigDecimal score = BigDecimal.valueOf(correctAnswers/ (double) totalQuestions * 100);
         boolean passed = score.compareTo(attempt.getQuiz().getPassingScore()) >= 0;
         
         // Complete the attempt
