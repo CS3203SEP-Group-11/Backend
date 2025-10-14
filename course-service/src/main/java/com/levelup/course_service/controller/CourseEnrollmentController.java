@@ -46,4 +46,15 @@ public class CourseEnrollmentController {
     public ResponseEntity<String> requestCertificate(@PathVariable UUID enrollmentId, @RequestHeader("X-User-ID") UUID currentUserId) {
         return ResponseEntity.ok(certificateService.requestCertificate(enrollmentId, currentUserId));
     }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<java.util.Map<String, Object>> getEnrollmentAnalytics(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(enrollmentService.getEnrollmentAnalytics());
+    }
 }

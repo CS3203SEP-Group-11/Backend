@@ -11,4 +11,6 @@ public interface CourseEnrollmentService {
     List<CourseEnrollmentResponseDTO> getEnrollmentsByUser(UUID userId);
     List<CourseEnrollmentResponseDTO> getEnrollmentsByCourse(UUID courseId);
     void updateProgress(UUID enrollmentId, List<String> completedLessons);
+    
+    java.util.Map<String, Object> getEnrollmentAnalytics();
 }

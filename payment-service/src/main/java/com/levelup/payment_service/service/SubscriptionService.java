@@ -426,4 +426,86 @@ public class SubscriptionService {
             log.error("Failed to send user subscription message for user: {}", userId, e);
         }
     }
+
+    public java.util.Map<String, Object> getSubscriptionAnalytics() {
+    java.util.Map<String, Object> analytics = new java.util.HashMap<>();
+    java.util.List<UserSubscriptionPayment> allSubscriptions = userSubscriptionPaymentRepository.findAll();
+    java.util.List<com.levelup.payment_service.model.SubscriptionPlan> allPlans = subscriptionPlanRepository.findAll();
+
+    // Total subscribers (active)
+    long totalSubscribers = allSubscriptions.stream()
+        .filter(sub -> sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
+        .count();
+
+    // New subscribers this month
+    java.time.LocalDateTime thirtyDaysAgo = java.time.LocalDateTime.now().minusDays(30);
+    long newSubscribersThisMonth = allSubscriptions.stream()
+        .filter(sub -> {
+            java.time.LocalDateTime createdAt = sub.getCreatedAt();
+            return createdAt != null &&
+                createdAt.isAfter(thirtyDaysAgo) &&
+                sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE;
+        })
+        .count();
+
+    // Monthly recurring revenue (active subscriptions in last 30 days)
+    java.math.BigDecimal monthlyRecurringRevenue = allSubscriptions.stream()
+        .filter(sub -> sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
+        .filter(sub -> {
+            java.time.LocalDateTime createdAt = sub.getCreatedAt();
+            return createdAt != null && createdAt.isAfter(thirtyDaysAgo);
+        })
+        .map(sub -> sub.getTransaction().getAmount())
+        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+    // Annual recurring revenue (active subscriptions in last 365 days)
+    java.time.LocalDateTime yearAgo = java.time.LocalDateTime.now().minusDays(365);
+    java.math.BigDecimal annualRecurringRevenue = allSubscriptions.stream()
+        .filter(sub -> sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
+        .filter(sub -> {
+            java.time.LocalDateTime createdAt = sub.getCreatedAt();
+            return createdAt != null && createdAt.isAfter(yearAgo);
+        })
+        .map(sub -> sub.getTransaction().getAmount())
+        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+    // Revenue growth (this month vs last month)
+    java.time.LocalDateTime sixtyDaysAgo = java.time.LocalDateTime.now().minusDays(60);
+    long subscribersLastMonth = allSubscriptions.stream()
+        .filter(sub -> {
+            java.time.LocalDateTime createdAt = sub.getCreatedAt();
+            return createdAt != null &&
+                createdAt.isAfter(sixtyDaysAgo) &&
+                createdAt.isBefore(thirtyDaysAgo) &&
+                sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE;
+        })
+        .count();
+    double revenueGrowth = subscribersLastMonth > 0 ?
+        ((double) (newSubscribersThisMonth - subscribersLastMonth) / subscribersLastMonth * 100) : 0;
+
+    // Plan distribution
+    java.util.List<java.util.Map<String, Object>> planDistribution = new java.util.ArrayList<>();
+    for (com.levelup.payment_service.model.SubscriptionPlan plan : allPlans) {
+        long planSubscribers = allSubscriptions.stream()
+            .filter(sub -> sub.getSubscriptionPlan().getId().equals(plan.getId()))
+            .filter(sub -> sub.getStatus() == com.levelup.payment_service.model.UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
+            .count();
+        double percentage = totalSubscribers > 0 ? (planSubscribers * 100.0 / totalSubscribers) : 0;
+        java.util.Map<String, Object> planInfo = new java.util.HashMap<>();
+        planInfo.put("planId", plan.getId());
+        planInfo.put("planName", plan.getName());
+        planInfo.put("subscribers", planSubscribers);
+        planInfo.put("percentage", Math.round(percentage * 10) / 10.0);
+        planDistribution.add(planInfo);
+    }
+
+    analytics.put("totalSubscribers", totalSubscribers);
+    analytics.put("newSubscribersThisMonth", newSubscribersThisMonth);
+    analytics.put("monthlyRecurringRevenue", monthlyRecurringRevenue.doubleValue());
+    analytics.put("annualRecurringRevenue", annualRecurringRevenue.doubleValue());
+    analytics.put("revenueGrowth", Math.round(revenueGrowth * 10) / 10.0);
+    analytics.put("planDistribution", planDistribution);
+
+    return analytics;
+    }
 }

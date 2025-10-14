@@ -67,4 +67,9 @@ public class UserSubscriptionPayment {
         CANCELED,
         REFUNDED
     }
+
+    public java.time.LocalDateTime getCreatedAt() {
+        // Use firstPeriodStart as the creation time for analytics
+        return this.firstPeriodStart;
+    }
 }

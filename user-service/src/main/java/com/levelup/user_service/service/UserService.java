@@ -113,4 +113,51 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
     }
+
+    public java.util.Map<String, Object> getUserAnalytics() {
+        java.util.Map<String, Object> analytics = new java.util.HashMap<>();
+        
+        List<User> allUsers = userRepository.findAll();
+        
+        // Basic user statistics
+        int totalUsers = allUsers.size();
+        long activeUsers = allUsers.stream()
+                .mapToLong(user -> user.getIsSubscribed() != null && user.getIsSubscribed() ? 1 : 0)
+                .sum();
+        
+        // Calculate users created this month (last 30 days)
+        java.time.Instant thirtyDaysAgo = java.time.Instant.now().minus(30, java.time.temporal.ChronoUnit.DAYS);
+        long newUsersThisMonth = allUsers.stream()
+                .mapToLong(user -> user.getCreatedAt() != null && user.getCreatedAt().isAfter(thirtyDaysAgo) ? 1 : 0)
+                .sum();
+        
+        analytics.put("totalUsers", totalUsers);
+        analytics.put("activeUsers", activeUsers);
+        analytics.put("newUsersThisMonth", newUsersThisMonth);
+        
+        // Generate last 8 days user growth data
+        java.util.List<java.util.Map<String, Object>> userGrowth = new java.util.ArrayList<>();
+        java.time.LocalDate today = java.time.LocalDate.now();
+        
+        for (int i = 7; i >= 0; i--) {
+            java.time.LocalDate date = today.minusDays(i);
+            java.time.Instant startOfDay = date.atStartOfDay(java.time.ZoneOffset.UTC).toInstant();
+            java.time.Instant endOfDay = date.plusDays(1).atStartOfDay(java.time.ZoneOffset.UTC).toInstant();
+            
+            long usersCreatedOnDate = allUsers.stream()
+                    .mapToLong(user -> user.getCreatedAt() != null && 
+                        user.getCreatedAt().isAfter(startOfDay) && 
+                        user.getCreatedAt().isBefore(endOfDay) ? 1 : 0)
+                    .sum();
+            
+            java.util.Map<String, Object> dayData = new java.util.HashMap<>();
+            dayData.put("label", date.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd")));
+            dayData.put("value", usersCreatedOnDate);
+            userGrowth.add(dayData);
+        }
+        
+        analytics.put("userGrowth", userGrowth);
+        
+        return analytics;
+    }
 }

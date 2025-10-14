@@ -2,9 +2,11 @@ package com.levelup.course_service.service.impl;
 
 import com.levelup.course_service.dto.CourseEnrollmentRequestDTO;
 import com.levelup.course_service.dto.CourseEnrollmentResponseDTO;
+import com.levelup.course_service.entity.Course;
 import com.levelup.course_service.entity.CourseEnrollment;
 import com.levelup.course_service.entity.Lesson;
 import com.levelup.course_service.repository.CourseEnrollmentRepository;
+import com.levelup.course_service.repository.CourseRepository;
 import com.levelup.course_service.repository.LessonRepository;
 import com.levelup.course_service.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
     private final CourseEnrollmentRepository enrollmentRepository;
     private final LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public CourseEnrollmentResponseDTO enroll(CourseEnrollmentRequestDTO request) {
@@ -91,5 +94,65 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
                 .progressPercentage(enrollment.getProgressPercentage())
                 .status(enrollment.getStatus().name())
                 .build();
+    }
+
+    @Override
+    public java.util.Map<String, Object> getEnrollmentAnalytics() {
+        java.util.Map<String, Object> analytics = new java.util.HashMap<>();
+        
+        List<CourseEnrollment> allEnrollments = enrollmentRepository.findAll();
+        List<Course> allCourses = courseRepository.findAll();
+        
+        // Basic enrollment statistics
+        int totalEnrollments = allEnrollments.size();
+        long totalCompletions = allEnrollments.stream()
+                .mapToLong(enrollment -> enrollment.getStatus() == CourseEnrollment.Status.COMPLETED ? 1 : 0)
+                .sum();
+        
+        double completionRate = totalEnrollments > 0 ? (double) totalCompletions / totalEnrollments : 0.0;
+        
+        analytics.put("totalEnrollments", totalEnrollments);
+        analytics.put("totalCompletions", totalCompletions);
+        analytics.put("completionRate", Math.round(completionRate * 1000) / 1000.0);
+        
+        // Category-wise enrollment and completion statistics
+        java.util.Map<String, Integer> categoryEnrollments = new java.util.HashMap<>();
+        java.util.Map<String, Integer> categoryCompletions = new java.util.HashMap<>();
+        
+        // Get category mapping from courses
+        java.util.Map<UUID, String> courseCategories = new java.util.HashMap<>();
+        for (Course course : allCourses) {
+            if (course.getId() != null && course.getCategory() != null) {
+                courseCategories.put(course.getId(), course.getCategory());
+            }
+        }
+        
+        // Count enrollments and completions by category
+        for (CourseEnrollment enrollment : allEnrollments) {
+            String category = courseCategories.get(enrollment.getCourseId());
+            if (category != null) {
+                categoryEnrollments.put(category, categoryEnrollments.getOrDefault(category, 0) + 1);
+                if (enrollment.getStatus() == CourseEnrollment.Status.COMPLETED) {
+                    categoryCompletions.put(category, categoryCompletions.getOrDefault(category, 0) + 1);
+                }
+            }
+        }
+        
+        // Create category enrollment list
+        java.util.List<java.util.Map<String, Object>> categoryEnrollmentsList = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> entry : categoryEnrollments.entrySet()) {
+            java.util.Map<String, Object> categoryData = new java.util.HashMap<>();
+            categoryData.put("category", entry.getKey());
+            categoryData.put("enrollments", entry.getValue());
+            categoryData.put("completions", categoryCompletions.getOrDefault(entry.getKey(), 0));
+            categoryEnrollmentsList.add(categoryData);
+        }
+        
+        // Sort by enrollments descending
+        categoryEnrollmentsList.sort((a, b) -> Integer.compare((Integer)b.get("enrollments"), (Integer)a.get("enrollments")));
+        
+        analytics.put("categoryEnrollments", categoryEnrollmentsList);
+        
+        return analytics;
     }
 }

@@ -79,4 +79,15 @@ public class CourseController {
         log.info("Fetching course details for IDs: {}", request.getCourseIds());
         return ResponseEntity.ok(courseService.getCourseDetailsByIds(request.getCourseIds()));
     }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<java.util.Map<String, Object>> getCourseAnalytics(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(courseService.getCourseAnalytics());
+    }
 }
