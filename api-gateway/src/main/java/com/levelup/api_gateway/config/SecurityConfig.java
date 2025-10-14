@@ -26,7 +26,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // Use String instead of String array for comma-separated values
-    @Value("${cors.allowed-origins:http://localhost:3000}")
+    // Default includes common local development ports - NOT the API domain itself
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
     private String allowedOriginsString;
 
     @Bean
@@ -42,10 +43,11 @@ public class SecurityConfig {
                         }))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health", "/").permitAll() // Health checks and root
+                        .pathMatchers(HttpMethod.GET, "/health", "/actuator/health", "/", "/api/health").permitAll() // Health
+                                                                                                                     // checks
                         .pathMatchers("/debug/**").permitAll() // Debug endpoints
                         .pathMatchers(HttpMethod.POST, "/api/auth/**").permitAll() // Explicitly allow POST to auth
-                        .pathMatchers(HttpMethod.GET, "/api/auth/**").permitAll()  // Allow GET to auth
+                        .pathMatchers(HttpMethod.GET, "/api/auth/**").permitAll() // Allow GET to auth
                         .pathMatchers("/api/auth/**").permitAll() // Fallback for all auth methods
                         .pathMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/instructors/**").permitAll()
