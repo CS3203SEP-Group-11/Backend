@@ -50,4 +50,4 @@
 #     - name: Build & Test Service
 #       working-directory: ${{ matrix.service }}
 #       run: |
-#         mvn clean verify
+#         mvn clean verify -Dspring.profiles.active=local
