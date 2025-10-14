@@ -8,10 +8,6 @@ data:
   PG_DB_URL: "jdbc:postgresql://128.199.128.177:6432/levelup"
   PG_DB_USERNAME: "admin"
   
-  # MongoDB Configuration
-  # Note: Update this to your actual MongoDB cluster connection string
-  MEDIA_DB_URL: "mongodb+srv://surajahasarindadev:xHX2ZHMs0R70sqOd@cluster0.os21rka.mongodb.net/levelup_media_db?retryWrites=true&w=majority&appName=Cluster0"
-  
   # RabbitMQ Configuration
   RABBITMQ_USERNAME: "user"
   
