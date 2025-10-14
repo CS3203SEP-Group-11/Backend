@@ -113,8 +113,37 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         enrollmentRepository.save(enrollment);
     }
 
+    @Override
+    public String completeLesson(UUID enrollmentId, UUID lessonId) {
+        CourseEnrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found"));
+
+        if (enrollment.getCompletedLessons().contains(lessonId)) {
+            return "Lesson already completed.";
+        }
+
+        List<Lesson> courseLessons = lessonRepository.findByCourseId(enrollment.getCourseId());
+        int totalLessons = courseLessons.size();
+
+        List<UUID> updatedCompletedLessons = new ArrayList<>(enrollment.getCompletedLessons());
+        updatedCompletedLessons.add(lessonId);
+        enrollment.setCompletedLessons(updatedCompletedLessons);
+
+        double progress = totalLessons == 0 ? 0.0 : ((double) updatedCompletedLessons.size() / totalLessons) * 100;
+        enrollment.setProgressPercentage(progress);
+        enrollment.setUpdatedAt(Instant.now());
+
+        if (progress == 100.0) {
+            enrollment.setStatus(CourseEnrollment.Status.COMPLETED);
+        }
+
+        enrollmentRepository.save(enrollment);
+        return "Lesson marked as completed.";
+    }
+
     private CourseEnrollmentResponseDTO toDto(CourseEnrollment enrollment) {
         return CourseEnrollmentResponseDTO.builder()
+                .id(enrollment.getId())
                 .userId(enrollment.getUserId())
                 .courseId(enrollment.getCourseId())
                 .enrollmentDate(enrollment.getEnrollmentDate())

@@ -1,6 +1,10 @@
 spring:
   application:
     name: media-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   servlet:
     multipart:
       max-file-size: 1000MB
