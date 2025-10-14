@@ -25,7 +25,7 @@ spring:
         - id: payment-service
           uri: lb://PAYMENT-SERVICE
           predicates:
-            - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhooks/**
+            - Path=/api/payments/**, /api/subscriptions/**, /api/subscription-plans/**, /api/webhook/**
 
 eureka:
   client:
