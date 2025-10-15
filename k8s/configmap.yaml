@@ -5,7 +5,7 @@ metadata:
   namespace: levelup-learning
 data:
   # Database Configuration
-  PG_DB_URL: "jdbc:postgresql://128.199.128.177:6432/levelup"
+  PG_DB_URL: "jdbc:postgresql://167.172.85.168:5432"
   PG_DB_USERNAME: "admin"
   
   # RabbitMQ Configuration
