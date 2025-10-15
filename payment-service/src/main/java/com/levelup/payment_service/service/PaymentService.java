@@ -370,23 +370,32 @@ public class PaymentService {
 
             // Step 1: Update transaction status
             Transaction transaction = transactionRepository.findById(transactionId)
-                    .orElseThrow(() -> new RuntimeException(
-                            "Transaction not found: " + transactionId));
+                            .orElseThrow(() -> new RuntimeException(
+                                            "Transaction not found: " + transactionId));
 
             transaction.setStatus(Transaction.TransactionStatus.FAILED);
             transactionRepository.save(transaction);
 
-            // Step 2: Send failure notification
+            // Step 2: Get course names from pending items for notification
+            List<PendingPurchaseItem> pendingItems = pendingPurchaseItemRepository
+                            .findByStripePaymentIntentId(paymentIntentId);
+
+            List<String> courseNames = pendingItems.stream()
+                            .map(PendingPurchaseItem::getCourseName)
+                            .collect(Collectors.toList());
+
+            // Step 3: Send failure notification
             PaymentNotificationMessage notificationMessage = PaymentNotificationMessage.builder()
-                    .userId(userId)
-                    .eventType("PURCHASE_FAILED")
-                    .amount(transaction.getAmount().toString())
-                    .currency(transaction.getCurrency())
-                    .build();
+                            .userId(userId)
+                            .eventType("PURCHASE_FAILED")
+                            .courseNames(courseNames)
+                            .amount(transaction.getAmount().toString())
+                            .currency(transaction.getCurrency())
+                            .build();
 
             messagePublisherService.sendPaymentNotificationMessage(notificationMessage);
 
-            // Step 3: Clean up pending items
+            // Step 4: Clean up pending items
             pendingPurchaseItemRepository.deleteByStripePaymentIntentId(paymentIntentId);
 
             log.info("Payment failure handled for transaction: {}", transactionId);

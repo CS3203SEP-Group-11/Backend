@@ -83,11 +83,15 @@ public class CourseController {
     @GetMapping("/analytics")
     public ResponseEntity<java.util.Map<String, Object>> getCourseAnalytics(
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
-        
         if (!"ADMIN".equals(userRole)) {
             return ResponseEntity.status(403).build();
         }
-
         return ResponseEntity.ok(courseService.getCourseAnalytics());
+    }
+  
+    @PostMapping("/rate/{courseId}/{rating}")
+    public ResponseEntity<String> rateCourse(@PathVariable UUID courseId, @PathVariable int rating, @RequestHeader("X-User-ID") UUID currentUserId) {
+        courseService.rateCourse(courseId, currentUserId, rating);
+        return ResponseEntity.ok("Course rated successfully");
     }
 }

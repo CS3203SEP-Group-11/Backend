@@ -28,4 +28,6 @@ public interface CourseService {
     CourseDetailsResponseDTO getCourseDetailsByIds(List<UUID> courseIds);
     
     java.util.Map<String, Object> getCourseAnalytics();
+
+    void rateCourse(UUID courseId, UUID currentUserId, int rating);
 }

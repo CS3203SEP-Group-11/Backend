@@ -1,0 +1,2 @@
+# Eureka Server should not be deployed in Kubernetes
+# Service discovery is handled by Kubernetes DNS

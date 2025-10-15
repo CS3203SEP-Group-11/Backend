@@ -14,8 +14,10 @@ import com.levelup.course_service.dto.CourseDetailsDTO;
 import com.levelup.course_service.dto.InstructorValidationResponseDTO;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -256,4 +258,30 @@ public class CourseServiceImpl implements CourseService {
         
         return analytics;
     }
+  
+    public void rateCourse(UUID courseId, UUID currentUserId, int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NoSuchElementException("Course not found"));
+
+        BigDecimal ratingAverage = course.getRatingAverage() != null ? course.getRatingAverage() : BigDecimal.ZERO;
+        int ratingCount = course.getRatingCount();
+
+        BigDecimal totalRating = ratingAverage.multiply(BigDecimal.valueOf(ratingCount))
+                .add(BigDecimal.valueOf(rating));
+
+        int newCount = ratingCount + 1;
+        BigDecimal newAverage = totalRating
+                .divide(BigDecimal.valueOf(newCount), 2, RoundingMode.HALF_UP);
+
+        course.setRatingAverage(newAverage);
+        course.setRatingCount(newCount);
+        courseRepository.save(course);
+
+        log.info("Course {} rated successfully: new average = {}, total ratings = {}", courseId, newAverage, newCount);
+    }
+
 }
