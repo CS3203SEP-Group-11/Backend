@@ -1,7 +1,7 @@
 spring:
   datasource:
     # External DigitalOcean PostgreSQL
-    url: ${PG_DB_URL}
+    url: ${PG_DB_URL}/notification_service_db
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
     hikari:
