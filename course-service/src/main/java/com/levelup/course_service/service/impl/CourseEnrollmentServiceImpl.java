@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
     private final CourseEnrollmentRepository enrollmentRepository;
-    private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
 
