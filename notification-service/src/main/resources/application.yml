@@ -2,6 +2,7 @@ spring:
   application:
     name: notification-service
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
