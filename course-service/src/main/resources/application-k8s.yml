@@ -1,7 +1,7 @@
 spring:
   datasource:
     # External DigitalOcean PostgreSQL
-    url: ${PG_DB_URL}
+    url: ${PG_DB_URL}/course_service_db
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
     hikari:
@@ -17,11 +17,11 @@ spring:
     password: ${RABBITMQ_PASSWORD}
 
 certifier:
-  issueUrl: http://certifier-service:8080/issue
-  validateUrl: http://certifier-service:8080/validate
+  issueUrl: ${CERTIFIER_ISSUE_URL}
+  validateUrl: ${CERTIFIER_VALIDATE_URL}
   apiKey: ${CERTIFIER_API_KEY}
-  groupId: sem5-project
-  version: v1
+  groupId: ${CERTIFIER_GROUP_ID}
+  version: ${CERTIFIER_VERSION}
 
 # Eureka disabled for Kubernetes deployment
 eureka:

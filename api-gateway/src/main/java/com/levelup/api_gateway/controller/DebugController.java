@@ -16,7 +16,7 @@ public class DebugController {
     public Mono<ResponseEntity<Map<String, Object>>> testAuth(
             @RequestBody(required = false) Map<String, Object> body,
             ServerWebExchange exchange) {
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("method", exchange.getRequest().getMethod().toString());
         response.put("path", exchange.getRequest().getPath().toString());
@@ -24,7 +24,7 @@ public class DebugController {
         response.put("cookies", exchange.getRequest().getCookies());
         response.put("body", body);
         response.put("remoteAddress", exchange.getRequest().getRemoteAddress());
-        
+
         return Mono.just(ResponseEntity.ok(response));
     }
 
