@@ -1,6 +1,8 @@
 spring:
   application:
     name: media-service
+  profiles:
+    active: local
   jpa:
     hibernate:
       ddl-auto: update

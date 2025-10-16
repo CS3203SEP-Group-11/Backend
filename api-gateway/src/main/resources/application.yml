@@ -1,6 +1,8 @@
 spring:
   application:
     name: api-gateway
+  profiles:
+    active: local
 
 jwt:
   secret: Zx9f2@qL1!mYkBv7$P0tWnRzX4eU8gJhCq3LsDa6#FtVbMpN
@@ -22,4 +24,4 @@ management:
 
 # Default CORS Configuration (overridden by profiles)
 cors:
-  allowed-origins: "http://localhost:3000"
+  allowed-origins: "http://localhost:3000,http://localhost:5173,http://localhost:5174"

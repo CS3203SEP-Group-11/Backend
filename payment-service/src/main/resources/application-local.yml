@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${PG_DB_URL}/payment_service_db
+    url: ${PG_DB_URL}
     username: ${PG_DB_USERNAME}
     password: ${PG_DB_PASSWORD}
     hikari:
