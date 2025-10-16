@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [course-service, payment-service]
+        service: [notification-service, assessment-service, course-service, payment-service]
 
     env:     
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
