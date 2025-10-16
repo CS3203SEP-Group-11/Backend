@@ -1,0 +1,656 @@
+{
+  "info": {
+    "name": "LevelUp Assessment Service API",
+    "description": "Complete Postman collection for testing the Assessment Service endpoints including Quiz, Question, Attempt, and User Answer management",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "gatewayUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "quizId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "questionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attemptId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    },
+    {
+      "key": "lessonId",
+      "value": "550e8400-e29b-41d4-a716-446655440001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check - Direct",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check - Via Gateway",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/assessments/health",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "assessments", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quiz Management",
+      "item": [
+        {
+          "name": "Create Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('quizId', responseJson.id);",
+                  "    console.log('Quiz ID set to: ' + responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Java Fundamentals Quiz\",\n  \"description\": \"Test your knowledge of Java basics\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"timeLimit\": 30,\n  \"attemptLimit\": 3,\n  \"passingScore\": 70.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quiz by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quizzes by Lesson",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/lesson/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "lesson", "{{lessonId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Quiz",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Java Fundamentals Quiz\",\n  \"description\": \"Updated test for Java basics with advanced topics\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"timeLimit\": 45,\n  \"attemptLimit\": 2,\n  \"passingScore\": 75.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Quiz",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Question Management",
+      "item": [
+        {
+          "name": "Add Question to Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('questionId', responseJson.id);",
+                  "    console.log('Question ID set to: ' + responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"What is the main method signature in Java?\",\n  \"order\": 1,\n  \"options\": [\n    {\n      \"optionText\": \"public static void main(String[] args)\",\n      \"isCorrect\": true\n    },\n    {\n      \"optionText\": \"public void main(String[] args)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"static void main(String[] args)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"public static main(String[] args)\",\n      \"isCorrect\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Second Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"Which keyword is used to create a class in Java?\",\n  \"order\": 2,\n  \"options\": [\n    {\n      \"optionText\": \"class\",\n      \"isCorrect\": true\n    },\n    {\n      \"optionText\": \"Class\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"create\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"new\",\n      \"isCorrect\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Questions by Quiz (Student View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "STUDENT"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Questions by Quiz (Instructor View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "INSTRUCTOR"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"What is the correct main method signature in Java? (Updated)\",\n  \"order\": 1,\n  \"options\": [\n    {\n      \"optionText\": \"public static void main(String[] args)\",\n      \"isCorrect\": true\n    },\n    {\n      \"optionText\": \"public void main(String[] args)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"static void main(String[] args)\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"public static main(String[] args)\",\n      \"isCorrect\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions", "{{questionId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions/{{questionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions", "{{questionId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Quiz Attempts",
+      "item": [
+        {
+          "name": "Create Quiz Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('attemptId', responseJson.id);",
+                  "    console.log('Attempt ID set to: ' + responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Attempts by User and Quiz",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Attempts by User (All Quizzes)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/attempts/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "attempts", "user", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Attempts for Quiz",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Attempts Alternative Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/attempts/user/{{userId}}/quiz/{{quizId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "attempts", "user", "{{userId}}", "quiz", "{{quizId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Answers",
+      "item": [
+        {
+          "name": "Submit Quiz Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"{{questionId}}\",\n      \"selectedOptionId\": \"option-uuid-1\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts/{{attemptId}}/user-answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts", "{{attemptId}}", "user-answers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Answers for Attempt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts/{{attemptId}}/user-answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts", "{{attemptId}}", "user-answers"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Complete Test Flow",
+      "item": [
+        {
+          "name": "1. Create Quiz for Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('quizId', responseJson.id);",
+                  "    console.log('Test Quiz ID: ' + responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete Test Flow Quiz\",\n  \"description\": \"End-to-end test quiz\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"timeLimit\": 15,\n  \"attemptLimit\": 1,\n  \"passingScore\": 50.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Add Question 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('question1Id', responseJson.id);",
+                  "    console.log('Question 1 ID: ' + responseJson.id);",
+                  "    ",
+                  "    // Store the correct option ID for later use",
+                  "    if (responseJson.options && responseJson.options.length > 0) {",
+                  "        const correctOption = responseJson.options.find(opt => opt.isCorrect);",
+                  "        if (correctOption) {",
+                  "            pm.collectionVariables.set('correctOption1Id', correctOption.id);",
+                  "            console.log('Correct option 1 ID: ' + correctOption.id);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"What does JVM stand for?\",\n  \"order\": 1,\n  \"options\": [\n    {\n      \"optionText\": \"Java Virtual Machine\",\n      \"isCorrect\": true\n    },\n    {\n      \"optionText\": \"Java Variable Method\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"Java Version Manager\",\n      \"isCorrect\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Add Question 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('question2Id', responseJson.id);",
+                  "    console.log('Question 2 ID: ' + responseJson.id);",
+                  "    ",
+                  "    // Store the correct option ID for later use",
+                  "    if (responseJson.options && responseJson.options.length > 0) {",
+                  "        const correctOption = responseJson.options.find(opt => opt.isCorrect);",
+                  "        if (correctOption) {",
+                  "            pm.collectionVariables.set('correctOption2Id', correctOption.id);",
+                  "            console.log('Correct option 2 ID: ' + correctOption.id);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionText\": \"Which access modifier allows access from anywhere?\",\n  \"order\": 2,\n  \"options\": [\n    {\n      \"optionText\": \"private\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"protected\",\n      \"isCorrect\": false\n    },\n    {\n      \"optionText\": \"public\",\n      \"isCorrect\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "questions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Create Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('attemptId', responseJson.id);",
+                  "    console.log('Attempt ID: ' + responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Submit Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"{{question1Id}}\",\n      \"selectedOptionId\": \"{{correctOption1Id}}\"\n    },\n    {\n      \"questionId\": \"{{question2Id}}\",\n      \"selectedOptionId\": \"{{correctOption2Id}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts/{{attemptId}}/user-answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts", "{{attemptId}}", "user-answers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. View Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assessments/quizzes/{{quizId}}/attempts/{{attemptId}}/user-answers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assessments", "quizzes", "{{quizId}}", "attempts", "{{attemptId}}", "user-answers"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

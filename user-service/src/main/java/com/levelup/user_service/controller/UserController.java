@@ -85,4 +85,15 @@ public class UserController {
             @RequestBody String stripeCustomerId) {
         return ResponseEntity.ok(userService.updateStripeCustomerId(userId, stripeCustomerId));
     }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<java.util.Map<String, Object>> getUserAnalytics(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(userService.getUserAnalytics());
+    }
 }

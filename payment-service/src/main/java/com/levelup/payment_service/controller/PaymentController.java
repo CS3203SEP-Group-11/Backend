@@ -6,6 +6,7 @@ import com.levelup.payment_service.dto.response.PaymentIntentResponse;
 import com.levelup.payment_service.dto.response.SubscriptionEnrollmentResponse;
 import com.levelup.payment_service.service.PaymentService;
 import com.levelup.payment_service.service.SubscriptionService;
+import com.levelup.payment_service.model.Transaction;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.Collections;
 
@@ -48,7 +50,6 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
     
     @PostMapping("/subscription-enrollment")
     public ResponseEntity<SubscriptionEnrollmentResponse> enrollCoursesWithSubscription(
@@ -81,6 +82,62 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new SubscriptionEnrollmentResponse(
                             "Internal server error occurred", Collections.emptyList(), false));
+        }
+    }
+  
+    /**
+     * Returns the revenue summary analytics.
+     */
+    @GetMapping("/revenue-summary")
+    public ResponseEntity<java.util.Map<String, Object>> getRevenueSummary() {
+        return ResponseEntity.ok(paymentService.getRevenueSummary());
+    }
+
+    /**
+     * Get all transactions for admin dashboard
+     */
+    @GetMapping("/transactions")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getAllTransactions(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(paymentService.getAllTransactions());
+    }
+
+    /**
+     * Get transaction statistics for admin dashboard
+     */
+    @GetMapping("/transaction-stats")
+    public ResponseEntity<java.util.Map<String, Object>> getTransactionStats(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(paymentService.getTransactionStats());
+    }
+
+    /**
+     * Get transaction by ID
+     */
+    @GetMapping("/transactions/{transactionId}")
+    public ResponseEntity<Transaction> getTransactionById(
+            @PathVariable UUID transactionId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Transaction transaction = paymentService.getTransactionById(transactionId);
+        if (transaction != null) {
+            return ResponseEntity.ok(transaction);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }
