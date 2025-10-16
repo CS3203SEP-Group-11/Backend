@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: payment-service
+    
+  datasource:
+    url: jdbc:h2:mem:payment_testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    
+  h2:
+    console:
+      enabled: true
+      
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+            
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    template:
+      routing-key: test.routing.key
+      exchange: test.exchange
+
+server:
+  port: 8085
+
+# Stripe test configuration
+stripe:
+  secret:
+    key: sk_test_dummy_key_for_testing
+  webhook:
+    secret: whsec_dummy_webhook_secret_for_testing
+
+# Service URLs for testing
+course-service:
+  base-url: http://localhost:8080/test-course-service
+
+user-service:
+  base-url: http://localhost:8080/test-user-service
+
+# WebClient configuration
+webclient:
+  connection-timeout: 5000
+  read-timeout: 10000
+      
+eureka:
+  client:
+    enabled: false
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
