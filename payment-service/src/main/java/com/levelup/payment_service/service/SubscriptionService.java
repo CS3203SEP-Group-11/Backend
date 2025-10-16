@@ -5,10 +5,13 @@ import com.levelup.payment_service.dto.external.UserDto;
 import com.levelup.payment_service.dto.message.PaymentNotificationMessage;
 import com.levelup.payment_service.dto.message.SubscriptionMessage;
 import com.levelup.payment_service.dto.message.UserSubscriptionMessage;
+import com.levelup.payment_service.dto.message.CourseEnrollmentMessage;
 import com.levelup.payment_service.dto.request.CreateSubscriptionRequest;
+import com.levelup.payment_service.dto.request.SubscriptionEnrollmentRequest;
 import com.levelup.payment_service.dto.response.SubscriptionResponse;
 import com.levelup.payment_service.dto.response.SubscriptionCancelResponse;
 import com.levelup.payment_service.dto.response.SubscriptionRefundResponse;
+import com.levelup.payment_service.dto.response.SubscriptionEnrollmentResponse;
 import com.levelup.payment_service.model.SubscriptionPlan;
 import com.levelup.payment_service.model.Transaction;
 import com.levelup.payment_service.model.UserSubscriptionPayment;
@@ -31,6 +34,8 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Optional;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -490,6 +495,62 @@ public class SubscriptionService {
         }
     }
 
+    @Transactional
+    public SubscriptionEnrollmentResponse enrollCoursesWithSubscription(
+            SubscriptionEnrollmentRequest request, UUID userId) {
+        try {
+            log.info("Processing subscription enrollment for user: {} with courses: {}",
+                    userId, request.getCourseIds());
+
+            // Check if user has active subscription
+            Optional<UserSubscriptionPayment> activeSubscription = userSubscriptionPaymentRepository
+                    .findByUserIdAndStatus(
+                            userId, UserSubscriptionPayment.SubscriptionStatus.ACTIVE);
+
+            if (activeSubscription.isEmpty()) {
+                log.warn("User {} does not have an active subscription", userId);
+                return new SubscriptionEnrollmentResponse(
+                        "User does not have an active subscription",
+                        Collections.emptyList(),
+                        false);
+            }
+
+            // Check if subscription is still valid (not expired)
+            UserSubscriptionPayment subscription = activeSubscription.get();
+            LocalDateTime now = LocalDateTime.now();
+
+            // Check if subscription has expired
+            if (subscription.getAfterRenewalEnd() != null &&
+                    subscription.getAfterRenewalEnd().isBefore(now)) {
+                log.warn("User {} has an expired subscription", userId);
+                return new SubscriptionEnrollmentResponse(
+                        "Subscription has expired",
+                        Collections.emptyList(),
+                        false);
+            }
+
+            // Create and send course enrollment message
+            CourseEnrollmentMessage enrollmentMessage = new CourseEnrollmentMessage(
+                    userId,
+                    request.getCourseIds(),
+                    "SUBSCRIPTION_ENROLLMENT",
+                    now);
+
+            messagePublisherService.sendCourseEnrollmentMessage(enrollmentMessage);
+
+            log.info("Subscription enrollment message sent successfully for user: {}", userId);
+
+            return new SubscriptionEnrollmentResponse(
+                    "Courses enrolled successfully via subscription",
+                    request.getCourseIds(),
+                    true);
+
+        } catch (Exception e) {
+            log.error("Error processing subscription enrollment for user: {}", userId, e);
+            throw new RuntimeException("Failed to process subscription enrollment", e);
+        }
+    }
+
     public SubscriptionResponse getUserSubscription(UUID currentUserId) {
         return userSubscriptionPaymentRepository
                 .findByUserIdAndStatus(currentUserId, UserSubscriptionPayment.SubscriptionStatus.ACTIVE)
@@ -498,8 +559,7 @@ public class SubscriptionService {
                         .planName(subscription.getSubscriptionPlan().getName())
                         .amount(subscription.getTransaction().getAmount())
                         .currency(subscription.getTransaction().getCurrency())
-                        .build()
-                )
+                        .build())
                 .orElse(null);
     }
 }

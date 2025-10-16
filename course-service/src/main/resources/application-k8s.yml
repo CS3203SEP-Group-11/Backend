@@ -1,3 +1,35 @@
+# spring:
+#   datasource:
+#     # External DigitalOcean PostgreSQL
+#     url: ${PG_DB_URL}
+#     username: ${PG_DB_USERNAME}
+#     password: ${PG_DB_PASSWORD}
+#     hikari:
+#       maximum-pool-size: 2
+#       minimum-idle: 1
+#       idle-timeout: 30000
+#       max-lifetime: 600000
+#       connection-timeout: 20000
+#   rabbitmq:
+#     host: rabbitmq-service
+#     port: 5672
+#     username: ${RABBITMQ_USERNAME}
+#     password: ${RABBITMQ_PASSWORD}
+
+# certifier:
+#   issueUrl: ${CERTIFIER_ISSUE_URL}
+#   validateUrl: ${CERTIFIER_VALIDATE_URL}
+#   apiKey: ${CERTIFIER_API_KEY}
+#   groupId: ${CERTIFIER_GROUP_ID}
+#   version: ${CERTIFIER_VERSION}
+
+# # Eureka disabled for Kubernetes deployment
+# eureka:
+#   client:
+#     enabled: false
+
+
+
 spring:
   datasource:
     # External DigitalOcean PostgreSQL
