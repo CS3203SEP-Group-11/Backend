@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [user-service, notification-service, assessment-service, media-service]
+        service: [user-service, notification-service, assessment-service, media-service, course-service, payment-service]
 
     env:     
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -36,4 +36,4 @@ jobs:
         
     - name: Build & Test Service
       working-directory: ${{ matrix.service }}
-      run: mvn clean verify -Dspring.profiles.active=local
+      run: mvn test -Dspring.profiles.active=test
