@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: false
+  rabbitmq:
+    host: 127.0.0.1
+    port: 0
+
+logging:
+  level:
+    com.levelup.user_service: WARN
+    org.springframework: WARN
+    org.hibernate: WARN
+
+jwt:
+  secret: test-secret
+  jwtExpirationMs: 3600000
+
+google:
+  clientId: test-client-id
+
+eureka:
+  client:
+    enabled: false
