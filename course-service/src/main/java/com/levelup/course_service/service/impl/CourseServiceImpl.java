@@ -208,6 +208,57 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public java.util.Map<String, Object> getCourseAnalytics() {
+        java.util.Map<String, Object> analytics = new java.util.HashMap<>();
+        
+        List<Course> allCourses = courseRepository.findAll();
+        
+        // Basic course statistics
+        analytics.put("totalCourses", allCourses.size());
+        analytics.put("publishedCourses", allCourses.stream()
+                .mapToInt(course -> course.getStatus() == Course.Status.PUBLISHED ? 1 : 0)
+                .sum());
+        
+        // Average rating
+        double averageRating = allCourses.stream()
+                .filter(course -> course.getRatingCount() > 0 && course.getRatingAverage() != null)
+                .mapToDouble(course -> course.getRatingAverage().doubleValue())
+                .average()
+                .orElse(0.0);
+        analytics.put("averageRating", Math.round(averageRating * 10) / 10.0);
+        
+        // Category statistics
+        java.util.Map<String, Integer> categoryEnrollments = new java.util.HashMap<>();
+        int totalEnrollments = 0;
+        
+        for (Course course : allCourses) {
+            String category = course.getCategory();
+            int enrollments = course.getEnrollmentCount();
+            if (category != null) {
+                categoryEnrollments.put(category, categoryEnrollments.getOrDefault(category, 0) + enrollments);
+                totalEnrollments += enrollments;
+            }
+        }
+        
+        // Convert to percentage format
+        java.util.List<java.util.Map<String, Object>> topCategories = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> entry : categoryEnrollments.entrySet()) {
+            java.util.Map<String, Object> categoryData = new java.util.HashMap<>();
+            categoryData.put("name", entry.getKey());
+            categoryData.put("enrollments", entry.getValue());
+            categoryData.put("percentage", totalEnrollments > 0 ? 
+                Math.round((entry.getValue() * 100.0 / totalEnrollments) * 10) / 10.0 : 0);
+            topCategories.add(categoryData);
+        }
+        
+        // Sort by enrollments descending
+        topCategories.sort((a, b) -> Integer.compare((Integer)b.get("enrollments"), (Integer)a.get("enrollments")));
+        
+        analytics.put("topCategories", topCategories);
+        
+        return analytics;
+    }
+  
     public void rateCourse(UUID courseId, UUID currentUserId, int rating) {
         if (rating < 1 || rating > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5");

@@ -20,3 +20,19 @@ spring:
 logging:
   level:
     com.levelup.media_service: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
+
+cloud:
+  aws:
+    credentials:
+      access-key: test
+      secret-key: test
+    region:
+      static: us-east-1
+    s3:
+      bucket-name: test-bucket
+
+eureka:
+  client:
+    enabled: false

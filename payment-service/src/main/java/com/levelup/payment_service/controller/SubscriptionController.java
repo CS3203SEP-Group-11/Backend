@@ -134,4 +134,15 @@ public class SubscriptionController {
                             .build());
         }
     }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<java.util.Map<String, Object>> getSubscriptionAnalytics(
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        
+        if (!"ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(subscriptionService.getSubscriptionAnalytics());
+    }
 }
